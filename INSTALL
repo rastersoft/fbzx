@@ -1,0 +1,32 @@
+HOW TO INSTALL FBZX
+
+If you want to install FBZX, you must compile your own version,
+just typing as root:
+
+	make clean
+	make
+	make install
+
+Be sure you have the SDL, libasound2 and libpulse libraries (both runtime and
+headers).
+
+
+HOW TO RUN FBZX
+
+Just type
+
+	fbzx
+
+If you don't want sound (or you haven't a sound card), you can run it with
+
+	fbzx -nosound
+
+To know all the other FBZX options, just type
+
+	fbzx -h
+
+or
+
+	fbzx --help
+
+and enjoy!

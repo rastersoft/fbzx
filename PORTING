@@ -1,0 +1,22 @@
+HOW TO PORT FBZX INTO OTHER O.S. AND ARQUITECTURES
+
+FBZX uses the SDL library, so you must have it available in the
+arquitecture/operating system where you want to port it. It's the only 'must
+have'. Of course, is possible that you have to rewrite the Makefile, but that's
+relatively easy (isn't it?).
+
+The sound system is designed to be easily portable; currently it supports both
+the OSS and ALSA arquitecture. In the file 'sound.c' are defined the three
+functions needed to support it:
+
+    sound_init: initializates the sound system with the desired sound format,
+    speed, and so on, and fills the 'ordenador' struct with the parameters
+    needed to sincronize the emulation.
+	
+    sound_play: plays the current sound buffer, and initializates
+    'ordenador.current_buffer' to the new buffer to be filled. It must not
+    return until the buffer has been played (this allows the sincronization).
+
+    sound_close: closes the sound device and frees all memory used.
+
+That's all. Start to compile :)

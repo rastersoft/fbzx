@@ -1,0 +1,43 @@
+Although Amstrad is the current propietary of the copyright of the original
+ZX Spectrum ROMs, they have kindly given their permission for its
+redistribution with Spectrum emulators.
+
+These are the conditions put by Amstrad to use and distribute the ROM files,
+extracted from
+http://groups.google.com/group/comp.sys.amstrad.8bit/msg/c092cc4d4943131e
+
+--------------------------------------------------------------------------
+
+1) What exactly do you have to do to use Sinclair ROMs in an emulator, such
+as acknowledgements etc?"
+
+Amstrad are happy for emulator writers to include images of our copyrighted
+code as long as the (c)opyright messages are not altered and we appreciate
+it if the program/manual includes a note to the effect that "Amstrad have
+kindly given their permission for the redistribution of their copyrighted
+material but retain that copyright".
+
+"2) Can you charge a shareware fee for an emulator that uses the Sinclair
+ROMs?"
+
+No. No one should be charging for the ROM code because (as a result of the
+point above) there are loads of freely available images anyway. If I ever
+thought someone was charging for the ROM images then I'd make them available
+as a free download on the www.amstrad.com web site. Naturally I imagine that
+some emulator writers want to charge a shareware fee for the code they have
+written and we have absolutely no problem with that as long as they aren't,
+in any sense, charging for the parts of the code that are (c)Amstrad and (c)
+Sinclair.
+
+"3) Can you modify the ROMs, for instance to enable tape loading and saving,
+and if so what are the requirements?"
+
+The ROM code is simply a tool to let the emulator writers make a program
+that works as close to the original machine as possible. If they choose to
+modify the behaviour in any way then that's entirely up to them (I guess you
+could say that that is exactly what an emulator IS doing (ie modifying the
+screen output and keyboard input to go via the PC bits)!!)
+
+"4) Can you distribute modified ROMs?"
+
+If you like (with that (c) proviso).

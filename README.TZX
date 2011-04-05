@@ -1,0 +1,26 @@
+ABOUT THE TZX SUPPORT
+
+Currently, the support for TZX files is incomplete, in the sense it only
+supports the most common tape blocks. The current implementation should
+allow to load the 99% of the games, including a lot with specific load
+routines (like Turbo).
+
+I didn't add that blocks because I was able to find only a limited number of
+TZX with estrange load protections, so I preferred to add only blocks that I can test
+myself.
+
+If you try to load a TZX file that contains an unsuported block, FBZX will show
+you a message "Unsuported TZX. Contact FBZX autor". In that case, please,
+send me by e-mail that TZX file in order to implement that new block kind in
+the TZX loader.
+
+
+PROBLEMS WITH SPEEDLOCK-2?
+
+The old Z80 emulator had problems to load SpeedLock programs (turbo protection).
+I haven't been unable to test the new emulator in this case, so I can't
+say if it finally works or not. All comments are welcome.
+
+Other kind of TURBO protections (like Alkatraz, the one used in Fairlight)
+have been tested and work fine.
+

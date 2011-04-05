@@ -1,0 +1,14 @@
+TO-DO list (in any particular order)
+
+-Add support for more snapshot types, like SLP, SP, ZX, ZXS, ZX82...
+-Finish support for TZX tape format (see README.TZX for details).
+-Discover why Speedlock-protected games doesn't work (see README.TZX for
+	details)
+-Add support for saving compressed Z80 snapshots (at this moment, are stored
+	always uncompressed).
+-Add +3 disk drive emulation
+-Add Disciple/PlusD emulation
+-Add emulation for Russian spectrums (scorpion & pentagon).
+-Add a TAP manager, to allow to go to a specific block into the TAP file.
+-Add support for mouse, emulating the AMX Mouse.
+

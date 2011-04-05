@@ -1,0 +1,133 @@
+FBZX CAN'T INITIALIZATE THE SDL LIBRARY.
+
+Is possible that you don't have the '/dev/mouse' symlink, or maybe, that
+symlink (or the device pointed by) has no access permissions for the user you
+are using. Just try (as root):
+
+
+FBZX SAYS THAT IS RUNNING WITHOUT SOUND, AND TO READ THE FAQ
+
+Currently FBZX uses ALSA, OSS or PulseAudio to generate the sound, and that
+means that there can be only one sound source at each time in the system. If
+you have a MP3 playing, without the PULSEAUDIO daemon launched, FBZX won't be
+able to get access to the sound.
+
+
+WHAT SPEED DO I NEED TO USE FBZX?
+
+I'm not sure what's exactly the minimum speed, but I used it in an AMD K6-II
+runing at 450 MHz and it worked at fully speed. Now, with the new OSS sound
+*seems* to work even better, so maybe you could use it with an smaller
+computer.
+
+
+FBZX CAN BE USED FROM X-WINDOWS?
+
+Since FBZX uses the SDL library, it can be used both from console and from X,
+but, of course, in X it will need more system resources due to the fact that it
+needs to emulate an 8-bit screen. Of course this was problematic with 2003
+computers, but current systems can run FBZX under X without problems.
+
+If you use it from console, it is strongly reccomended to use a native
+FrameBuffer driver, in order to allow FBZX to change the current video mode
+(see next question).
+
+You can use the -fb option to make FBZX work in fullscreen mode.
+
+
+I'M USING VESAFB IN MY (16-24 bits) CONSOLE, BUT FBZX WORKS SLOW...
+
+That's because SDL is emulating an 8-bit screen for FBZX. The solution is to
+change it for a FrameBuffer specific for your graphic card. If there's no
+native driver (or it doesn't work reliably), you can use the SuperVESAfb
+driver. This is a VESA driver that allows to change the resolution on-the-fly.
+You can find it in:
+
+	http://www.rastersoft.com/supervesafb.html
+
+This driver is only for 2.4 kernels. 2.6 versions have a new VESAFB driver
+capable of switching the resolution.
+
+
+MY COMPUTER DOESN'T HAVE FUNCTION KEYS (F1, F2...). HOW CAN I GET ACCESS TO
+THE MENUS?
+
+Just press the TAB key and you will see the message "Function key mode on".
+Now you can use the number keys (0-9) to emulate the functions keys (F10 is '0',
+F1 is '1', and so on, F11 is 'o' and F12 is 'p').
+
+
+THERE'S A DELAY IN THE SOUND. HOW CAN I ELIMINATE IT?
+
+Unfortunately, you can't. I have to use at least two buffers of 4096 bytes each
+one in order to have an stable sound, and this means, at 48000 samples/sec,
+0'17 seconds, and that's a perceptible delay for the human ear (with lower
+sample rates it would became even worse; to avoid it, at sample rates lower
+than 24000 samples/sec I reduce the buffer to 2048 bytes).
+
+
+THERE ARE SOME GLITCHES IN THE SOUND
+
+Maybe your CPU is too slow to run FBZX at full speed. But you can see with top
+the load of each program, and give less priority to the ones that uses more
+CPU. I do this with aMule, and the glitches dissapears.
+
+
+I TRIED TO LOAD A .TZX FILE, BUT THE EMULATOR SHOWS A MESSAGE THAT
+TELLS: "Unsuported TZX. Contact FBZX autor". WHAT'S HAPPEN?
+
+Just read the file README.TZX.
+
+
+I CHOOSE A .TZX FILE AND TYPE LOAD "", BUT NOTHING HAPPENS.
+
+Fast load is available only with TAP files. If you want to load a TZX file,
+you must press F6 in order to play the tape.
+
+
+I TRIED TO LOAD A .TAP FILE IN FAST MODE, BUT IT FAILS AND THE EMULATOR
+SHOWS THE MESSAGE "Block with right flag not found". WHAT'S HAPPENNING?
+
+Each Spectrum's tape block has a flag byte that identify each one. Flag 0 is
+for headers, and flag FF is for data blocks. A programmer can define its own
+flag bytes if he wants.
+
+If the program loader wants to load a block with a flag XX, but there isn't a
+block in the TAP file with that flag, the fast loader will stop and show that
+message (and will return a "Tape error" to the program loader). If I don't do
+this, the fast loader should be reading the tape again and again, trying to
+find a block with that flag, and the emulator should hang up (not really hang,
+but it wouldn't be able to respond to keystrokes, even to the ESC key).
+
+
+I CREATED A NEW MDR FILE, BUT WHEN I TRY TO WRITE TO IT, OR DO A CAT 1,
+IT DOESN'T WORK, AND I HAVE TO PRESS BREAK (SHIFT + SPACE) TO STOP THE
+COMMAND.
+
+When you create a MDR file, it is created "in blank", so you must format the
+medium before using it. To do it, just use:
+
+    FORMAT "m";1;"name"
+	
+changing 'name' with the name you want to give to the cartridge.
+
+You can format a cartridge too if you want to erase a MDR file.
+
+
+THE SYSTEM RETURNS THE MESSAGE DRIVE 'WRITE' PROTECTED. WHAT CAN I DO TO
+UNPROTECT IT?
+
+Just press F7 and change the 'Write protection' status with F3. Remember that
+the status is stored with the cartridge, so if you exit the emulator and load
+a MDR file again, it will have the same status you left it.
+
+
+WHERE CAN I FIND INFO ABOUT HOW TO USE THE INTERFACE I AND THE MICRODRIVES?
+
+In:
+
+    http://www.madhippy.com/8-bit/sinclair/zxif1micro.html
+	
+you can find the HTML version of the original manual of the Interface I and
+Microdrive. There's ALL what you shoul need to know to work with it.
+

@@ -1,0 +1,16 @@
+WHAT EMULATES RIGHT IN FBZX?
+
+-Screen timmings in 48K and 128K mode.
+-Screen generation, so border efects and even attribute changing efects
+    should work fine.
+-48K sound (included the low-pass filter efect of Tape out).
+-128K sound (fully emulation of the AY-3-8912).
+-Trash in the bus when reading from a non-existing port. This is right generated
+    (from the data being displayed in that moment) so games works right (like
+    SHORTCIRCUIT, that runs without flickering).
+-Spectrum 48K Issue 2 and 3 efects in the EAR bit are correctly emulated.
+-Priority of joystick over keyboard.
+-Snow efect when I register points between 64 and 127.
+-Emulation of Interface I and Microdrive (only one drive).
+-Memory contention
+-Emulates Spanish 128K from Investronica/Sinclair
