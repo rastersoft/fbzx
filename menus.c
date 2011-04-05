@@ -289,10 +289,10 @@ void help_menu() {
 	print_string(fbuffer,"change settings",382,200,15,0,ancho);
 
 	print_string(fbuffer,"F5:",14,240,12,0,ancho);
-	print_string(fbuffer,"stop TAPE",62,240,15,0,ancho);
+	print_string(fbuffer,"more settings",62,240,15,0,ancho);
 
 	print_string(fbuffer,"F6:",336,240,12,0,ancho);
-	print_string(fbuffer,"play TAPE",382,240,15,0,ancho);
+	print_string(fbuffer,"play/stop TAPE",382,240,15,0,ancho);
 
 	print_string(fbuffer,"F7:",14,280,12,0,ancho);
 	print_string(fbuffer,"manage MICRODRIVE",62,280,15,0,ancho);
@@ -348,7 +348,6 @@ void snapshots_menu() {
 	print_string(fbuffer,"1:",14,100,12,0,ancho);
 	print_string(fbuffer,"load a Z80/SNA snapshot",62,100,15,0,ancho);
 
-
 	if(ordenador.mode128k!=3) { // not in +3 mode
 		print_string(fbuffer,"2:",14,160,12,0,ancho);
 		print_string(fbuffer,"make a Z80 snapshot",62,160,15,0,ancho);
@@ -356,8 +355,11 @@ void snapshots_menu() {
 		print_string(fbuffer,"Can't make snapshots in +3 mode",14,160,15,0,ancho);
 	}
 
-	print_string(fbuffer,"ESC:",170,400,12,0,ancho);
-	print_string(fbuffer,"return emulator",234,400,15,0,ancho);
+	print_string(fbuffer,"3: \001\017load a SCR snapshot",14,220,12,0,ancho);
+
+	print_string(fbuffer,"4: \001\017save a SCR snapshot",14,280,12,0,ancho);
+
+	print_string(fbuffer,"ESC: \001\017return to emulator",-1,400,12,0,ancho);
 
 	print_copy(fbuffer,ancho);
 
@@ -375,6 +377,14 @@ void snapshots_menu() {
 			fin=0;
 			if(ordenador.mode128k!=3) // not in +3 mode
 				save_z80file();
+		break;
+		case SDLK_3:
+			fin=0;
+			load_scrfile();
+		break;
+		case SDLK_4:
+			fin=0;
+			create_scrfile();
 		break;
 		default:
 		break;
@@ -495,7 +505,7 @@ void select_tapfile() {
 
 	print_string(videomem,"Choose the TAPE file to load",-1,32,13,0,ancho);
 
-	filename=select_file(path_taps,1);
+	filename=select_file(path_taps,FILETYPE_TAP_TZX);
 
 	if(filename==NULL) { // Aborted
 		clean_screen();
@@ -544,8 +554,8 @@ void select_tapfile() {
 void create_tapfile() {
 
 	unsigned char *videomem;
-	int ancho,retorno,longitud;
-	unsigned char nombre[35],nombre2[37];
+	int ancho,retorno;
+	unsigned char nombre2[1024];
 
 	videomem=screen->pixels;
 	ancho=screen->w;
@@ -558,302 +568,14 @@ void create_tapfile() {
 	print_string(videomem,"TAP file will be saved in:",-1,132,12,0,ancho);
 	print_string(videomem,path_taps,0,152,12,0,ancho);
 
-	nombre[0]=127;
-	nombre[1]=0;
-	longitud=0;
-	retorno=0;
 
-	do {
-		sprintf(nombre2," %s ",nombre);
-		print_string(videomem,nombre2,-1,84,15,0,ancho);
-		switch(wait_key()) {
-		case SDLK_BACKSPACE:
-			if(longitud>0) {
-				nombre[longitud]=0;
-				longitud--;
-				nombre[longitud]=127;
-			}
-		break;
-		case SDLK_ESCAPE:
-			retorno=2;
-		break;
-		case SDLK_RETURN:
-			retorno=1;
-		break;
-		case SDLK_a:
-			if(longitud<30) {
-				nombre[longitud++]='a';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_b:
-			if(longitud<30) {
-				nombre[longitud++]='b';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_c:
-			if(longitud<30) {
-				nombre[longitud++]='c';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_d:
-			if(longitud<30) {
-				nombre[longitud++]='d';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_e:
-			if(longitud<30) {
-				nombre[longitud++]='e';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_f:
-			if(longitud<30) {
-				nombre[longitud++]='f';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_g:
-			if(longitud<30) {
-				nombre[longitud++]='g';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_h:
-			if(longitud<30) {
-				nombre[longitud++]='h';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_i:
-			if(longitud<30) {
-				nombre[longitud++]='i';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_j:
-			if(longitud<30) {
-				nombre[longitud++]='j';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_k:
-			if(longitud<30) {
-				nombre[longitud++]='k';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_l:
-			if(longitud<30) {
-				nombre[longitud++]='l';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_m:
-			if(longitud<30) {
-				nombre[longitud++]='m';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_n:
-			if(longitud<30) {
-				nombre[longitud++]='n';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_o:
-			if(longitud<30) {
-				nombre[longitud++]='o';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_p:
-			if(longitud<30) {
-				nombre[longitud++]='p';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_q:
-			if(longitud<30) {
-				nombre[longitud++]='q';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_r:
-			if(longitud<30) {
-				nombre[longitud++]='r';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_s:
-			if(longitud<30) {
-				nombre[longitud++]='s';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_t:
-			if(longitud<30) {
-				nombre[longitud++]='t';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_u:
-			if(longitud<30) {
-				nombre[longitud++]='u';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_v:
-			if(longitud<30) {
-				nombre[longitud++]='v';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_w:
-			if(longitud<30) {
-				nombre[longitud++]='w';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_x:
-			if(longitud<30) {
-				nombre[longitud++]='x';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_y:
-			if(longitud<30) {
-				nombre[longitud++]='y';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_z:
-			if(longitud<30) {
-				nombre[longitud++]='z';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_0:
-			if(longitud<30) {
-				nombre[longitud++]='0';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_1:
-			if(longitud<30) {
-				nombre[longitud++]='1';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_2:
-			if(longitud<30) {
-				nombre[longitud++]='2';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_3:
-			if(longitud<30) {
-				nombre[longitud++]='3';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_4:
-			if(longitud<30) {
-				nombre[longitud++]='4';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_5:
-			if(longitud<30) {
-				nombre[longitud++]='5';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_6:
-			if(longitud<30) {
-				nombre[longitud++]='6';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_7:
-			if(longitud<30) {
-				nombre[longitud++]='7';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_8:
-			if(longitud<30) {
-				nombre[longitud++]='8';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_9:
-			if(longitud<30) {
-				nombre[longitud++]='9';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_MINUS:
-			if(longitud<30) {
-				nombre[longitud++]='-';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		}
-	} while(!retorno);
+	retorno=ask_filename(nombre2,84,"tap");
 
 	clean_screen();
-
-	nombre[longitud]=0; // erase cursor
 
 	if(retorno==2) // abort
 		return;
 
-	longitud=strlen(path_taps);
-	if((path_snaps[longitud-1]!='/')&&(longitud>1))
-		sprintf(nombre2,"%s/%s.tap",path_taps,nombre); // name
-	else
-		sprintf(nombre2,"%s%s.tap",path_taps,nombre);
 	if(ordenador.tap_file!=NULL)
 		fclose(ordenador.tap_file);
 	
@@ -975,7 +697,7 @@ void select_mdrfile() {
 
 	print_string(videomem,"Choose the MICRODRIVE file to load",-1,32,13,0,ancho);
 
-	filename=select_file(path_mdrs,2); // MDR files
+	filename=select_file(path_mdrs,FILETYPE_MDR); // MDR files
 
 	if(filename==NULL) { // Aborted
 		clean_screen();
@@ -1016,8 +738,8 @@ void select_mdrfile() {
 void create_mdrfile() {
 
 	unsigned char *videomem;
-	int ancho,retorno,longitud,bucle,retval;
-	unsigned char nombre[35],nombre2[37];
+	int ancho,retorno,bucle,retval;
+	unsigned char nombre2[1024];
 
 	videomem=screen->pixels;
 	ancho=screen->w;
@@ -1030,303 +752,13 @@ void create_mdrfile() {
 	print_string(videomem,"MDR file will be saved in:",-1,132,12,0,ancho);
 	print_string(videomem,path_mdrs,0,152,12,0,ancho);
 
-	nombre[0]=127;
-	nombre[1]=0;
-	longitud=0;
-	retorno=0;
-
-	do {
-		sprintf(nombre2," %s ",nombre);
-		print_string(videomem,nombre2,-1,84,15,0,ancho);
-		switch(wait_key()) {
-		case SDLK_BACKSPACE:
-			if(longitud>0) {
-				nombre[longitud]=0;
-				longitud--;
-				nombre[longitud]=127;
-			}
-		break;
-		case SDLK_ESCAPE:
-			retorno=2;
-		break;
-		case SDLK_RETURN:
-			retorno=1;
-		break;
-		case SDLK_a:
-			if(longitud<30) {
-				nombre[longitud++]='a';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_b:
-			if(longitud<30) {
-				nombre[longitud++]='b';
-				nombre[longitud]=127;
-				nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_c:
-			if(longitud<30) {
-	nombre[longitud++]='c';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_d:
-			if(longitud<30) {
-	nombre[longitud++]='d';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_e:
-			if(longitud<30) {
-	nombre[longitud++]='e';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_f:
-			if(longitud<30) {
-	nombre[longitud++]='f';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_g:
-			if(longitud<30) {
-	nombre[longitud++]='g';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_h:
-			if(longitud<30) {
-	nombre[longitud++]='h';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_i:
-			if(longitud<30) {
-	nombre[longitud++]='i';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_j:
-			if(longitud<30) {
-	nombre[longitud++]='j';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_k:
-			if(longitud<30) {
-	nombre[longitud++]='k';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_l:
-			if(longitud<30) {
-	nombre[longitud++]='l';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_m:
-			if(longitud<30) {
-	nombre[longitud++]='m';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_n:
-			if(longitud<30) {
-	nombre[longitud++]='n';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_o:
-			if(longitud<30) {
-	nombre[longitud++]='o';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_p:
-			if(longitud<30) {
-	nombre[longitud++]='p';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_q:
-			if(longitud<30) {
-	nombre[longitud++]='q';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_r:
-			if(longitud<30) {
-	nombre[longitud++]='r';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_s:
-			if(longitud<30) {
-	nombre[longitud++]='s';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_t:
-			if(longitud<30) {
-	nombre[longitud++]='t';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_u:
-			if(longitud<30) {
-	nombre[longitud++]='u';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_v:
-			if(longitud<30) {
-	nombre[longitud++]='v';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_w:
-			if(longitud<30) {
-	nombre[longitud++]='w';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_x:
-			if(longitud<30) {
-	nombre[longitud++]='x';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_y:
-			if(longitud<30) {
-	nombre[longitud++]='y';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_z:
-			if(longitud<30) {
-	nombre[longitud++]='z';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_0:
-			if(longitud<30) {
-	nombre[longitud++]='0';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_1:
-			if(longitud<30) {
-	nombre[longitud++]='1';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_2:
-			if(longitud<30) {
-	nombre[longitud++]='2';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_3:
-			if(longitud<30) {
-	nombre[longitud++]='3';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_4:
-			if(longitud<30) {
-	nombre[longitud++]='4';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_5:
-			if(longitud<30) {
-	nombre[longitud++]='5';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_6:
-			if(longitud<30) {
-	nombre[longitud++]='6';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_7:
-			if(longitud<30) {
-	nombre[longitud++]='7';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_8:
-			if(longitud<30) {
-				nombre[longitud++]='8';
-				nombre[longitud]=127;
-					nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_9:
-			if(longitud<30) {
-				nombre[longitud++]='9';
-				nombre[longitud]=127;
-					nombre[longitud+1]=0;
-			}
-		break;
-		case SDLK_MINUS:
-			if(longitud<30) {
-				nombre[longitud++]='-';
-					nombre[longitud]=127;
-					nombre[longitud+1]=0;
-			}
-		break;
-		}
-	} while(!retorno);
+	retorno=ask_filename(nombre2,84,"mdr");
 
 	clean_screen();
-
-	nombre[longitud]=0; // erase cursor
 
 	if(retorno==2) // abort
 		return;
 
-	longitud=strlen(path_mdrs);
-	if((path_mdrs[longitud-1]!='/')&&(longitud>1))
-		sprintf(nombre2,"%s/%s.mdr",path_mdrs,nombre); // name
-	else
-		sprintf(nombre2,"%s%s.mdr",path_mdrs,nombre);
-		
 	ordenador.mdr_file=fopen(nombre2,"r"); // test if it exists
 	if(ordenador.mdr_file==NULL)
 		retorno=0;
@@ -1367,24 +799,76 @@ void create_mdrfile() {
 }
 
 
-// shows a menu to allow user to save a snapshot file
-
-void save_z80file() {
+void create_scrfile() {
 
 	unsigned char *videomem;
-	int ancho,retorno,longitud;
-	unsigned char nombre[35],nombre2[37];
+	int ancho,retorno,retval;
+	unsigned char nombre2[1024];
+	FILE *fichero;
 
 	videomem=screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
 
-	print_string(videomem,"Choose a name for the snapshot",-1,32,14,0,ancho);
+	print_string(videomem,"Choose a name for the SCR file",-1,32,14,0,ancho);
 	print_string(videomem,"(up to 30 characters)",-1,52,14,0,ancho);
 
-	print_string(videomem,"Snapshot will be saved in:",-1,132,12,0,ancho);
-	print_string(videomem,path_snaps,0,152,12,0,ancho);
+	print_string(videomem,"SCR file will be saved in:",-1,132,12,0,ancho);
+	print_string(videomem,path_mdrs,0,152,12,0,ancho);
+
+	retorno=ask_filename(nombre2,84,"scr");
+
+	clean_screen();
+
+	if(retorno==2) // abort
+		return;
+
+	fichero=fopen(nombre2,"r"); // test if it exists
+	if(fichero==NULL)
+		retorno=0;
+	else {
+		fclose(fichero);
+		retorno=-1;
+	}
+
+	if(!retorno) {
+		fichero=fopen(nombre2,"wb"); // create for write
+		if(fichero==NULL)
+			retorno=-2;
+		else {
+			retval=fwrite(ordenador.block1+0x04000,6912,1,fichero); // save screen
+			fclose(fichero);
+			retorno=0;
+		}
+	}
+
+	switch(retorno) {
+	case -1:
+		print_string(videomem,"File already exists",-1,80,10,0,ancho);
+		wait_key();
+	break;
+	case -2:
+		print_string(videomem,"Can't create file",-1,80,10,0,ancho);
+		wait_key();
+	break;
+	default:
+	break;
+	}
+	clean_screen();
+}
+
+
+int ask_filename(char *nombre_final,int y_coord,char *extension) {
+
+	int longitud,retorno;
+	unsigned char nombre[37],nombre2[38];
+
+	unsigned char *videomem;
+	int ancho;
+
+	videomem=screen->pixels;
+	ancho=screen->w;
 
 	nombre[0]=127;
 	nombre[1]=0;
@@ -1392,14 +876,14 @@ void save_z80file() {
 	retorno=0;
 
 	do {
-		sprintf(nombre2," %s ",nombre);
-		print_string(videomem,nombre2,-1,84,15,0,ancho);
-		switch(wait_key()) {
+		sprintf (nombre2, " %s.%s ", nombre,extension);
+		print_string (videomem, nombre2, -1, y_coord, 15, 0, ancho);
+		switch (wait_key ()) {
 		case SDLK_BACKSPACE:
-			if(longitud>0) {
-	nombre[longitud]=0;
-	longitud--;
-	nombre[longitud]=127;
+			if (longitud > 0) {
+				nombre[longitud]=0;
+				longitud--;
+				nombre[longitud]=127;
 			}
 		break;
 		case SDLK_ESCAPE:
@@ -1409,279 +893,305 @@ void save_z80file() {
 			retorno=1;
 		break;
 		case SDLK_a:
-			if(longitud<30) {
-	nombre[longitud++]='a';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='a';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_b:
-			if(longitud<30) {
-	nombre[longitud++]='b';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='b';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_c:
-			if(longitud<30) {
-	nombre[longitud++]='c';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='c';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_d:
-			if(longitud<30) {
-	nombre[longitud++]='d';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='d';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_e:
-			if(longitud<30) {
-	nombre[longitud++]='e';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='e';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_f:
-			if(longitud<30) {
-	nombre[longitud++]='f';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='f';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_g:
-			if(longitud<30) {
-	nombre[longitud++]='g';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='g';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_h:
-			if(longitud<30) {
-	nombre[longitud++]='h';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='h';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_i:
-			if(longitud<30) {
-	nombre[longitud++]='i';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='i';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_j:
-			if(longitud<30) {
-	nombre[longitud++]='j';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='j';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_k:
-			if(longitud<30) {
-	nombre[longitud++]='k';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='k';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_l:
-			if(longitud<30) {
-	nombre[longitud++]='l';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='l';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_m:
-			if(longitud<30) {
-	nombre[longitud++]='m';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='m';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_n:
-			if(longitud<30) {
-	nombre[longitud++]='n';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='n';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_o:
-			if(longitud<30) {
-	nombre[longitud++]='o';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='o';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_p:
-			if(longitud<30) {
-	nombre[longitud++]='p';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='p';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_q:
-			if(longitud<30) {
-	nombre[longitud++]='q';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='q';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_r:
-			if(longitud<30) {
-	nombre[longitud++]='r';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='r';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_s:
-			if(longitud<30) {
-	nombre[longitud++]='s';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='s';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_t:
-			if(longitud<30) {
-	nombre[longitud++]='t';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='t';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_u:
-			if(longitud<30) {
-	nombre[longitud++]='u';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='u';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_v:
-			if(longitud<30) {
-	nombre[longitud++]='v';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='v';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_w:
-			if(longitud<30) {
-	nombre[longitud++]='w';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='w';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_x:
-			if(longitud<30) {
-	nombre[longitud++]='x';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='x';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_y:
-			if(longitud<30) {
-	nombre[longitud++]='y';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='y';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_z:
-			if(longitud<30) {
-	nombre[longitud++]='z';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='z';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_0:
-			if(longitud<30) {
-	nombre[longitud++]='0';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='0';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_1:
-			if(longitud<30) {
-	nombre[longitud++]='1';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='1';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_2:
-			if(longitud<30) {
-	nombre[longitud++]='2';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='2';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_3:
-			if(longitud<30) {
-	nombre[longitud++]='3';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='3';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_4:
-			if(longitud<30) {
-	nombre[longitud++]='4';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='4';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_5:
-			if(longitud<30) {
-	nombre[longitud++]='5';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='5';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_6:
-			if(longitud<30) {
-	nombre[longitud++]='6';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='6';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_7:
-			if(longitud<30) {
-	nombre[longitud++]='7';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='7';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_8:
-			if(longitud<30) {
-	nombre[longitud++]='8';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='8';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_9:
-			if(longitud<30) {
-	nombre[longitud++]='9';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='9';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_MINUS:
-			if(longitud<30) {
-	nombre[longitud++]='-';
-	nombre[longitud]=127;
-	nombre[longitud+1]=0;
+			if (longitud < 30) {
+				nombre[longitud++]='-';
+				nombre[longitud]=127;
+				nombre[longitud + 1]=0;
 			}
 		break;
 		}
-	} while(!retorno);
+	} while (!retorno);
+
+	nombre[longitud]=0; // erase cursor
+
+	longitud=strlen(path_snaps);
+	if((path_snaps[longitud-1]!='/')&&(longitud>1))
+		sprintf(nombre_final,"%s/%s.%s",path_snaps,nombre,extension); // name
+	else
+		sprintf(nombre_final,"%s%s.%s",path_snaps,nombre,extension);
+
+	return (retorno);
+}
+
+// shows a menu to allow user to save a snapshot file
+
+void save_z80file() {
+
+	unsigned char *videomem;
+	int ancho,retorno;
+	unsigned char nombre2[1024];
+
+	videomem=screen->pixels;
+	ancho=screen->w;
 
 	clean_screen();
 
-	nombre[longitud]=0; // erase cursor
+	print_string(videomem,"Choose a name for the Z80 snapshot",-1,32,14,0,ancho);
+	print_string(videomem,"(up to 30 characters)",-1,52,14,0,ancho);
+
+	print_string(videomem,"Snapshot will be saved in:",-1,132,12,0,ancho);
+	print_string(videomem,path_snaps,0,152,12,0,ancho);
+
+
+	retorno=ask_filename(nombre2,84,"z80");
+
+	clean_screen();
 
 	if(retorno==2) // abort
 		return;
 
-	longitud=strlen(path_snaps);
-	if((path_snaps[longitud-1]!='/')&&(longitud>1))
-		sprintf(nombre2,"%s/%s.z80",path_snaps,nombre); // name
-	else
-		sprintf(nombre2,"%s%s.z80",path_snaps,nombre);
 	retorno=save_z80(nombre2);
 	switch(retorno) {
 	case 0:
@@ -1711,9 +1221,9 @@ void load_z80file() {
 
 	clean_screen();
 
-	print_string(videomem,"Choose the snapshot file to load",-1,32,13,0,ancho);
+	print_string(videomem,"Choose the Z80 snapshot file to load",-1,32,13,0,ancho);
 
-	filename=select_file(path_snaps,0);
+	filename=select_file(path_snaps,FILETYPE_Z80);
 
 	if(filename==NULL) { // Aborted
 		clean_screen();
@@ -1743,13 +1253,66 @@ void load_z80file() {
 }
 
 
+void load_scrfile() {
+
+
+	unsigned char *videomem,*filename,value;
+	int ancho,retorno,loop;
+	FILE *fichero;
+
+	videomem=screen->pixels;
+	ancho=screen->w;
+
+	clean_screen();
+
+	print_string(videomem,"Choose the SCR snapshot file to load",-1,32,13,0,ancho);
+
+	filename=select_file(path_snaps,FILETYPE_SCR);
+
+	if(filename==NULL) { // Aborted
+		clean_screen();
+		return;
+	}
+
+	ordenador.osd_text[0]=0;
+	fichero=fopen(filename,"rb");
+	retorno=0;
+	if (!fichero) {
+		retorno=-1;
+	} else {
+		for(loop=0;loop<6912;loop++) {
+			if (1==fread(&value,1,1,fichero)) {
+				*(ordenador.block1 + 0x04000 + loop) = value;
+			} else {
+				retorno=-1;
+				break;
+			}
+		}
+		fclose(fichero);
+	}
+
+	free(filename);
+	clean_screen();
+
+	switch(retorno) {
+	case 0: // all right
+		break;
+	default:
+		print_string(videomem,"Error: Can't load that file",-1,232,10,0,ancho);
+		print_string(videomem,"Press any key",-1,248,10,0,ancho);
+		wait_key();
+	break;
+	}
+	clean_screen();
+}
+
 
 
 /* fills a FICHERO chained list with all the files and directories contained in PATH.
 	 If KIND is 0, it returns only Snapshots, if is 1, it returns only TAPE files, and
 	if is 2, it returns only MDR files */
 
-struct fichero *read_directory(char *cpath,char kind) {
+struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 
 	struct fichero *listhead,*listend;
 	struct dirent *entry;
@@ -1757,9 +1320,6 @@ struct fichero *read_directory(char *cpath,char kind) {
 	struct stat estado;
 	unsigned char path[2049],fichero[2049],extension[5],found;
 	int bucle,length;
-
-	if((kind!=0)&&(kind!=1)&&(kind!=2))
-		printf("Error!!!!\n");
 	
 	strcpy(path,cpath);
 	if('/'!=path[strlen(path)-1])
@@ -1788,16 +1348,20 @@ struct fichero *read_directory(char *cpath,char kind) {
 				for(bucle=0;bucle<4;bucle++)
 					extension[bucle]=entry->d_name[length-4+bucle]; // copy the 4 last chars of the file (the extension)
 				switch(kind) {
-				case 0:
+				case FILETYPE_Z80:
 					if((!strcasecmp(extension,".z80"))||(!strcasecmp(extension,".sna")))
 						found=1; // is a .z80 or SNA file
 				break;
-				case 1:
+				case FILETYPE_TAP_TZX:
 					if((!strcasecmp(extension,".tap"))||(!strcasecmp(extension,".tzx")))
 						found=1; // is a .tap file
 				break;
-				case 2:
+				case FILETYPE_MDR:
 					if(!strcasecmp(extension,".mdr"))
+						found=1; // is a .mdr file
+				break;
+				case FILETYPE_SCR:
+					if(!strcasecmp(extension,".scr"))
 						found=1; // is a .mdr file
 				break;
 				default:
@@ -1841,7 +1405,7 @@ void delete_filelist(struct fichero *filelist) {
 /* allows user to choose a file from PATH. If KIND=0, only snapshots. If KIND=1, only
 	 TAPE files */
 
-char *select_file(char *path,char kind) {
+char *select_file(char *path,enum LOAD_FILE_TYPES kind) {
 
 	struct fichero *filelist,*fl2;
 	unsigned char fin,read,*salida;

@@ -826,17 +826,25 @@ inline void read_keyboard (SDL_Event *pevento2) {
 		case SDLK_F4:	// settings
 			settings_menu ();
 			break;
-		
-		case SDLK_F5:	// STOP tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 1;
+
+		case SDLK_F5:    // more settings
+
 			break;
-			
-		case SDLK_F6:	// PLAY tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 0;
+
+		case SDLK_F6:	// PLAY/STOP tape
+			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX)) {
+				ordenador.pause = 1-ordenador.pause;
+				if (ordenador.pause) {
+					sprintf(ordenador.osd_text," Tape paused ");
+				} else {
+					sprintf(ordenador.osd_text," Tape playing ");
+				}
+			} else {
+				sprintf(ordenador.osd_text," Fast loading enabled ");
+			}
+			ordenador.osd_time=50;
 			break;		
-		
+
 		case SDLK_F7:
 			microdrive_menu ();	// shows the microdrive menu
 			break;
