@@ -289,7 +289,7 @@ void help_menu() {
 	print_string(fbuffer,"change settings",382,200,15,0,ancho);
 
 	print_string(fbuffer,"F5:",14,240,12,0,ancho);
-	print_string(fbuffer,"more settings",62,240,15,0,ancho);
+	print_string(fbuffer,"insert pokes",62,240,15,0,ancho);
 
 	print_string(fbuffer,"F6:",336,240,12,0,ancho);
 	print_string(fbuffer,"play/stop TAPE",382,240,15,0,ancho);
