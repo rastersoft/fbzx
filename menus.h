@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2009 (C) Raster Software Vigo (Sergio Costas)
+ * Copyright 2003-2011 (C) Raster Software Vigo (Sergio Costas)
  * This file is part of FBZX
  *
  * FBZX is free software; you can redistribute it and/or modify

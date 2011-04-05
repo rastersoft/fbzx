@@ -38,7 +38,7 @@
 
 void print_copy(unsigned char *fbuffer,int ancho) {
 	
-	printstring(fbuffer,"(C) 2003-2011 Raster Software Vigo",-1,455,29,16,ancho);
+	print_string(fbuffer,"(C) 2003-2011 Raster Software Vigo",-1,455,13,0,ancho);
 	
 }
 
@@ -57,7 +57,7 @@ void settings_menu() {
 	do {
 		clean_screen();
 
-		printstring(fbuffer,"Current settings",-1,5,31,16,ancho);
+		print_string(fbuffer,"Current settings",-1,5,15,0,ancho);
 		switch(ordenador.mode128k) {
 		case 0:
 			if(ordenador.issue==2)
@@ -79,7 +79,7 @@ void settings_menu() {
 		break;
 		}
   
-		printstring(fbuffer,texto,-1,45,30,16,ancho);
+		print_string(fbuffer,texto,-1,45,14,0,ancho);
 
 		switch(ordenador.joystick) {
 		case 0:
@@ -95,79 +95,87 @@ void settings_menu() {
 			sprintf(texto,"Joystick emulation: Sinclair (2)");
 			break;
 		}
-		printstring(fbuffer,texto,-1,65,29,16,ancho);
+		print_string(fbuffer,texto,-1,65,13,0,ancho);
 
 		if(ordenador.ay_emul)
 			sprintf(texto,"AY-3-8912 Emulation: enabled");
 		else
 			sprintf(texto,"AY-3-8912 Emulation: disabled");
 
-		printstring(fbuffer,texto,-1,85,27,16,ancho);
+		print_string(fbuffer,texto,-1,85,11,0,ancho);
 
 		if(ordenador.mdr_active)
 			sprintf(texto,"Interface I Emulation: enabled");
 		else
 			sprintf(texto,"Interface I Emulation: disabled");
 
-		printstring(fbuffer,texto,-1,105,31,16,ancho);
+		print_string(fbuffer,texto,-1,105,15,0,ancho);
 	
 		if(ordenador.dblscan)
 			sprintf(texto,"Double scan: enabled");
 		else
 			sprintf(texto,"Double scan: disabled");
 
-		printstring(fbuffer,texto,-1,125,28,16,ancho);
+		print_string(fbuffer,texto,-1,125,12,0,ancho);
 
 		if(ordenador.turbo)
 			sprintf(texto,"TURBO mode: enabled");
 		else
 			sprintf(texto,"TURBO mode: disabled");
+		print_string(fbuffer,texto,-1,145,14,0,ancho);
 
-		printstring(fbuffer,texto,-1,145,30,16,ancho);
+		if (ordenador.bw) {
+			print_string(fbuffer,"TV Set: \001\011B\001\012&\001\014W",-1,165,15,0,ancho);
+		} else {
+			print_string(fbuffer,"TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,165,15,0,ancho);
+		}
 	
-		printstring(fbuffer,"1:",30,180,28,16,ancho);
-		printstring(fbuffer,"48K issue2",78,180,31,16,ancho);
+		print_string(fbuffer,"1:",30,190,12,0,ancho);
+		print_string(fbuffer,"48K issue2",78,190,15,0,ancho);
 
-		printstring(fbuffer,"2:",350,180,28,16,ancho);
-		printstring(fbuffer,"48K issue3",398,180,31,16,ancho);
+		print_string(fbuffer,"2:",350,190,12,0,ancho);
+		print_string(fbuffer,"48K issue3",398,190,15,0,ancho);
 
-		printstring(fbuffer,"3:",30,220,28,16,ancho);
-		printstring(fbuffer,"Sinclair 128K",78,220,31,16,ancho);
+		print_string(fbuffer,"3:",30,220,12,0,ancho);
+		print_string(fbuffer,"Sinclair 128K",78,220,15,0,ancho);
 
-		printstring(fbuffer,"4:",350,220,28,16,ancho);
-		printstring(fbuffer,"Amstrad +2",398,220,31,16,ancho);
+		print_string(fbuffer,"4:",350,220,12,0,ancho);
+		print_string(fbuffer,"Amstrad +2",398,220,15,0,ancho);
 
-		printstring(fbuffer,"5:",30,260,28,16,ancho);
-		printstring(fbuffer,"Amstrad +2A/+3",78,260,31,16,ancho);
+		print_string(fbuffer,"5:",30,250,12,0,ancho);
+		print_string(fbuffer,"Amstrad +2A/+3",78,250,15,0,ancho);
 
-		printstring(fbuffer,"6:",350,260,28,16,ancho);
-		printstring(fbuffer,"Spanish 128K",398,260,31,16,ancho);
+		print_string(fbuffer,"6:",350,250,12,0,ancho);
+		print_string(fbuffer,"Spanish 128K",398,250,15,0,ancho);
 
-		printstring(fbuffer,"7:",30,300,28,16,ancho);
-		printstring(fbuffer,"Cursor",78,300,31,16,ancho);
+		print_string(fbuffer,"7:",30,280,12,0,ancho);
+		print_string(fbuffer,"Cursor",78,280,15,0,ancho);
 
-		printstring(fbuffer,"8:",350,300,28,16,ancho);
-		printstring(fbuffer,"Kempston",398,300,31,16,ancho);
+		print_string(fbuffer,"8:",350,280,12,0,ancho);
+		print_string(fbuffer,"Kempston",398,280,15,0,ancho);
 
-		printstring(fbuffer,"9:",30,340,28,16,ancho);
-		printstring(fbuffer,"Sinclair (1)",78,340,31,16,ancho);
+		print_string(fbuffer,"9:",30,310,12,0,ancho);
+		print_string(fbuffer,"Sinclair (1)",78,310,15,0,ancho);
 
-		printstring(fbuffer,"0:",350,340,28,16,ancho);
-		printstring(fbuffer,"Sinclair (2)",398,340,31,16,ancho);
+		print_string(fbuffer,"0:",350,310,12,0,ancho);
+		print_string(fbuffer,"Sinclair (2)",398,310,15,0,ancho);
 
-		printstring(fbuffer,"I:",30,380,28,16,ancho);
-		printstring(fbuffer,"Interface I",78,380,31,16,ancho);
+		print_string(fbuffer,"I:",30,340,12,0,ancho);
+		print_string(fbuffer,"Interface I",78,340,15,0,ancho);
 
-		printstring(fbuffer,"D:",350,380,28,16,ancho);
-		printstring(fbuffer,"Double Scan",398,380,31,16,ancho);
+		print_string(fbuffer,"D:",350,340,12,0,ancho);
+		print_string(fbuffer,"Double Scan",398,340,15,0,ancho);
 
-		printstring(fbuffer,"A:",350,420,28,16,ancho);
-		printstring(fbuffer,"AY emulation",398,420,31,16,ancho);
-		printstring(fbuffer,"T:",30,420,28,16,ancho);
-		printstring(fbuffer,"TURBO mode",78,420,31,16,ancho);
+		print_string(fbuffer,"A:",350,370,12,0,ancho);
+		print_string(fbuffer,"AY emulation",398,370,15,0,ancho);
+		print_string(fbuffer,"T:",30,370,12,0,ancho);
+		print_string(fbuffer,"TURBO mode",78,370,15,0,ancho);
 
-		printstring(fbuffer,"ESC:",168,460,28,16,ancho);
-		printstring(fbuffer,"return emulator",232,460,31,16,ancho);
+		print_string(fbuffer,"V:",30,400,12,0,ancho);
+		print_string(fbuffer,"TV Set mode",78,400,15,0,ancho);
+
+		print_string(fbuffer,"ESC:",168,460,12,0,ancho);
+		print_string(fbuffer,"return emulator",232,460,15,0,ancho);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE:
@@ -235,6 +243,10 @@ void settings_menu() {
 		case SDLK_a:
 			ordenador.ay_emul=1-ordenador.ay_emul;
 		break;
+		case SDLK_v:
+			ordenador.bw=1-ordenador.bw;
+			computer_set_palete();
+		break;
 		case SDLK_t:
 			if(ordenador.turbo){
 				ordenador.tst_sample=3500000/ordenador.freq;
@@ -260,48 +272,48 @@ void help_menu() {
 
 	clean_screen();
 
-	printstring(fbuffer,"FBZX (2.4.3)",-1,10,31,16,ancho);
-	printstring(fbuffer,"Available keys",-1,40,30,16,ancho);
-	printstring(fbuffer,"Shift:Caps Shift		Ctrl:Symbol Shift",-1,95,27,16,ancho);
+	print_string(fbuffer,"FBZX (2.5.0)",-1,10,15,0,ancho);
+	print_string(fbuffer,"Available keys",-1,40,14,0,ancho);
+	print_string(fbuffer,"Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0,ancho);
 
-	printstring(fbuffer,"F1:",14,160,28,16,ancho);
-	printstring(fbuffer,"this help",62,160,31,16,ancho);
+	print_string(fbuffer,"F1:",14,160,12,0,ancho);
+	print_string(fbuffer,"this help",62,160,15,0,ancho);
 
-	printstring(fbuffer,"F2:",336,160,28,16,ancho);
-	printstring(fbuffer,"manage snapshots",382,160,31,16,ancho);
+	print_string(fbuffer,"F2:",336,160,12,0,ancho);
+	print_string(fbuffer,"manage snapshots",382,160,15,0,ancho);
 
-	printstring(fbuffer,"F3:",14,200,28,16,ancho);
-	printstring(fbuffer,"manage TAP/TZX",62,200,31,16,ancho);
+	print_string(fbuffer,"F3:",14,200,12,0,ancho);
+	print_string(fbuffer,"manage TAP/TZX",62,200,15,0,ancho);
 
-	printstring(fbuffer,"F4:",336,200,28,16,ancho);
-	printstring(fbuffer,"change settings",382,200,31,16,ancho);
+	print_string(fbuffer,"F4:",336,200,12,0,ancho);
+	print_string(fbuffer,"change settings",382,200,15,0,ancho);
 
-	printstring(fbuffer,"F5:",14,240,28,16,ancho);
-	printstring(fbuffer,"stop TAPE",62,240,31,16,ancho);
+	print_string(fbuffer,"F5:",14,240,12,0,ancho);
+	print_string(fbuffer,"stop TAPE",62,240,15,0,ancho);
 
-	printstring(fbuffer,"F6:",336,240,28,16,ancho);
-	printstring(fbuffer,"play TAPE",382,240,31,16,ancho);
+	print_string(fbuffer,"F6:",336,240,12,0,ancho);
+	print_string(fbuffer,"play TAPE",382,240,15,0,ancho);
 
-	printstring(fbuffer,"F7:",14,280,28,16,ancho);
-	printstring(fbuffer,"manage MICRODRIVE",62,280,31,16,ancho);
+	print_string(fbuffer,"F7:",14,280,12,0,ancho);
+	print_string(fbuffer,"manage MICRODRIVE",62,280,15,0,ancho);
 
-	printstring(fbuffer,"F8:",336,280,28,16,ancho);
-	printstring(fbuffer,"Keyboard layout",382,280,31,16,ancho);
+	print_string(fbuffer,"F8:",336,280,12,0,ancho);
+	print_string(fbuffer,"Keyboard layout",382,280,15,0,ancho);
 
-	printstring(fbuffer,"F9:",14,320,28,16,ancho);
-	printstring(fbuffer,"Toggle fullscreen",62,320,31,16,ancho);
+	print_string(fbuffer,"F9:",14,320,12,0,ancho);
+	print_string(fbuffer,"Toggle fullscreen",62,320,15,0,ancho);
 
-	printstring(fbuffer,"F10:",336,320,28,16,ancho);
-	printstring(fbuffer,"reset spectrum",398,320,31,16,ancho);
+	print_string(fbuffer,"F10:",336,320,12,0,ancho);
+	print_string(fbuffer,"reset spectrum",398,320,15,0,ancho);
 
-	printstring(fbuffer,"F11/O:",14,360,28,16,ancho);
-	printstring(fbuffer,"volume low",110,360,31,16,ancho);
+	print_string(fbuffer,"F11/O:",14,360,12,0,ancho);
+	print_string(fbuffer,"volume low",110,360,15,0,ancho);
 
-	printstring(fbuffer,"F12/P:",336,360,28,16,ancho);
-	printstring(fbuffer,"volume up",430,360,31,16,ancho);
+	print_string(fbuffer,"F12/P:",336,360,12,0,ancho);
+	print_string(fbuffer,"volume up",430,360,15,0,ancho);
 
-	printstring(fbuffer,"ESC:",184,400,28,16,ancho);
-	printstring(fbuffer,"exit emulator",248,400,31,16,ancho);
+	print_string(fbuffer,"ESC:",184,400,12,0,ancho);
+	print_string(fbuffer,"exit emulator",248,400,15,0,ancho);
 
 	print_copy(fbuffer,ancho);
 
@@ -331,21 +343,21 @@ void snapshots_menu() {
 
 	clean_screen();
 
-	printstring(fbuffer,"SNAPSHOTS",-1,10,31,16,ancho);
+	print_string(fbuffer,"SNAPSHOTS",-1,10,15,0,ancho);
 
-	printstring(fbuffer,"1:",14,100,28,16,ancho);
-	printstring(fbuffer,"load a Z80/SNA snapshot",62,100,31,16,ancho);
+	print_string(fbuffer,"1:",14,100,12,0,ancho);
+	print_string(fbuffer,"load a Z80/SNA snapshot",62,100,15,0,ancho);
 
 
 	if(ordenador.mode128k!=3) { // not in +3 mode
-		printstring(fbuffer,"2:",14,160,28,16,ancho);
-		printstring(fbuffer,"make a Z80 snapshot",62,160,31,16,ancho);
+		print_string(fbuffer,"2:",14,160,12,0,ancho);
+		print_string(fbuffer,"make a Z80 snapshot",62,160,15,0,ancho);
 	} else {
-		printstring(fbuffer,"Can't make snapshots in +3 mode",14,160,31,16,ancho);
+		print_string(fbuffer,"Can't make snapshots in +3 mode",14,160,15,0,ancho);
 	}
 
-	printstring(fbuffer,"ESC:",170,400,28,16,ancho);
-	printstring(fbuffer,"return emulator",234,400,31,16,ancho);
+	print_string(fbuffer,"ESC:",170,400,12,0,ancho);
+	print_string(fbuffer,"return emulator",234,400,15,0,ancho);
 
 	print_copy(fbuffer,ancho);
 
@@ -385,41 +397,41 @@ void taps_menu() {
 	do {
 		clean_screen();
 
-		printstring(fbuffer,"TAP/TZX files",-1,10,31,16,ancho);
+		print_string(fbuffer,"TAP/TZX files",-1,10,15,0,ancho);
 
-		printstring(fbuffer,"1:",14,50,28,16,ancho);
-		printstring(fbuffer,"select a TAP/TZX file",62,50,31,16,ancho);
+		print_string(fbuffer,"1:",14,50,12,0,ancho);
+		print_string(fbuffer,"select a TAP/TZX file",62,50,15,0,ancho);
 
 
-		printstring(fbuffer,"2:",14,90,28,16,ancho);
-		printstring(fbuffer,"rewind TAP/TZX file",62,90,31,16,ancho);
+		print_string(fbuffer,"2:",14,90,12,0,ancho);
+		print_string(fbuffer,"rewind TAP/TZX file",62,90,15,0,ancho);
 
-		printstring(fbuffer,"3:",14,130,28,16,ancho);
-		printstring(fbuffer,"fast/normal speed",62,130,31,16,ancho);
+		print_string(fbuffer,"3:",14,130,12,0,ancho);
+		print_string(fbuffer,"fast/normal speed",62,130,15,0,ancho);
 
-		printstring(fbuffer,"4:",14,170,28,16,ancho);
-		printstring(fbuffer,"write protection",62,170,31,16,ancho);
+		print_string(fbuffer,"4:",14,170,12,0,ancho);
+		print_string(fbuffer,"write protection",62,170,15,0,ancho);
 		
-		printstring(fbuffer,"5:",14,210,28,16,ancho);
-		printstring(fbuffer,"create TAP file",62,210,31,16,ancho);
+		print_string(fbuffer,"5:",14,210,12,0,ancho);
+		print_string(fbuffer,"create TAP file",62,210,15,0,ancho);
 				
-		printstring(fbuffer,"ESC:",14,250,28,16,ancho);
-		printstring(fbuffer,"return emulator",78,250,31,16,ancho);
+		print_string(fbuffer,"ESC:",14,250,12,0,ancho);
+		print_string(fbuffer,"return emulator",78,250,15,0,ancho);
 
-		printstring(fbuffer,"Current TAP/TZX file is:",-1,300,28,16,ancho);
-		printstring(fbuffer,ordenador.current_tap,-1,320,28,16,ancho);
+		print_string(fbuffer,"Current TAP/TZX file is:",-1,300,12,0,ancho);
+		print_string(fbuffer,ordenador.current_tap,-1,320,12,0,ancho);
 
 		print_copy(fbuffer,ancho);
 
 		if(ordenador.tape_fast_load)
-			printstring(fbuffer,"Fast load enabled	",10,420,30,16,ancho);
+			print_string(fbuffer,"Fast load enabled	",10,420,14,0,ancho);
 		else
-			printstring(fbuffer,"Fast load disabled ",10,420,30,16,ancho);
+			print_string(fbuffer,"Fast load disabled ",10,420,14,0,ancho);
 		
 		if(ordenador.tape_write)
-			printstring(fbuffer,"Write enabled	",390,420,30,16,ancho);
+			print_string(fbuffer,"Write enabled",390,420,14,0,ancho);
 		else
-			printstring(fbuffer,"Write disabled ",390,420,30,16,ancho);
+			print_string(fbuffer,"Write disabled",390,420,14,0,ancho);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
@@ -481,7 +493,7 @@ void select_tapfile() {
 	ordenador.tape_current_bit=0;
 	ordenador.tape_current_mode=TAP_TRASH;
 
-	printstring(videomem,"Choose the TAPE file to load",-1,32,29,16,ancho);
+	print_string(videomem,"Choose the TAPE file to load",-1,32,13,0,ancho);
 
 	filename=select_file(path_taps,1);
 
@@ -510,8 +522,8 @@ void select_tapfile() {
 	case 0: // all right
 	break;
 	case -1:
-		printstring(videomem,"Error: Can't load that file",-1,232,26,16,ancho);
-		printstring(videomem,"Press any key",-1,248,26,16,ancho);
+		print_string(videomem,"Error: Can't load that file",-1,232,10,0,ancho);
+		print_string(videomem,"Press any key",-1,248,10,0,ancho);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
@@ -540,11 +552,11 @@ void create_tapfile() {
 
 	clean_screen();
 
-	printstring(videomem,"Choose a name for the TAP file",-1,32,30,16,ancho);
-	printstring(videomem,"(up to 30 characters)",-1,52,30,16,ancho);
+	print_string(videomem,"Choose a name for the TAP file",-1,32,14,0,ancho);
+	print_string(videomem,"(up to 30 characters)",-1,52,14,0,ancho);
 
-	printstring(videomem,"TAP file will be saved in:",-1,132,28,16,ancho);
-	printstring(videomem,path_taps,0,152,28,16,ancho);
+	print_string(videomem,"TAP file will be saved in:",-1,132,12,0,ancho);
+	print_string(videomem,path_taps,0,152,12,0,ancho);
 
 	nombre[0]=127;
 	nombre[1]=0;
@@ -553,7 +565,7 @@ void create_tapfile() {
 
 	do {
 		sprintf(nombre2," %s ",nombre);
-		printstring(videomem,nombre2,-1,84,31,16,ancho);
+		print_string(videomem,nombre2,-1,84,15,0,ancho);
 		switch(wait_key()) {
 		case SDLK_BACKSPACE:
 			if(longitud>0) {
@@ -865,12 +877,12 @@ void create_tapfile() {
 	case 0:
 	break;
 	case -1:
-		printstring(videomem,"File already exists",-1,80,26,16,ancho);
+		print_string(videomem,"File already exists",-1,80,10,0,ancho);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
 	case -2:
-		printstring(videomem,"Can't create file",-1,80,26,16,ancho);
+		print_string(videomem,"Can't create file",-1,80,10,0,ancho);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
@@ -891,29 +903,29 @@ void microdrive_menu() {
 	do {
 			clean_screen();
 
-		printstring(fbuffer,"MICRODRIVE files",-1,10,31,16,ancho);
+		print_string(fbuffer,"MICRODRIVE files",-1,10,15,0,ancho);
 
-		printstring(fbuffer,"1:",14,50,28,16,ancho);
-		printstring(fbuffer,"select a MDR file",62,50,31,16,ancho);
+		print_string(fbuffer,"1:",14,50,12,0,ancho);
+		print_string(fbuffer,"select a MDR file",62,50,15,0,ancho);
 
-		printstring(fbuffer,"2:",14,90,28,16,ancho);
-		printstring(fbuffer,"create a MDR file",62,90,31,16,ancho);
+		print_string(fbuffer,"2:",14,90,12,0,ancho);
+		print_string(fbuffer,"create a MDR file",62,90,15,0,ancho);
 
-		printstring(fbuffer,"3:",14,130,28,16,ancho);
-		printstring(fbuffer,"write protection",62,130,31,16,ancho);
+		print_string(fbuffer,"3:",14,130,12,0,ancho);
+		print_string(fbuffer,"write protection",62,130,15,0,ancho);
 				
-		printstring(fbuffer,"ESC:",14,170,28,16,ancho);
-		printstring(fbuffer,"return emulator",78,170,31,16,ancho);
+		print_string(fbuffer,"ESC:",14,170,12,0,ancho);
+		print_string(fbuffer,"return emulator",78,170,15,0,ancho);
 
-		printstring(fbuffer,"Current MDR file is:",-1,300,28,16,ancho);
-		printstring(fbuffer,ordenador.mdr_current_mdr,-1,320,28,16,ancho);
+		print_string(fbuffer,"Current MDR file is:",-1,300,12,0,ancho);
+		print_string(fbuffer,ordenador.mdr_current_mdr,-1,320,12,0,ancho);
 
 		print_copy(fbuffer,ancho);
 		
 		if(!ordenador.mdr_cartridge[137922])
-			printstring(fbuffer,"	Write enabled	",-1,420,30,16,ancho);
+			print_string(fbuffer,"Write enabled",-1,420,14,0,ancho);
 		else
-			printstring(fbuffer," Write disabled ",-1,420,30,16,ancho);
+			print_string(fbuffer,"Write disabled",-1,420,14,0,ancho);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
@@ -961,7 +973,7 @@ void select_mdrfile() {
 
 	clean_screen();
 
-	printstring(videomem,"Choose the MICRODRIVE file to load",-1,32,29,16,ancho);
+	print_string(videomem,"Choose the MICRODRIVE file to load",-1,32,13,0,ancho);
 
 	filename=select_file(path_mdrs,2); // MDR files
 
@@ -991,8 +1003,8 @@ void select_mdrfile() {
 	case 0: // all right
 		break;
 	case -1:
-		printstring(videomem,"Error: Can't load that file",-1,232,26,16,ancho);
-		printstring(videomem,"Press any key",-1,248,26,16,ancho);
+		print_string(videomem,"Error: Can't load that file",-1,232,10,0,ancho);
+		print_string(videomem,"Press any key",-1,248,10,0,ancho);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 		break;
@@ -1012,11 +1024,11 @@ void create_mdrfile() {
 
 	clean_screen();
 
-	printstring(videomem,"Choose a name for the MDR file",-1,32,30,16,ancho);
-	printstring(videomem,"(up to 30 characters)",-1,52,30,16,ancho);
+	print_string(videomem,"Choose a name for the MDR file",-1,32,14,0,ancho);
+	print_string(videomem,"(up to 30 characters)",-1,52,14,0,ancho);
 
-	printstring(videomem,"MDR file will be saved in:",-1,132,28,16,ancho);
-	printstring(videomem,path_mdrs,0,152,28,16,ancho);
+	print_string(videomem,"MDR file will be saved in:",-1,132,12,0,ancho);
+	print_string(videomem,path_mdrs,0,152,12,0,ancho);
 
 	nombre[0]=127;
 	nombre[1]=0;
@@ -1025,7 +1037,7 @@ void create_mdrfile() {
 
 	do {
 		sprintf(nombre2," %s ",nombre);
-		printstring(videomem,nombre2,-1,84,31,16,ancho);
+		print_string(videomem,nombre2,-1,84,15,0,ancho);
 		switch(wait_key()) {
 		case SDLK_BACKSPACE:
 			if(longitud>0) {
@@ -1341,12 +1353,12 @@ void create_mdrfile() {
 	case 0:
 	break;
 	case -1:
-		printstring(videomem,"File already exists",-1,80,26,16,ancho);
+		print_string(videomem,"File already exists",-1,80,10,0,ancho);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	case -2:
-		printstring(videomem,"Can't create file",-1,80,26,16,ancho);
+		print_string(videomem,"Can't create file",-1,80,10,0,ancho);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 	break;
@@ -1368,11 +1380,11 @@ void save_z80file() {
 
 	clean_screen();
 
-	printstring(videomem,"Choose a name for the snapshot",-1,32,30,16,ancho);
-	printstring(videomem,"(up to 30 characters)",-1,52,30,16,ancho);
+	print_string(videomem,"Choose a name for the snapshot",-1,32,14,0,ancho);
+	print_string(videomem,"(up to 30 characters)",-1,52,14,0,ancho);
 
-	printstring(videomem,"Snapshot will be saved in:",-1,132,28,16,ancho);
-	printstring(videomem,path_snaps,0,152,28,16,ancho);
+	print_string(videomem,"Snapshot will be saved in:",-1,132,12,0,ancho);
+	print_string(videomem,path_snaps,0,152,12,0,ancho);
 
 	nombre[0]=127;
 	nombre[1]=0;
@@ -1381,7 +1393,7 @@ void save_z80file() {
 
 	do {
 		sprintf(nombre2," %s ",nombre);
-		printstring(videomem,nombre2,-1,84,31,16,ancho);
+		print_string(videomem,nombre2,-1,84,15,0,ancho);
 		switch(wait_key()) {
 		case SDLK_BACKSPACE:
 			if(longitud>0) {
@@ -1675,11 +1687,11 @@ void save_z80file() {
 	case 0:
 		break;
 	case -1:
-		printstring(videomem,"File already exists",-1,80,26,16,ancho);
+		print_string(videomem,"File already exists",-1,80,10,0,ancho);
 		wait_key();
 		break;
 	case -2:
-		printstring(videomem,"Can't create file",-1,80,26,16,ancho);
+		print_string(videomem,"Can't create file",-1,80,10,0,ancho);
 		wait_key();
 		break;
 	}
@@ -1699,7 +1711,7 @@ void load_z80file() {
 
 	clean_screen();
 
-	printstring(videomem,"Choose the snapshot file to load",-1,32,29,16,ancho);
+	print_string(videomem,"Choose the snapshot file to load",-1,32,13,0,ancho);
 
 	filename=select_file(path_snaps,0);
 
@@ -1716,14 +1728,14 @@ void load_z80file() {
 	case 0: // all right
 		break;
 	case -1:
-		printstring(videomem,"Error: Can't load that file",-1,232,26,16,ancho);
-		printstring(videomem,"Press any key",-1,248,26,16,ancho);
+		print_string(videomem,"Error: Can't load that file",-1,232,10,0,ancho);
+		print_string(videomem,"Press any key",-1,248,10,0,ancho);
 		wait_key();
 		break;
 	case -2:
 	case -3:
-		printstring(videomem,"Error: unsuported snap file",-1,232,26,16,ancho);
-		printstring(videomem,"Press any key",-1,248,26,16,ancho);
+		print_string(videomem,"Error: unsuported snap file",-1,232,10,0,ancho);
+		print_string(videomem,"Press any key",-1,248,10,0,ancho);
 		wait_key();
 		break;
 	}
@@ -1832,30 +1844,13 @@ void delete_filelist(struct fichero *filelist) {
 char *select_file(char *path,char kind) {
 
 	struct fichero *filelist,*fl2;
-	unsigned char *pantalla,*pantalla2,fin,read,*salida;
+	unsigned char fin,read,*salida;
 	int bucle,ancho,numitems,selected,from,longitud;
 
 	salida=(unsigned char *)malloc(2049);
 	salida[0]=0;
 
 	ancho=screen->w;
-
-	// paints the rectangle
-
-	pantalla=(screen->pixels)+(ancho*70)+10;
-	pantalla2=(screen->pixels)+(ancho*460)+10;
-	for(bucle=10;bucle<630;bucle++) {
-		*(pantalla++)=28;
-		*(pantalla2++)=28;
-	}
-	pantalla=(screen->pixels)+(ancho*70)+10;
-	pantalla2=(screen->pixels)+(ancho*70)+630;
-	for(bucle=70;bucle<460;bucle++) {
-		*pantalla=28;
-		*pantalla2=28;
-		pantalla+=ancho;
-		pantalla2+=ancho;
-	}
 
 	fin=1;
 	read=1;
@@ -2077,22 +2072,22 @@ void print_files(struct fichero *filelist,int from,int mark) {
 			namefile[36]=0; // we print up to 36 chars
 			switch(fl2->tipo) {
 			case 0: // file
-				ink1=31;
-				ink2=16;
+				ink1=15;
+				ink2=0;
 			break;
 			case 1: // directory
-				ink1=28;
-				ink2=20;
+				ink1=12;
+				ink2=4;
 			break;
 			case 2: // parent directory
-				ink1=26;
-				ink2=18;
+				ink1=10;
+				ink2=2;
 			break;
 			}
 			if(bucle==mark)
-				printstring(videomem,namefile,-1,pos,ink2,31,ancho);
+				print_string(videomem,namefile,-1,pos,ink2,15,ancho);
 			else
-				printstring(videomem,namefile,-1,pos,ink1,16,ancho);
+				print_string(videomem,namefile,-1,pos,ink1,0,ancho);
 			pos+=16;
 		}
 		if((pos+16)>460)
@@ -2100,7 +2095,7 @@ void print_files(struct fichero *filelist,int from,int mark) {
 		fl2=fl2->next;
 	}
 	while((pos+16<460)) {
-		printstring(videomem,spaces,-1,pos,16,16,ancho);
+		print_string(videomem,spaces,-1,pos,0,0,ancho);
 		pos+=16;
 	}
 }

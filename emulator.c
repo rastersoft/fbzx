@@ -353,6 +353,7 @@ void save_config(struct computer *object) {
 	fprintf(fconfig,"interface1=%c%c",48+object->mdr_active,10);
 	fprintf(fconfig,"doublescan=%c%c",48+object->dblscan,10);
 	fprintf(fconfig,"volume=%c%c",65+(object->volume/4),10);
+	fprintf(fconfig,"bw=%c%c",48+object->bw,10);
 	fclose(fconfig);
 }
 
@@ -362,7 +363,7 @@ void load_config(struct computer *object) {
 	char line[1024],carac,done;
 	int length,pos;
 	FILE *fconfig;
-	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255;
+	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw=255;
 	
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
@@ -425,6 +426,10 @@ void load_config(struct computer *object) {
 			volume=4*(line[7]-'A');
 			continue;
 		}
+		if (!strncmp(line,"bw=",3)) {
+			bw=(line[3]-'0');
+			continue;
+		}
 	}
 	
 	if (mode128k<5) {
@@ -444,6 +449,9 @@ void load_config(struct computer *object) {
 	}
 	if (dblscan<2) {
 		object->dblscan=dblscan;
+	}
+	if (bw<2) {
+		object->bw=bw;
 	}
 	if (volume<255) {
 		object->volume=volume;
@@ -471,6 +479,7 @@ int main(int argc,char *argv[]) {
 	jump_frames=0;
 	curr_frames=0;
 	ordenador.dblscan=0;
+	ordenador.bw=0;
 
 	// load current config
 	load_config(&ordenador);
@@ -507,6 +516,8 @@ int main(int argc,char *argv[]) {
 			printf("  -db: use double buffer\n");
 			printf("  -ds: use doublescan (don't emulate TV black stripes)\n");
 			printf("  -ss: force singlescan (emulate TV black stripes)\n");
+			printf("  -bw: emulate black&white TV set\n");
+			printf("  -color: emulate a color TV set\n");
 			printf("  -jump N: show one TV refresh and jump over N refreshes (for slow systems)\n");
 			printf("   gamefile: an optional .Z80 snapshot or .TAP/.TZX tape file\n\n");
 			exit(0);
@@ -545,6 +556,12 @@ int main(int argc,char *argv[]) {
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-ds")) {
 			ordenador.dblscan=1;
+			argumento++;
+		} else if(0==strcmp(argv[argumento],"-bw")) {
+			ordenador.bw=1;
+			argumento++;
+		} else if(0==strcmp(argv[argumento],"-color")) {
+			ordenador.bw=0;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-ss")) {
 			ordenador.dblscan=0;
