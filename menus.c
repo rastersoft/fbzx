@@ -289,16 +289,16 @@ void help_menu() {
 	print_string(fbuffer,"change settings",382,200,15,0,ancho);
 
 	print_string(fbuffer,"F5:",14,240,12,0,ancho);
-	print_string(fbuffer,"insert pokes",62,240,15,0,ancho);
+	print_string(fbuffer,"stop TAPE",62,240,15,0,ancho);
 
 	print_string(fbuffer,"F6:",336,240,12,0,ancho);
-	print_string(fbuffer,"play/stop TAPE",382,240,15,0,ancho);
+	print_string(fbuffer,"play TAPE",382,240,15,0,ancho);
 
 	print_string(fbuffer,"F7:",14,280,12,0,ancho);
 	print_string(fbuffer,"manage MICRODRIVE",62,280,15,0,ancho);
 
 	print_string(fbuffer,"F8:",336,280,12,0,ancho);
-	print_string(fbuffer,"Keyboard layout",382,280,15,0,ancho);
+	print_string(fbuffer,"tools",382,280,15,0,ancho);
 
 	print_string(fbuffer,"F9:",14,320,12,0,ancho);
 	print_string(fbuffer,"Toggle fullscreen",62,320,15,0,ancho);
@@ -420,6 +420,56 @@ void do_poke() {
 
 	}
 }
+
+// shows the tools menu
+
+void tools_menu() {
+
+	unsigned char *fbuffer,fin;
+	int ancho=screen->w;
+
+	fbuffer=screen->pixels;
+
+	fin=1;
+	do {
+		clean_screen();
+
+		print_string(fbuffer,"Tools",-1,10,15,0,ancho);
+
+		print_string(fbuffer,"1:",14,50,12,0,ancho);
+		print_string(fbuffer,"show keyboard template",62,50,15,0,ancho);
+
+		print_string(fbuffer,"2:",14,90,12,0,ancho);
+		print_string(fbuffer,"insert POKEs",62,90,15,0,ancho);
+
+		print_string(fbuffer,"ESC:",14,250,12,0,ancho);
+		print_string(fbuffer,"return emulator",78,250,15,0,ancho);
+
+		print_copy(fbuffer,ancho);
+
+		switch(wait_key()) {
+		case SDLK_ESCAPE: // to exit the help
+			fin=0;
+		break;
+		case SDLK_1:
+			fin=0;
+			keyboard_menu();
+		break;
+		case SDLK_2:
+			fin=0;
+			do_poke();
+		break;
+		default:
+		break;
+		}
+
+	} while(fin);
+
+	clean_screen();
+}
+
+
+
 
 // shows the SNAPSHOTS menu
 

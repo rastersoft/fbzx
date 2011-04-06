@@ -827,22 +827,14 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			settings_menu ();
 			break;
 
-		case SDLK_F5:    // more settings
-			do_poke();
+		case SDLK_F5:   // STOP tape
+			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
+				ordenador.pause = 1;
 			break;
 
-		case SDLK_F6:	// PLAY/STOP tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX)) {
-				ordenador.pause = 1-ordenador.pause;
-				if (ordenador.pause) {
-					sprintf(ordenador.osd_text," Tape paused ");
-				} else {
-					sprintf(ordenador.osd_text," Tape playing ");
-				}
-			} else {
-				sprintf(ordenador.osd_text," Fast loading enabled ");
-			}
-			ordenador.osd_time=50;
+		case SDLK_F6:	// PLAY tape
+			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
+				ordenador.pause = 0;
 			break;		
 
 		case SDLK_F7:
@@ -850,7 +842,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			break;
 		
 		case SDLK_F8:
-			keyboard_menu(); // shows the keyboard
+			tools_menu();
 			break;
 
 		case SDLK_F9:
