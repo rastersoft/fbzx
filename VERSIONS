@@ -1,3 +1,9 @@
+2.5.0
+
+*Allows to set POKEs
+*Emulates B&W sets
+*Allows to load and save SCR snapshots
+
 2.4.3
 
 *Fixed a bug with the double-scan flag
