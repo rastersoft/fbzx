@@ -332,6 +332,95 @@ void help_menu() {
 }
 
 
+// shows the POKE menu
+
+void do_poke() {
+
+	unsigned char *videomem,string[80];
+	int ancho,retorno,address,old_value,new_value;
+
+	videomem=screen->pixels;
+	ancho=screen->w;
+
+	clean_screen();
+
+	while(1) {
+		print_string(videomem,"Type address to POKE",-1,32,15,0,ancho);
+		print_string(videomem,"(ESC to exit)",-1,52,12,0,ancho);
+
+		retorno=ask_value(&address,84,65535);
+
+		clean_screen();
+
+		if (retorno==2) {
+			return;
+		}
+
+		if ((address<16384) && ((ordenador.mode128k != 3) || (1 != (ordenador.mport2 & 0x01)))) {
+			print_string(videomem,"That address is ROM memory.",-1,13,15,0,ancho);
+			continue;
+		}
+
+		switch (address & 0x0C000) {
+		case 0x0000:
+			old_value= (*(ordenador.block0 + address));
+		break;
+
+		case 0x4000:
+			old_value= (*(ordenador.block1 + address));
+		break;
+
+		case 0x8000:
+			old_value= (*(ordenador.block2 + address));
+		break;
+
+		case 0xC000:
+			old_value= (*(ordenador.block3 + address));
+		break;
+		default:
+			old_value=0;
+		break;
+		}
+
+		print_string(videomem,"Type new value to POKE",-1,32,15,0,ancho);
+		print_string(videomem,"(ESC to cancel)",-1,52,12,0,ancho);
+		sprintf(string,"Address: %d; old value: %d\n",address,old_value);
+		print_string(videomem,string,-1,130,14,0,ancho);
+
+		retorno=ask_value(&new_value,84,255);
+
+		clean_screen();
+
+		if (retorno==2) {
+			continue;
+		}
+
+		switch (address & 0x0C000) {
+		case 0x0000:
+			(*(ordenador.block0 + address))=new_value;
+		break;
+
+		case 0x4000:
+			(*(ordenador.block1 + address))=new_value;
+		break;
+
+		case 0x8000:
+			(*(ordenador.block2 + address))=new_value;
+		break;
+
+		case 0xC000:
+			(*(ordenador.block3 + address))=new_value;
+		break;
+		default:
+		break;
+		}
+
+		sprintf(string,"Set address %d from %d to %d\n",address,old_value,new_value);
+		print_string(videomem,string,-1,130,14,0,ancho);
+
+	}
+}
+
 // shows the SNAPSHOTS menu
 
 void snapshots_menu() {
@@ -1164,6 +1253,104 @@ int ask_filename(char *nombre_final,int y_coord,char *extension) {
 
 	return (retorno);
 }
+
+
+
+
+int ask_value(int *final_value,int y_coord,int max_value) {
+
+	unsigned char nombre2[50];
+	unsigned char *videomem;
+	int ancho,value,tmp,retorno;
+
+	videomem=screen->pixels;
+	ancho=screen->w;
+
+	retorno=0;
+	value=0;
+	do {
+		sprintf (nombre2, " %d\177 ", value);
+		print_string (videomem, nombre2, -1, y_coord, 15, 0, ancho);
+		switch (wait_key ()) {
+		case SDLK_BACKSPACE:
+			value/=10;
+		break;
+		case SDLK_ESCAPE:
+			retorno=2;
+		break;
+		case SDLK_RETURN:
+			retorno=1;
+		break;
+		case SDLK_0:
+			tmp=value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_1:
+			tmp=1+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_2:
+			tmp=2+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_3:
+			tmp=3+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_4:
+			tmp=4+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_5:
+			tmp=5+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_6:
+			tmp=6+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_7:
+			tmp=7+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_8:
+			tmp=8+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		case SDLK_9:
+			tmp=9+value * 10;
+			if (tmp <= max_value) {
+				value=tmp;
+			}
+		break;
+		}
+	} while (!retorno);
+
+	*final_value=value;
+
+	return (retorno);
+}
+
+
+
 
 // shows a menu to allow user to save a snapshot file
 
