@@ -828,7 +828,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			break;
 
 		case SDLK_F5:    // more settings
-
+			do_poke();
 			break;
 
 		case SDLK_F6:	// PLAY/STOP tape
