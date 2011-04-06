@@ -42,6 +42,7 @@ struct computer {
 	unsigned int translate[6144],translate2[6144];
 	unsigned char zaurus_mini;
 	unsigned char dblscan;
+	unsigned char bw;
 
 	int contador_flash;
 
@@ -203,5 +204,6 @@ inline byte bus_empty();
 void set_memory_pointers();
 inline void play_ay();
 inline void paint_one_pixel(void *colour,void *address);
+void computer_set_palete();
 
 #endif

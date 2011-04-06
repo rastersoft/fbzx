@@ -14,3 +14,5 @@ WHAT EMULATES RIGHT IN FBZX?
 -Emulation of Interface I and Microdrive (only one drive).
 -Memory contention
 -Emulates Spanish 128K from Investronica/Sinclair
+-Allows to insert POKE values in memory (inmunity, infinite lives...)
+-Can load and save SCR snapshots

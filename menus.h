@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2009 (C) Raster Software Vigo (Sergio Costas)
+ * Copyright 2003-2011 (C) Raster Software Vigo (Sergio Costas)
  * This file is part of FBZX
  *
  * FBZX is free software; you can redistribute it and/or modify
@@ -24,11 +24,13 @@ struct fichero {
 	struct fichero *next;
 };
 
+enum LOAD_FILE_TYPES {FILETYPE_Z80, FILETYPE_TAP_TZX, FILETYPE_MDR, FILETYPE_SCR};
+
 void clean_screen();
 void help_menu();
 void load_z80file();
-char *select_file(char *,char);
-struct fichero *read_directory(char *,char);
+char *select_file(char *,enum LOAD_FILE_TYPES);
+struct fichero *read_directory(char *,enum LOAD_FILE_TYPES);
 unsigned int wait_key();
 void print_files(struct fichero *,int,int);
 void delete_filelist(struct fichero *);
@@ -42,3 +44,9 @@ void select_mdrfile();
 void create_mdrfile();
 void microdrive_menu();
 void keyboard_menu();
+void load_scrfile();
+int ask_filename(char *nombre,int y_coord,char *extension);
+void create_scrfile();
+void do_poke();
+int ask_value(int *final_value,int y_coord,int max_value);
+void tools_menu();

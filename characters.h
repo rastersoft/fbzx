@@ -20,4 +20,4 @@
 extern unsigned char characters[96][32];
 
 void printchar(unsigned char *,unsigned char,int,int,unsigned char,unsigned char,int);
-void printstring(unsigned char *,char*,int,int,unsigned char,unsigned char,int);
+void print_string(unsigned char *,char*,int,int,unsigned char,unsigned char,int);

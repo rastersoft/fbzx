@@ -150,7 +150,7 @@ nothing.
 F7 allows to choose a MDR file (microdrive), protect and unprotect it,
 and create a new (and empty) one.
 
-F8 shows a picture with the keyboard layout
+F8 allows to shows a picture with the keyboard layout, or insert POKE values
 
 F9 toggles between fullscreen/windowed mode
 
