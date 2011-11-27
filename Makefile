@@ -1,9 +1,9 @@
 CC = gcc -O2 -Wall -Wno-pointer-sign `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
-CCo = gcc `pkg-config --libs sdl libpulse-simple alsa`
+CCo = gcc
 
 fbzx: computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o
 
-	$(CCo) -o fbzx computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o
+	$(CCo) -o fbzx computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o `pkg-config --libs sdl libpulse-simple alsa`
 
 clean:
 	rm fbzx *.o *~

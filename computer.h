@@ -67,6 +67,10 @@ struct computer {
 	unsigned char contended_zone; // 0-> no contention; 1-> contention possible
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 
+	char ulaplus; // 0 = inactive; 1 = active
+	unsigned char ulaplus_reg; // contains the last selected register in the ULAPlus
+	unsigned char ulaplus_palete[64]; // contains the current palete
+
 	// keyboard private global variables
 
 	unsigned char s8,s9,s10,s11,s12,s13,s14,s15;
@@ -193,7 +197,7 @@ struct computer {
 void computer_init();
 void register_screen(SDL_Surface *);
 inline void show_screen(int);
-inline void paint_pixels(unsigned char, char, char);
+inline void paint_pixels(unsigned char, unsigned char, unsigned char);
 inline void read_keyboard();
 void fill_audio(void *udata,Uint8 *,int);
 void set_volume(unsigned char);
@@ -203,7 +207,8 @@ void ResetComputer();
 inline byte bus_empty();
 void set_memory_pointers();
 inline void play_ay();
-inline void paint_one_pixel(void *colour,void *address);
+inline void paint_one_pixel(unsigned char *colour,unsigned char *address);
 void computer_set_palete();
+void set_palete_entry(unsigned char entry, byte Value);
 
 #endif

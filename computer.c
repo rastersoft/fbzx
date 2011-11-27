@@ -174,24 +174,7 @@ void computer_set_palete() {
 
 		SDL_SetColors (ordenador.screen, colores, 16, 16);	// set 16 colors from the 16th
 
-		if (ordenador.bpp==1) {
-			colors[0]=0x00000000;
-			colors[1]=0x11111111;
-			colors[2]=0x12121212;
-			colors[3]=0x13131313;
-			colors[4]=0x14141414;
-			colors[5]=0x15151515;
-			colors[6]=0x16161616;
-			colors[7]=0x17171717;
-			colors[8]=0x18181818;
-			colors[9]=0x19191919;
-			colors[10]=0x1A1A1A1A;
-			colors[11]=0x1B1B1B1B;
-			colors[12]=0x1C1C1C1C;
-			colors[13]=0x1D1D1D1D;
-			colors[14]=0x1E1E1E1E;
-			colors[15]=0x1F1F1F1F;
-		} else {
+		if (ordenador.bpp!=1) {
 			colors[0]=SDL_MapRGB(screen->format,0,0,0);
 			colors[1]=SDL_MapRGB(screen->format,0,0,192);
 			colors[2]=SDL_MapRGB(screen->format,192,0,0);
@@ -279,24 +262,7 @@ void computer_set_palete() {
 
 		SDL_SetColors (ordenador.screen, colores, 16, 16);	// set 16 colors from the 16th
 
-		if (ordenador.bpp==1) {
-			colors[0]=0x00000000;
-			colors[1]=0x11111111;
-			colors[2]=0x12121212;
-			colors[3]=0x13131313;
-			colors[4]=0x14141414;
-			colors[5]=0x15151515;
-			colors[6]=0x16161616;
-			colors[7]=0x17171717;
-			colors[8]=0x18181818;
-			colors[9]=0x19191919;
-			colors[10]=0x1A1A1A1A;
-			colors[11]=0x1B1B1B1B;
-			colors[12]=0x1C1C1C1C;
-			colors[13]=0x1D1D1D1D;
-			colors[14]=0x1E1E1E1E;
-			colors[15]=0x1F1F1F1F;
-		} else {
+		if (ordenador.bpp!=1) {
 			colors[0]=SDL_MapRGB(screen->format,0,0,0);
 			colors[1]=SDL_MapRGB(screen->format,22,22,22);
 			colors[2]=SDL_MapRGB(screen->format,57,57,57);
@@ -315,6 +281,23 @@ void computer_set_palete() {
 			colors[15]=SDL_MapRGB(screen->format,255,255,255);
 		}
 	}
+
+	unsigned int c;
+
+	for(c=0x10;c<60;c++) {
+		colors[c]=0x00000000;
+	}
+
+	if (ordenador.bpp==1) {
+		unsigned int v;
+		for (c=0x10;c<0x60;c++) {
+			v=c+((c<<8)&0x0000FF00)+((c<<16)&0x00FF0000)+((c<<24)&0xFF000000);
+			colors[c-0x10]=v;
+		}
+	}
+	for(c=0;c<64;c++) {
+		set_palete_entry((unsigned char)c,ordenador.ulaplus_palete[c]);
+	}
 }
 
 /* Registers the screen surface where the Spectrum will put the picture,
@@ -323,7 +306,8 @@ that gives the memory address for each scan */
 
 void register_screen (SDL_Surface * pantalla) {
 
-	int resx, resy, bucle, bucle2, bucle3, bucle4, bucle5;
+	//int resx,resy;
+	int bucle, bucle2, bucle3, bucle4, bucle5;
 
 	// we prepare the scanline transform arrays
 
@@ -350,8 +334,8 @@ void register_screen (SDL_Surface * pantalla) {
 	ordenador.currpix = 0;
 	ordenador.flash = 0;
 
-	resx = ordenador.screen->w;
-	resy = ordenador.screen->h;
+	//resx = ordenador.screen->w;
+	//resy = ordenador.screen->h;
 
 	switch (ordenador.zaurus_mini) {
 	case 0:
@@ -491,7 +475,7 @@ to execute last instruction */
 
 inline void show_screen (int tstados) {
 
-	static unsigned char temporal, ink, paper, fflash;
+	static unsigned char temporal, ink, paper, fflash, tmp2;
 
 	ordenador.tstados_counter += tstados;
 	ordenador.cicles_counter += tstados;
@@ -505,7 +489,7 @@ inline void show_screen (int tstados) {
 		return;
 	}
 	
-
+	fflash = 0; // flash flag
 	while (ordenador.tstados_counter > 3) {
 		ordenador.tstados_counter -= 4;
 
@@ -517,7 +501,11 @@ inline void show_screen (int tstados) {
 			// is border
 				
 			ordenador.contended_zone=0; // no contention here
-			paint_pixels (255, ordenador.border, 0);	// paint 8 pixels with BORDER color
+			if (ordenador.ulaplus) {
+				paint_pixels (255, ordenador.border+24, 0);	// paint 8 pixels with BORDER color
+			} else {
+				paint_pixels (255, ordenador.border, 0);	// paint 8 pixels with BORDER color
+			}
 
 			ordenador.bus_value = 255;
 
@@ -531,12 +519,18 @@ inline void show_screen (int tstados) {
 			ordenador.bus_value = temporal;
 			ink = temporal & 0x07;	// ink colour
 			paper = (temporal >> 3) & 0x07;	// paper colour
-			if (temporal & 0x40) {	// bright flag?
-				ink += 8;
-				paper += 8;
+			if (ordenador.ulaplus) {
+				tmp2=0x10+((temporal>>2)&0x30);
+				ink+=tmp2;
+				paper+=8+tmp2;
+			} else {
+				if (temporal & 0x40) {	// bright flag?
+					ink += 8;
+					paper += 8;
+				}
+				fflash = temporal & 0x80;	// flash flag
 			}
-			fflash = temporal & 0x80;	// flash flag
-			
+
 			// Snow Effect
 
 			if(ordenador.screen_snow) {
@@ -605,12 +599,12 @@ inline void show_screen (int tstados) {
 }
 
 
-/* PAINT_PIXELS paints one byte with INK colour for 1 bits and PAPER colour
+/* PAINT_PIXELS paints one byte with INK color for 1 bits and PAPER color
 for 0 bits, and increment acordingly the pointer PIXEL */
 
-inline void paint_pixels (unsigned char octet, char ink, char paper) {
+inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
 
-	static int bucle,valor;
+	static int bucle,valor,*p;
 	static unsigned char mask;
 
 	if ((ordenador.currpix < 16) || (ordenador.currpix >= 336)
@@ -620,15 +614,16 @@ inline void paint_pixels (unsigned char octet, char ink, char paper) {
 	mask = 0x80;
 	for (bucle = 0; bucle < 8; bucle++) {
 		valor = (octet & mask) ? (int) ink : (int) paper;
-		paint_one_pixel(colors+valor,ordenador.pixel);
+		p=(colors+valor);
+		paint_one_pixel((unsigned char *)p,ordenador.pixel);
 		if ((ordenador.zaurus_mini!=1)&&(ordenador.dblscan)) {
-			paint_one_pixel(colors+valor,ordenador.pixel+ordenador.next_scanline);
+			paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
 		}
 		ordenador.pixel+=ordenador.next_pixel;
 		if (ordenador.zaurus_mini!=1) {
-			paint_one_pixel(colors+valor,ordenador.pixel);
+			paint_one_pixel((unsigned char *)p,ordenador.pixel);
 			if (ordenador.dblscan) {
-				paint_one_pixel(colors+valor,ordenador.pixel+ordenador.next_scanline);
+				paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
 			}
 			ordenador.pixel+=ordenador.next_pixel;
 		}
@@ -636,16 +631,17 @@ inline void paint_pixels (unsigned char octet, char ink, char paper) {
 	}
 }
 
-inline void paint_one_pixel(void *colour,void *address) {
-	
+inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
+
 	switch(ordenador.bpp) {
 	case 1:
-		*((unsigned char *)address)=*((unsigned char *)colour);
+		*address=*colour;
 	break;
 	case 3:
-		*(((unsigned char *)address)+2)=*(((unsigned char *)colour)+2);
+		*(address++)=*(colour++);
 	case 2:
-		*((unsigned short int *)address)=*((unsigned short int *)colour);	
+		*(address++)=*(colour++);
+		*(address++)=*(colour++);
 	break;
 	case 4:
 		*((unsigned int *)address)=*((unsigned int *)colour);
@@ -1240,6 +1236,8 @@ void ResetComputer () {
 	ordenador.updown=0;
 	ordenador.leftright=0;
 
+	ordenador.ulaplus=0;
+
 	ordenador.mport1 = 0;
 	ordenador.mport2 = 0;
 	ordenador.video_offset = 0;	// video in page 9 (page 5 in 128K)
@@ -1348,12 +1346,51 @@ byte Z80free_Rd (register word Addr) {
 	}
 }
 
+void set_palete_entry(unsigned char entry, byte Value) {
+
+
+	SDL_Color color;
+
+	color.r = ((Value<<3)&0xE0)+((Value)&0x1C)+((Value>>3)&0x03);
+	color.g = (Value&0xE0)+((Value>>3)&0x1C)+((Value>>6)&0x03);
+	color.b = ((Value<<6)&0xC0)+((Value<<4)&0x30)+((Value<<2)&0x0C)+((Value)&0x03);
+
+	if (ordenador.bw!=0) {
+		int final;
+		final=(((int)color.r)*3+((int)color.g)*6+((int)color.b))/10;
+		color.r=color.g=color.b=(unsigned char)final;
+	}
+	// Color mode
+
+	SDL_SetColors (ordenador.screen, &color, 32+entry, 1); // set 16 colors from the 16th
+
+	if (ordenador.bpp!=1) {
+		colors[entry+16]=SDL_MapRGB(screen->format,color.r,color.g,color.b);
+	}
+}
+
 void Z80free_Out (register word Port, register byte Value) {
 
 	// Microdrive access
 	
 	register word maskport;
 	
+	// ULAPlus
+	if (Port == 0xBF3B) {
+		ordenador.ulaplus_reg = Value;
+		return;
+	}
+	if (Port == 0xFF3B) {
+		if (ordenador.ulaplus_reg==0x40) { // mode
+			ordenador.ulaplus=Value&0x01;
+			return;
+		}
+		if (ordenador.ulaplus_reg<0x40) { // register set mode
+			ordenador.ulaplus_palete[ordenador.ulaplus_reg]=Value;
+			set_palete_entry(ordenador.ulaplus_reg,Value);
+		}
+	}
+
 	if(((Port &0x0018)!=0x0018)&&(ordenador.mdr_active))
 		microdrive_out(Port,Value);
 	
@@ -1410,6 +1447,15 @@ byte Z80free_In (register word Port) {
 
 	temporal_io = (unsigned int) Port;
 
+	if (Port == 0xFF3B) {
+		if (ordenador.ulaplus_reg==0x40) { // mode
+			return(ordenador.ulaplus&0x01);
+		}
+		if (ordenador.ulaplus_reg<0x40) { // register set mode
+			return(ordenador.ulaplus_palete[ordenador.ulaplus_reg]);
+		}
+	}
+
 	if (!(temporal_io & 0x0001)) {
 		do_contention();
 		pines = 0xBF;	// by default, sound bit is 0
@@ -1450,7 +1496,6 @@ byte Z80free_In (register word Port) {
 	// Joystick
 	if (!(temporal_io & 0x0020)) {
 		if (ordenador.joystick == 1) {
-			printf("Leo Kempston %d\n",ordenador.js);
 			return (ordenador.js);
 		} else {
 			return 0; // if Kempston is not selected, emulate it, but always 0

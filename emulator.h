@@ -34,7 +34,7 @@ extern unsigned char *sound[NUM_SNDBUF];
 extern char path_snaps[2049];
 extern char path_taps[2049];
 extern char path_mdrs[2049];
-extern unsigned int colors[16];
+extern unsigned int colors[80];
 extern unsigned int jump_frames,curr_frames;
 
 void SDL_Fullscreen_Switch(void);

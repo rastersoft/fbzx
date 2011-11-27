@@ -45,9 +45,9 @@ unsigned char *sound[NUM_SNDBUF];
 char path_snaps[2049];
 char path_taps[2049];
 char path_mdrs[2049];
-unsigned int colors[16];
+unsigned int colors[80];
 unsigned int jump_frames,curr_frames;
-
+char *filenames[5];
 
 void SDL_Fullscreen_Switch()
 {
@@ -82,14 +82,14 @@ FILE *myfopen(char *filename,char *mode) {
 	return (NULL);
 }
 
-char * load_a_rom(char **filenames) {
+char *load_a_rom(char **filenames) {
 	
 	char **pointer;
 	int offset=0;
 	FILE *fichero;
 	int size;
 	
-	for(pointer=filenames;pointer!=NULL;pointer++) {
+	for(pointer=filenames;*pointer!=NULL;pointer++) {
 		fichero=myfopen(*pointer,"r");
 		if(fichero==NULL) {
 			return (*pointer);
@@ -104,7 +104,6 @@ char * load_a_rom(char **filenames) {
 void load_rom(char type) {
 
 	char *retval;
-	char *filenames[5];
 	FILE *fichero;
 	int size;
 
@@ -153,6 +152,7 @@ void load_rom(char type) {
 			filenames[1]="spectrum-roms/plus3-40-1.rom";
 			filenames[2]="spectrum-roms/plus3-40-2.rom";
 			filenames[3]="spectrum-roms/plus3-40-3.rom";
+			filenames[4]=NULL;
 			retval=load_a_rom(filenames);
 			if (retval) {
 				printf("Can't load the Spectrum +3 ROM version 4.0. Trying with legacy filenames\n");
@@ -160,6 +160,7 @@ void load_rom(char type) {
 				filenames[1]="spectrum-roms/plus3-1.rom";
 				filenames[2]="spectrum-roms/plus3-2.rom";
 				filenames[3]="spectrum-roms/plus3-3.rom";
+				filenames[4]=NULL;
 				retval=load_a_rom(filenames);
 				if (retval) {
 					printf("Can't load file %s\n",retval);
@@ -224,7 +225,7 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	}
 
 	// screen initialization
-	valores=SDL_HWPALETTE|SDL_ANYFORMAT;
+	valores=SDL_HWPALETTE;//|SDL_ANYFORMAT;
 	if (fullscreen==1)
 		valores|=SDL_FULLSCREEN;
   
@@ -235,6 +236,7 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	else
 		valores|=SDL_SWSURFACE;
   
+	depth=8;
 	screen=SDL_SetVideoMode(resx,resy,depth,valores);
 	if(screen==NULL) {
 		printf("Can't assign SDL Surface. Exiting\n");
@@ -471,6 +473,8 @@ int main(int argc,char *argv[]) {
 	sound_type=SOUND_AUTOMATIC;
 	gamefile[0]=0;
 	ordenador.zaurus_mini=0;
+	ordenador.ulaplus=0;
+	ordenador.ulaplus_reg=0;
 	fullscreen=0;
 	dblbuffer=0;
 	hwsurface=0;
@@ -654,6 +658,7 @@ int main(int argc,char *argv[]) {
 	sprintf(ordenador.osd_text,"Press F1 for help");
 	ordenador.osd_time=200;
 
+	printf("BPP: %d\n",ordenador.bpp);
 	while(salir) {
 
 		do {
