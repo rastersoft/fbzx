@@ -977,6 +977,9 @@ void create_scrfile() {
 			retorno=-2;
 		else {
 			retval=fwrite(ordenador.block1+0x04000,6912,1,fichero); // save screen
+			if (ordenador.ulaplus!=0) {
+				retval=fwrite(ordenador.ulaplus_palete,64,1,fichero); // save ULAPlus palete
+			}
 			fclose(fichero);
 			retorno=0;
 		}
@@ -1496,6 +1499,7 @@ void load_scrfile() {
 	unsigned char *videomem,*filename,value;
 	int ancho,retorno,loop;
 	FILE *fichero;
+	unsigned char paleta_tmp[64];
 
 	videomem=screen->pixels;
 	ancho=screen->w;
@@ -1524,6 +1528,12 @@ void load_scrfile() {
 				retorno=-1;
 				break;
 			}
+		}
+		if (1==fread(paleta_tmp,64,1,fichero)) {
+			memcpy(ordenador.ulaplus_palete,paleta_tmp,64);
+			ordenador.ulaplus=1;
+		} else {
+			ordenador.ulaplus=0;
 		}
 		fclose(fichero);
 	}
