@@ -1382,6 +1382,10 @@ void Z80free_Out (register word Port, register byte Value) {
 	
 	register word maskport;
 	
+	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
+		do_contention();
+	}
+
 	// ULAPlus
 	if (Port == 0xBF3B) {
 		ordenador.ulaplus_reg = Value;
@@ -1404,7 +1408,6 @@ void Z80free_Out (register word Port, register byte Value) {
 	// ULA port (A0 low)
 
 	if (!(Port & 0x0001)) {
-		do_contention();
 		ordenador.port254 = (unsigned char) Value;
 		ordenador.border = (((unsigned char) Value) & 0x07);
 
@@ -1452,6 +1455,10 @@ byte Z80free_In (register word Port) {
 	static unsigned int temporal_io;
 	byte pines;
 
+	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
+		do_contention();
+	}
+
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
@@ -1464,7 +1471,6 @@ byte Z80free_In (register word Port) {
 	}
 
 	if (!(temporal_io & 0x0001)) {
-		do_contention();
 		pines = 0xBF;	// by default, sound bit is 0
 		if (!(temporal_io & 0x0100))
 			pines &= ordenador.s8;
