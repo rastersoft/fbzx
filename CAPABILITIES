@@ -16,3 +16,4 @@ WHAT EMULATES RIGHT IN FBZX?
 -Emulates Spanish 128K from Investronica/Sinclair
 -Allows to insert POKE values in memory (inmunity, infinite lives...)
 -Can load and save SCR snapshots
+-ULAPlus support

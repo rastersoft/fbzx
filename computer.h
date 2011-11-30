@@ -174,7 +174,7 @@ struct computer {
 
 	// OSD global variables
 
-	unsigned char osd_text[81];
+	unsigned char osd_text[200];
 	unsigned int osd_time;
 
 	// pagination global variables

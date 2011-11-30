@@ -272,7 +272,7 @@ void help_menu() {
 
 	clean_screen();
 
-	print_string(fbuffer,"FBZX (2.5.0)",-1,10,15,0,ancho);
+	print_string(fbuffer,"FBZX (2.6.0)",-1,10,15,0,ancho);
 	print_string(fbuffer,"Available keys",-1,40,14,0,ancho);
 	print_string(fbuffer,"Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0,ancho);
 
@@ -651,8 +651,9 @@ void select_tapfile() {
 		return;
 	}
 
-	if(ordenador.tap_file!=NULL)
+	if(ordenador.tap_file!=NULL) {
 		fclose(ordenador.tap_file);
+	}
 
 	ordenador.tap_file=fopen(filename,"r+"); // read and write
 	ordenador.tape_write = 0; // by default, can't record
@@ -848,10 +849,10 @@ void select_mdrfile() {
 		retorno=-1;
 	else {
 		retorno=0;
-	retval=fread(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // read the cartridge in memory
-	ordenador.mdr_modified=0; // not modified
-	fclose(ordenador.mdr_file);
-	ordenador.mdr_tapehead=0;
+		retval=fread(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // read the cartridge in memory
+		ordenador.mdr_modified=0; // not modified
+		fclose(ordenador.mdr_file);
+		ordenador.mdr_tapehead=0;
 	}
 
 	clean_screen();

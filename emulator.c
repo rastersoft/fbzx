@@ -225,7 +225,7 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	}
 
 	// screen initialization
-	valores=SDL_HWPALETTE;//|SDL_ANYFORMAT;
+	valores=SDL_HWPALETTE|SDL_ANYFORMAT;
 	if (fullscreen==1)
 		valores|=SDL_FULLSCREEN;
   
@@ -236,7 +236,6 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	else
 		valores|=SDL_SWSURFACE;
   
-	depth=8;
 	screen=SDL_SetVideoMode(resx,resy,depth,valores);
 	if(screen==NULL) {
 		printf("Can't assign SDL Surface. Exiting\n");
@@ -252,6 +251,8 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	} else
 		ordenador.mustlock=0;
 
+	printf("Locking screen\n");
+
 	// sound initialization
 
 	if (sound_type==SOUND_AUTOMATIC) {
@@ -266,7 +267,7 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 		sound_init(0);
 		sound_aborted=1;
 	}
-
+	printf("Init sound\n");
 	if(ordenador.format)
 		ordenador.increment=2*ordenador.channels;
 	else
@@ -274,14 +275,17 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	
 	value=0;
 	for(bucle2=0;bucle2<NUM_SNDBUF;bucle2++) {
-		sound[bucle2]=(unsigned char *)malloc(ordenador.buffer_len*ordenador.increment+4);
+		sound[bucle2]=(unsigned char *)malloc(ordenador.buffer_len*ordenador.increment+8);
 		for(bucle=0;bucle<ordenador.buffer_len*ordenador.increment+4;bucle++)
 			sound[bucle2][bucle]=value;
 			value+=4; 
 	}
 
+	printf("Init sound 2\n");
 	ordenador.tst_sample=3500000/ordenador.freq;
+	printf("Set volume\n");
 	set_volume(70);
+	printf("Return init\n");
 }
 
 void end_system() {
@@ -594,7 +598,9 @@ int main(int argc,char *argv[]) {
 	}
 
 	computer_init();
+	printf("Computer init\n");
 	register_screen(screen);
+	printf("Screen registered\n");
 	if(fullscreen) {
 		SDL_Fullscreen_Switch();
 	}
@@ -616,9 +622,11 @@ int main(int argc,char *argv[]) {
 
 	// assign random values to the memory before start execution
 
+	printf("Reset memory\n");
 	for(bucle=0;bucle<196608;bucle++)
 		ordenador.memoria[bucle]=(unsigned char) rand();
 
+	printf("Memory resetted\n");
 	ordenador.tap_file=NULL;
 	
 	// we filter all the events, except keyboard events
@@ -640,12 +648,15 @@ int main(int argc,char *argv[]) {
 	SDL_ShowCursor(SDL_DISABLE);
 	salir=1;
   
+	printf("Init microdrive\n");
 	microdrive_init();
 
+	printf("Reset computer\n");
 	ResetComputer();
 
 	sleep(1);
 
+	printf("Reset screen\n");
 	clean_screen();
 
 	if (sound_aborted==1) {
@@ -653,6 +664,7 @@ int main(int argc,char *argv[]) {
 		ordenador.osd_time=100;
 	}
 
+	printf("load main game\n");
 	load_main_game(gamefile);
 
 	sprintf(ordenador.osd_text,"Press F1 for help");

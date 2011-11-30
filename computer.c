@@ -1274,11 +1274,18 @@ void do_contention() {
 	if (!ordenador.contended_zone)
 		return;
 	
-	if ((ordenador.cicles_counter%4)==3)
+	if (ordenador.cicles_counter<14335) {
 		return;
+	}
+
+	int ccicles=(ordenador.cicles_counter-14335)%8;
+
+	if (ccicles>5) {
+		return;
+	}
 	
-	emulate(3-(ordenador.cicles_counter%4));
-	
+	emulate(6-ccicles);
+	printf ("Contencion %d\n",6-ccicles);
 }
 
 void Z80free_Wr (register word Addr, register byte Value) {
