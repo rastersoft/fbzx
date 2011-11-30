@@ -1285,7 +1285,7 @@ void do_contention() {
 	}
 	
 	emulate(6-ccicles);
-	printf ("Contencion %d\n",6-ccicles);
+
 }
 
 void Z80free_Wr (register word Addr, register byte Value) {
