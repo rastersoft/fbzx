@@ -812,15 +812,11 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			break;
 
 		case SDLK_F2:
-			snapshots_menu ();	// manage snapshot files
-			break;
-
 		case SDLK_F3:
-			taps_menu ();	// manage TAP files
-			break;
-
-		case SDLK_F4:	// settings
-			settings_menu ();
+		case SDLK_F4:
+		case SDLK_F7:
+		case SDLK_F8:
+			launch_menu(temporal_io);
 			break;
 
 		case SDLK_F5:   // STOP tape
@@ -832,14 +828,6 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
 				ordenador.pause = 0;
 			break;		
-
-		case SDLK_F7:
-			microdrive_menu ();	// shows the microdrive menu
-			break;
-		
-		case SDLK_F8:
-			tools_menu();
-			break;
 
 		case SDLK_F9:
 			SDL_Fullscreen_Switch();

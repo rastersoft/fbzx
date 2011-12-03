@@ -42,6 +42,39 @@ void print_copy(unsigned char *fbuffer,int ancho) {
 	
 }
 
+int launch_menu(unsigned int key_pressed) {
+
+	int retval=0;
+	switch(key_pressed) {
+
+		case SDLK_F2:
+			snapshots_menu ();	// manage snapshot files
+			retval=1;
+			break;
+
+		case SDLK_F3:
+			taps_menu ();	// manage TAP files
+			retval=1;
+			break;
+
+		case SDLK_F4:	// settings
+			settings_menu ();
+			retval=1;
+			break;
+
+		case SDLK_F7:
+			microdrive_menu ();	// shows the microdrive menu
+			retval=1;
+			break;
+
+		case SDLK_F8:
+			tools_menu();
+			retval=1;
+			break;
+	}
+	return (retval);
+}
+
 void settings_menu() {
 
 	unsigned char *fbuffer,fin;
@@ -319,12 +352,15 @@ void help_menu() {
 
 	fin=1;
 	do {
-
-		switch(wait_key()) {
+		unsigned int key = wait_key();
+		switch(key) {
 		case SDLK_ESCAPE: // to exit the help
 			fin=0;
 		break;
 		default:
+			if (launch_menu(key)) {
+				fin=0;
+			}
 		break;
 		}
 	} while(fin);
