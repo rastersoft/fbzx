@@ -6,7 +6,7 @@ LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
 fbzx: computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o
 
-	$(CC) -o fbzx computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o `pkg-config --libs sdl libpulse-simple alsa`
+	$(CC) -o fbzx computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o $(LDFLAGS)
 
 clean:
 	rm fbzx *.o *~
