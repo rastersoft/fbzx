@@ -305,7 +305,7 @@ void help_menu() {
 
 	clean_screen();
 
-	print_string(fbuffer,"FBZX (2.6.0)",-1,10,15,0,ancho);
+	print_string(fbuffer,"FBZX (2.7.0)",-1,10,15,0,ancho);
 	print_string(fbuffer,"Available keys",-1,40,14,0,ancho);
 	print_string(fbuffer,"Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0,ancho);
 

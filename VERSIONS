@@ -1,3 +1,8 @@
+2.7.0
+
+*Fixed a bug that prevented FBZX to store the current mode
+*Now supports 320x240 mode
+
 2.6.0
 
 *ULAPlus support
