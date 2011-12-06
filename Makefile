@@ -1,5 +1,8 @@
-#CC = gcc -O2 -Wall -Wno-pointer-sign `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
-#CCo = gcc
+ifdef PREFIX
+        PREFIX2=$(PREFIX)/usr
+else
+        PREFIX2=/usr/local
+endif
 
 CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -Wno-pointer-sign -Wall -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
@@ -12,26 +15,26 @@ clean:
 	rm fbzx *.o *~
 
 install:
-	rm -f /usr/bin/fbzx
-	cp fbzx /usr/local/bin
-	mkdir -p /usr/local/share/fbzx
-	mkdir -p /usr/local/share/spectrum-roms
-	mkdir -p /usr/share/applications
-	mkdir -p /usr/share/pixmaps
-	mkdir -p /usr/local/share/doc/fbzx
-	cp spectrum-roms/* /usr/local/share/spectrum-roms
-	cp keymap.bmp /usr/local/share/fbzx
-	cp fbzx.desktop /usr/share/applications
-	cp fbzx.svg /usr/share/pixmaps
-	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS /usr/local/share/doc/fbzx/
+	rm -f $(PREFIX2)/bin/fbzx
+	cp fbzx $(PREFIX2)/bin
+	mkdir -p $(PREFIX2)/share/fbzx
+	mkdir -p $(PREFIX2)/share/spectrum-roms
+	mkdir -p $(PREFIX2)/share/applications
+	mkdir -p $(PREFIX2)/share/pixmaps
+	mkdir -p $(PREFIX2)/share/doc/fbzx
+	cp spectrum-roms/* $(PREFIX2)/share/spectrum-roms
+	cp keymap.bmp $(PREFIX2)/share/fbzx
+	cp fbzx.desktop $(PREFIX2)/share/applications
+	cp fbzx.svg $(PREFIX2)/share/pixmaps
+	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS $(PREFIX2)/share/doc/fbzx/
 
 uninstall:
-	rm -f /usr/local/bin/fbzx
-	rm -rf /usr/local/share/fbzx
-	rm -f /usr/share/applications/fbzx.desktop
-	rm -f /usr/share/pixmaps/fbzx.svg
-	rm -rf /usr/local/share/doc/fbzx
-	rm -rf /usr/local/share/spectrum-roms
+	rm -f $(PREFIX2)/bin/fbzx
+	rm -rf $(PREFIX2)/share/fbzx
+	rm -f $(PREFIX2)/share/applications/fbzx.desktop
+	rm -f $(PREFIX2)/share/pixmaps/fbzx.svg
+	rm -rf $(PREFIX2)/share/doc/fbzx
+	rm -rf $(PREFIX2)/share/spectrum-roms
 
 spk_ay.o: spk_ay.c spk_ay.h emulator.h sound.h computer.h z80free/Z80free.h
 	$(CC) $(CFLAGS) -c -o spk_ay.o spk_ay.c

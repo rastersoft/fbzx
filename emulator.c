@@ -405,6 +405,7 @@ void load_config(struct computer *object) {
 			continue;
 		}
 		if (!strncmp(line,"mode=",5)) {
+			printf("Cambio a modo %c\n",line[5]-'0');
 			mode128k=line[5]-'0';
 			continue;
 		}
@@ -477,6 +478,7 @@ int main(int argc,char *argv[]) {
 	sound_type=SOUND_AUTOMATIC;
 	gamefile[0]=0;
 	ordenador.zaurus_mini=0;
+	ordenador.text_mini=0;
 	ordenador.ulaplus=0;
 	ordenador.ulaplus_reg=0;
 	fullscreen=0;
@@ -489,8 +491,14 @@ int main(int argc,char *argv[]) {
 	ordenador.dblscan=0;
 	ordenador.bw=0;
 
+	computer_init();
+	printf("Computer init\n");
+
+
+	printf("Modo: %d\n",ordenador.mode128k);
 	// load current config
 	load_config(&ordenador);
+	printf("Modo: %d\n",ordenador.mode128k);
 
 	while(argumento<argc) {
 		if ((0==strcmp(argv[argumento],"-h"))||(0==strcmp(argv[argumento],"--help"))) {
@@ -517,8 +525,9 @@ int main(int argc,char *argv[]) {
 #ifdef D_SOUND_PULSE
 			printf("  -pulse: use PulseAudio for sound output (default)\n");
 #endif
-			printf("  -mini: show screen at 320x240\n");
+			printf("  -mini: show screen at 320x240 in a rotated 640x480 screen\n");
 			printf("  -rotate: rotate screen clockwise\n");
+			printf("  -micro: show screen at 320x240\n");
 			printf("  -fs: start FBZX at fullscreen\n");
 			printf("  -hw: use hardware buffer (best for console framebuffer)\n");
 			printf("  -db: use double buffer\n");
@@ -553,7 +562,11 @@ int main(int argc,char *argv[]) {
 		} else if(0==strcmp(argv[argumento],"-rotate")) {
 			ordenador.zaurus_mini=2;
 			argumento++;
-		} else if(0==strcmp(argv[argumento],"-fs")) {
+		} else if (0==strcmp(argv[argumento],"-micro")) {
+			ordenador.zaurus_mini=3;
+			ordenador.text_mini=1;
+			argumento++;
+		}else if(0==strcmp(argv[argumento],"-fs")) {
 			fullscreen=1;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-hw")) {
@@ -594,13 +607,14 @@ int main(int argc,char *argv[]) {
 	case 2:
 		init_screen(480,640,0,0,dblbuffer,hwsurface);
 	break;
-	
+	case 3:
+		init_screen(320,240,0,0,dblbuffer,hwsurface);
+	break;
 	}
-
-	computer_init();
-	printf("Computer init\n");
+	printf("Modo: %d\n",ordenador.mode128k);
 	register_screen(screen);
 	printf("Screen registered\n");
+	printf("Modo: %d\n",ordenador.mode128k);
 	if(fullscreen) {
 		SDL_Fullscreen_Switch();
 	}
@@ -623,11 +637,13 @@ int main(int argc,char *argv[]) {
 	// assign random values to the memory before start execution
 
 	printf("Reset memory\n");
+	printf("Modo: %d\n",ordenador.mode128k);
 	for(bucle=0;bucle<196608;bucle++)
 		ordenador.memoria[bucle]=(unsigned char) rand();
 
 	printf("Memory resetted\n");
 	ordenador.tap_file=NULL;
+	printf("Modo: %d\n",ordenador.mode128k);
 	
 	// we filter all the events, except keyboard events
 
@@ -664,8 +680,10 @@ int main(int argc,char *argv[]) {
 		ordenador.osd_time=100;
 	}
 
+	printf("Modo: %d\n",ordenador.mode128k);
 	printf("load main game\n");
 	load_main_game(gamefile);
+	printf("Modo: %d\n",ordenador.mode128k);
 
 	sprintf(ordenador.osd_text,"Press F1 for help");
 	ordenador.osd_time=200;

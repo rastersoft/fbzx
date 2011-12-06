@@ -371,6 +371,17 @@ void register_screen (SDL_Surface * pantalla) {
 		ordenador.next_pixel = 480;
 		ordenador.jump_pixel = 7680;
 		break;
+	case 3:
+		ordenador.init_line = 0;
+		ordenador.next_line = 0;
+		ordenador.next_scanline = 0;
+		ordenador.first_line = 40;
+		ordenador.last_line = 280;
+		ordenador.first_pixel = 0;
+		ordenador.last_pixel = 319;
+		ordenador.next_pixel = 1;
+		ordenador.jump_pixel = 4;
+		break;
 	}
 	
 	ordenador.next_line*=ordenador.bpp;
@@ -616,11 +627,11 @@ inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char p
 		valor = (octet & mask) ? (int) ink : (int) paper;
 		p=(colors+valor);
 		paint_one_pixel((unsigned char *)p,ordenador.pixel);
-		if ((ordenador.zaurus_mini!=1)&&(ordenador.dblscan)) {
+		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)&&(ordenador.dblscan)) {
 			paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
 		}
 		ordenador.pixel+=ordenador.next_pixel;
-		if (ordenador.zaurus_mini!=1) {
+		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)) {
 			paint_one_pixel((unsigned char *)p,ordenador.pixel);
 			if (ordenador.dblscan) {
 				paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);

@@ -39,17 +39,21 @@ void printchar(unsigned char *memo, unsigned char carac, int x, int y, unsigned 
 			if ((characters[carac-32][pos]) & bit_rot)
 				paint_one_pixel (colors + (int) (color), lugar2);
 			//*((unsigned int *)lugar2)=*(colors+(int)(color-16));
-			else
+			else if ((ordenador.text_mini==0)||((bucle1%2==0)&&(bucle2%2==0)))
 				paint_one_pixel (colors + (int) (back), lugar2);
 			//*((unsigned int *)lugar2)=*(colors+(int)(back-16));
-			lugar2+=ordenador.bpp;
+			if ((ordenador.text_mini==0)||(bucle2%2==1)) {
+				lugar2+=ordenador.bpp;
+			}
 			bit_rot/=2;
 			if ((bucle2 == 7) || (bucle2 == 15)) {
 				pos++;
 				bit_rot=0x80;
 			}
 		}
-		lugar+=(width * ordenador.bpp);
+		if ((ordenador.text_mini==0)||(bucle1%2==1)) {
+			lugar+=(width * ordenador.bpp);
+		}
 	}
 }
 
@@ -59,18 +63,33 @@ void print_string(unsigned char *memo, char *cadena, int x, int y, unsigned char
 
 	int length, ncarac, bucle, xx;
 	int xxx, yyy;
+	int w,h;
 	unsigned char *str2;
+
+	if (ordenador.text_mini==1) {
+		if (x!=-1)
+			x/=2;
+		y/=2;
+		w=8;
+		h=10;
+	} else {
+		w=16;
+		h=20;
+	}
 
 	for (ncarac=0,str2=cadena;*str2;str2++) {
 		if ((*str2)>=' ') {
 			ncarac++;
 		}
 	}
-	length=16 * ncarac;
+	length=w * ncarac;
 
-	if (length > width)
-		xx=x;
-	else {
+	if (length > width) {
+		if (x>=0)
+			xx=x;
+		else
+			xx=0;
+	} else {
 		if (x == -1) // we want it centered
 			xx=(width / 2) - (length / 2);
 		else
@@ -97,10 +116,10 @@ void print_string(unsigned char *memo, char *cadena, int x, int y, unsigned char
 		}
 		if ((*str2)<=127) {
 			printchar (memo,*str2, xxx, yyy, color, back, width);
-			xxx+=16;
-			if (xxx >= width - 16) {
+			xxx+=w;
+			if (xxx >= width - w) {
 				xxx=0;
-				yyy+=20;
+				yyy+=h;
 			}
 		}
 		str2++;

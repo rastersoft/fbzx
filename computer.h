@@ -41,6 +41,7 @@ struct computer {
 	unsigned int screen_width;
 	unsigned int translate[6144],translate2[6144];
 	unsigned char zaurus_mini;
+	unsigned char text_mini;
 	unsigned char dblscan;
 	unsigned char bw;
 
