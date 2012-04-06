@@ -119,18 +119,19 @@ int compare_processors() {
 
 int read_elements(Z80FREE *emulador) {
 
-	int tstates,retval,v1,v2,v3,v4,v5,v6,v7,v8,v9,v10;
+	int tstates,retval;
+	unsigned short int v1,v2,v3,v4,v5,v6,v7,v8,v9,v10;
 
 	Z80free_reset(emulador);
 
-	retval=fscanf(infile,"%x %x %x %x",(int *)&emulador->Rm.wr.AF,(int *)&emulador->Rm.wr.BC,(int *)&emulador->Rm.wr.DE,(int *)&emulador->Rm.wr.HL);
-	retval=fscanf(infile,"%x %x %x %x",&v7,&v8,&v9,&v10);
+	retval=fscanf(infile,"%hx %hx %hx %hx",(unsigned short int *)&emulador->Rm.wr.AF,(unsigned short int *)&emulador->Rm.wr.BC,(unsigned short int *)&emulador->Rm.wr.DE,(unsigned short int *)&emulador->Rm.wr.HL);
+	retval=fscanf(infile,"%hx %hx %hx %hx",&v7,&v8,&v9,&v10);
 	emulador->Ra.wr.AF=v7;
 	emulador->Ra.wr.BC=v8;
 	emulador->Ra.wr.DE=v9;
 	emulador->Ra.wr.HL=v10;
-	retval=fscanf(infile,"%x %x %x %x",(int *)&emulador->Rm.wr.IX,(int *)&emulador->Rm.wr.IY,(int *)&emulador->Rm.wr.SP,(int *)&emulador->PC);
-	retval=fscanf(infile,"%x %x %x %x %x %x %d",&v1,&v2,&v3,&v4,&v5,&v6,&tstates);
+	retval=fscanf(infile,"%hx %hx %hx %hx",(unsigned short int *)&emulador->Rm.wr.IX,(unsigned short int *)&emulador->Rm.wr.IY,(unsigned short int *)&emulador->Rm.wr.SP,(unsigned short int *)&emulador->PC);
+	retval=fscanf(infile,"%hx %hx %hx %hx %hx %hx %d",&v1,&v2,&v3,&v4,&v5,&v6,&tstates);
 
 	emulador->I=v1;
 	emulador->R=v2;
@@ -147,7 +148,7 @@ int read_memory(char mode) {
 	// mode=0 : store value in memory
 	// mode=1 : compare value with memory
 
-	int position,value,retval;
+	int position,retval,value;
 
 	retval=fscanf(infile,"%x",&position);
 	if (position==-1) {
@@ -162,7 +163,7 @@ int read_memory(char mode) {
 					printf("Error in memory, address %X. Expected value: %X, current value: %X\n",position,value,memory[position]);
 				}
 			} else {
-				memory[position]=value;
+				memory[position]=(byte)value;
 			}
 			position++;
 		}
@@ -183,8 +184,8 @@ int read_inports() {
 			break;
 		}
 		retval=fscanf(infile,"%x",&value);
-		portdirs[elements]=addr;
-		ports[elements]=value;
+		portdirs[elements]=(word)addr;
+		ports[elements]=(byte)value;
 		elements++;
 	}
 	return 0;
