@@ -838,10 +838,10 @@ class z80_parser(generic_parser):
 			return False
 		
 		if opcode=="OUTI":
-			self.file_out.write("\t\t/*OUTI, OUTD, OTIR and OTDR first uses B and then decrement it*/\n")
+			self.file_out.write("\t\t/*OUTI, OUTD, OTIR and OTDR first decrement B and then uses it*/\n")
+			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
-			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			return False
 
 		if opcode=="LDD":
@@ -881,9 +881,9 @@ class z80_parser(generic_parser):
 			return False
 		
 		if opcode=="OUTD":
+			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
-			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			return False
 
 		if opcode=="LDIR":
@@ -929,9 +929,9 @@ class z80_parser(generic_parser):
 			return True
 		
 		if opcode=="OTIR":
+			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
-			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
@@ -983,9 +983,9 @@ class z80_parser(generic_parser):
 			return True
 		
 		if opcode=="OTDR":
+			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
-			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")

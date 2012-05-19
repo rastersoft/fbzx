@@ -631,10 +631,10 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (12);
 	break;
 	case 163: // OUTI
-		/*OUTI, OUTD, OTIR and OTDR first uses B and then decrement it*/
+		/*OUTI, OUTD, OTIR and OTDR first decrement B and then uses it*/
+		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
 		processor->Rm.wr.HL++;
-		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		return (12);
 	break;
 	case 164: // NOP
@@ -686,9 +686,9 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (12);
 	break;
 	case 171: // OUTD
+		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
 		processor->Rm.wr.HL--;
-		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		return (12);
 	break;
 	case 172: // NOP
@@ -743,9 +743,9 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		}
 	break;
 	case 179: // OTIR
+		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
 		processor->Rm.wr.HL++;
-		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);
@@ -805,9 +805,9 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		}
 	break;
 	case 187: // OTDR
+		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
 		processor->Rm.wr.HL--;
-		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);

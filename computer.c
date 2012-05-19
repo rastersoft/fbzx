@@ -644,6 +644,7 @@ inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char p
 
 inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	switch(ordenador.bpp) {
 	case 1:
 		*address=*colour;
@@ -658,7 +659,22 @@ inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 		*((unsigned int *)address)=*((unsigned int *)colour);
 	break;
 	}
-	
+#else // BIG_ENDIAN
+	switch(ordenador.bpp) {
+		case 1:
+			*address=*(colour+3);
+		break;
+		case 3:
+			*(address++)=*(++colour);
+		case 2:
+			*(address++)=*(++colour);
+			*(address++)=*(++colour);
+		break;
+		case 4:
+			*((unsigned int *)address)=*((unsigned int *)colour);
+		break;
+	}
+#endif
 }
 
 // Read the keyboard and stores the flags
@@ -905,7 +921,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 		break;
 		
 		case 3:	// sinclair 2
-			temporal_io = SDLK_7;
+			temporal_io = SDLK_9;
 		break;
 		}
 	break;
@@ -945,7 +961,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 		break;
 				
 		case 3:	// sinclair 2
-			temporal_io = SDLK_9;
+			temporal_io = SDLK_6;
 		break;
 		
 		}
@@ -966,7 +982,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 		break;
 		
 		case 3:	// sinclair 2
-			temporal_io = SDLK_0;
+			temporal_io = SDLK_7;
 		break;		
 		}
 	break;
@@ -991,7 +1007,7 @@ inline void read_keyboard (SDL_Event *pevento2) {
 		break;
 		
 		case 3:	// sinclair 2
-			temporal_io = SDLK_6;
+			temporal_io = SDLK_0;
 		break;		
 		}
 	break;

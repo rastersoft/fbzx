@@ -150,25 +150,34 @@ int save_z80(char *filename) {
 
 int load_z80(char *filename) {
 
-	struct z80snapshot snap;
-	unsigned char tempo[30],tempo2[56],memo[49152],type,compressed,page,byte_read[3];
+	struct z80snapshot *snap;
+	unsigned char tempo[30],tempo2[56],type,compressed,page,byte_read[3];
+	unsigned char *memo;
 	FILE *fichero;
 	int longitud=0,longitud2,bucle,retval;
+
+	memo=(unsigned char *)malloc(49152);
+	snap=(struct z80snapshot *)malloc(sizeof(struct z80snapshot));
 
 	longitud=strlen(filename);
 	if ((longitud>4)&&(0==strcasecmp(".sna",filename+(longitud-4)))) {
 		printf("Read SNA file\n");
+		free(memo);
+		free(snap);
 		return load_sna(filename);
 	}
 
 	printf("Read Z80 file\n");
 
 	for(bucle=0;bucle<16;bucle++)
-		snap.ay_regs[bucle]=0;
+		snap->ay_regs[bucle]=0;
 
 	fichero=fopen(filename,"r");
-	if(fichero==NULL)
+	if(fichero==NULL) {
+		free(memo);
+		free(snap);
 		return -1; // error
+	}
 
 	printf("Read header (first 30 bytes)\n");
 	retval=fread(tempo,1,30,fichero);
@@ -183,6 +192,8 @@ int load_z80(char *filename) {
 		if(longitud>54) {
 			fclose(fichero);
 			printf("Not suported Z80 file\n");
+			free(memo);
+			free(snap);
 			return -3; // not a supported Z80 file
 		}
 		printf("Length: %d\n",longitud);
@@ -192,15 +203,17 @@ int load_z80(char *filename) {
 			switch(tempo2[4]) {
 			case 0:
 			case 1:
-				snap.type=0; // 48K
+				snap->type=0; // 48K
 				break;
 			case 3:
 			case 4:
-				snap.type=1; // 128K
+				snap->type=1; // 128K
 			break;
 			default:
 				fclose(fichero);
 				printf("Again not suported Z80 file\n");
+				free(memo);
+				free(snap);
 				return -3; // not a supported Z80 file
 			break;
 			}
@@ -209,50 +222,52 @@ int load_z80(char *filename) {
 			case 0:
 			case 1:
 			case 3:
-				snap.type=0; // 48K
+				snap->type=0; // 48K
 				break;
 			case 4:
 			case 5:
 			case 6:
-				snap.type=1; // 128K
+				snap->type=1; // 128K
 				break;
 			default:
 				fclose(fichero);
+				free(memo);
+				free(snap);
 				return -3; // not a supported Z80 file
 				break;
 			}      
 	} else {
 		printf("Old type z80\n");
 		type=0; // old type
-		snap.type=0; // 48k
+		snap->type=0; // 48k
 	}
 
 	if(tempo[29]&0x04) {
 		printf("Issue 2\n");
-		snap.issue=2; // issue2
+		snap->issue=2; // issue2
 	} else {
 		printf("Issue 3\n");
-		snap.issue=3; // issue3
+		snap->issue=3; // issue3
 	}
 
-	snap.A=tempo[0];
-	snap.F=tempo[1];
-	snap.C=tempo[2];
-	snap.B=tempo[3];
-	snap.L=tempo[4];
-	snap.H=tempo[5];
+	snap->A=tempo[0];
+	snap->F=tempo[1];
+	snap->C=tempo[2];
+	snap->B=tempo[3];
+	snap->L=tempo[4];
+	snap->H=tempo[5];
 	if(type) {
-		snap.PC=((word)tempo2[2])+256*((word)tempo2[3]);
+		snap->PC=((word)tempo2[2])+256*((word)tempo2[3]);
 		for(bucle=0;bucle<16;bucle++)
-			snap.ay_regs[bucle]=tempo2[9+bucle];
-		snap.ay_latch=tempo2[8];
+			snap->ay_regs[bucle]=tempo2[9+bucle];
+		snap->ay_latch=tempo2[8];
 	} else {
-		snap.PC=((word)tempo[6])+256*((word)tempo[7]);
+		snap->PC=((word)tempo[6])+256*((word)tempo[7]);
 	}
 
-	snap.SP=((word)tempo[8])+256*((word)tempo[9]);
-	snap.I=tempo[10];
-	snap.R=(tempo[11]&0x7F);
+	snap->SP=((word)tempo[8])+256*((word)tempo[9]);
+	snap->I=tempo[10];
+	snap->R=(tempo[11]&0x7F);
 
 	if(tempo[12]==255) {
 		printf("Byte 12 is 255! doing 1\n");
@@ -260,57 +275,57 @@ int load_z80(char *filename) {
 	}
 
 	if(tempo[12]&0x01)
-		snap.R|=0x80;
+		snap->R|=0x80;
 
-	snap.border=(tempo[12]>>1)&0x07;
+	snap->border=(tempo[12]>>1)&0x07;
 
 	if(tempo[12]&32)
 		compressed=1;
 	else
 		compressed=0;
 
-	snap.E=tempo[13];
-	snap.D=tempo[14];
-	snap.CC=tempo[15];
-	snap.BB=tempo[16];
-	snap.EE=tempo[17];
-	snap.DD=tempo[18];
-	snap.LL=tempo[19];
-	snap.HH=tempo[20];
-	snap.AA=tempo[21];
-	snap.FF=tempo[22];
-	snap.IY=((word)tempo[23])+256*((word)tempo[24]);
-	snap.IX=((word)tempo[25])+256*((word)tempo[26]);
+	snap->E=tempo[13];
+	snap->D=tempo[14];
+	snap->CC=tempo[15];
+	snap->BB=tempo[16];
+	snap->EE=tempo[17];
+	snap->DD=tempo[18];
+	snap->LL=tempo[19];
+	snap->HH=tempo[20];
+	snap->AA=tempo[21];
+	snap->FF=tempo[22];
+	snap->IY=((word)tempo[23])+256*((word)tempo[24]);
+	snap->IX=((word)tempo[25])+256*((word)tempo[26]);
 
 	if(tempo[27]!=0)
-		snap.IFF1=1;
+		snap->IFF1=1;
 	else
-		snap.IFF1=0;
+		snap->IFF1=0;
 
 	if(tempo[28]!=0)
-		snap.IFF2=1;
+		snap->IFF2=1;
 	else
-		snap.IFF2=0;
+		snap->IFF2=0;
 	
 	switch(tempo[29]&0x03) {
 	case 0:
-		snap.Imode=0;
+		snap->Imode=0;
 		break;
 	case 1:
-		snap.Imode=1;
+		snap->Imode=1;
 		break;
 	case 2:
-		snap.Imode=2;
+		snap->Imode=2;
 		break;
 	}
 
-	snap.joystick=((tempo[29]>>6)&0x03);
+	snap->joystick=((tempo[29]>>6)&0x03);
 
 	if(type)
-		snap.pager=tempo2[5];
+		snap->pager=tempo2[5];
 
 	if(type) { // extended z80
-		if(snap.type==1) { // 128K snapshot
+		if(snap->type==1) { // 128K snapshot
 
 		/*       fclose(fichero);
 		return -3;*/  // z80 file not yet supported
@@ -351,9 +366,9 @@ int load_z80(char *filename) {
 				}
 				printf("Loading page %d of length %d\n",page,longitud);
 				if(longitud2==0xFFFF) // uncompressed raw data
-					retval=fread(snap.page[page],16384,1,fichero);
+					retval=fread(snap->page[page],16384,1,fichero);
 				else
-					uncompress_z80(fichero,16384,snap.page[page]);
+					uncompress_z80(fichero,16384,snap->page[page]);
 			}
 
 		} else {
@@ -377,9 +392,9 @@ int load_z80(char *filename) {
 					break;
 				}
 				if(longitud2==0xFFFF) // uncompressed raw data
-					retval=fread(snap.page[page],16384,1,fichero);
+					retval=fread(snap->page[page],16384,1,fichero);
 				else
-					uncompress_z80(fichero,16384,snap.page[page]);
+					uncompress_z80(fichero,16384,snap->page[page]);
 			}
 		}
 	} else {
@@ -391,43 +406,55 @@ int load_z80(char *filename) {
       
 			uncompress_z80(fichero,49152,memo);
       
-			memcpy(snap.page[0],memo,16384);
-			memcpy(snap.page[1],memo+16384,16384);
-			memcpy(snap.page[2],memo+32768,16384);
+			memcpy(snap->page[0],memo,16384);
+			memcpy(snap->page[1],memo+16384,16384);
+			memcpy(snap->page[2],memo+32768,16384);
      
 		} else {
 			// 48k uncompressed z80 loader
       
-			retval=fread(snap.page[0],16384,1,fichero);
-			retval=fread(snap.page[1],16384,1,fichero);
-			retval=fread(snap.page[2],16384,1,fichero);
+			retval=fread(snap->page[0],16384,1,fichero);
+			retval=fread(snap->page[1],16384,1,fichero);
+			retval=fread(snap->page[2],16384,1,fichero);
 		}
 		
 	}
 
-	load_snap(&snap);
+	load_snap(snap);
 	fclose(fichero);
+	free(memo);
+	free(snap);
 	return 0; // all right
 }
 
 int load_sna(char *filename) {
 
-	unsigned char tempo[49179];
-	unsigned char tempo2[98308];
+	unsigned char *tempo;
+	unsigned char *tempo2;
 	unsigned char type=0;
 	FILE *fichero;
-	struct z80snapshot snap;
+	struct z80snapshot *snap;
 	unsigned char v1,v2;
 	int addr,loop;
 
+	tempo=(unsigned char *)malloc(49179);
+	tempo2=(unsigned char *)malloc(98308);
+	snap=(struct z80snapshot *)malloc(sizeof(struct z80snapshot));
 	
 	printf("Loading SNA file\n");
 	
 	fichero=fopen(filename,"r");
-	if(fichero==NULL)
+	if(fichero==NULL) {
+		free(tempo);
+		free(tempo2);
+		free(snap);
 		return -1; // error
+	}
 
 	if (1!=fread(tempo,49179,1,fichero)) {
+		free(tempo);
+		free(tempo2);
+		free(snap);
 		return -1;
 	}
 	
@@ -439,46 +466,46 @@ int load_sna(char *filename) {
 		type=1;
 	}
 	
-	snap.type=type;
+	snap->type=type;
 	
-	snap.I=tempo[0];
-	snap.LL=tempo[1];
-	snap.HH=tempo[2];
-	snap.EE=tempo[3];
-	snap.DD=tempo[4];
-	snap.CC=tempo[5];
-	snap.BB=tempo[6];
-	snap.FF=tempo[7];
-	snap.AA=tempo[8];
+	snap->I=tempo[0];
+	snap->LL=tempo[1];
+	snap->HH=tempo[2];
+	snap->EE=tempo[3];
+	snap->DD=tempo[4];
+	snap->CC=tempo[5];
+	snap->BB=tempo[6];
+	snap->FF=tempo[7];
+	snap->AA=tempo[8];
 	
-	snap.L=tempo[9];
-	snap.H=tempo[10];
-	snap.E=tempo[11];
-	snap.D=tempo[12];
-	snap.C=tempo[13];
-	snap.B=tempo[14];
+	snap->L=tempo[9];
+	snap->H=tempo[10];
+	snap->E=tempo[11];
+	snap->D=tempo[12];
+	snap->C=tempo[13];
+	snap->B=tempo[14];
 	
-	snap.IY=((word)tempo[15])+256*((word)tempo[16]);
-	snap.IX=((word)tempo[17])+256*((word)tempo[18]);
+	snap->IY=((word)tempo[15])+256*((word)tempo[16]);
+	snap->IX=((word)tempo[17])+256*((word)tempo[18]);
 	
 	if (tempo[19]&0x01) {
-		snap.IFF1=1;
+		snap->IFF1=1;
 	} else {
-		snap.IFF1=0;
+		snap->IFF1=0;
 	}
 	
 	if (tempo[19]&0x02) {
-		snap.IFF2=1;
+		snap->IFF2=1;
 	} else {
-		snap.IFF2=0;
+		snap->IFF2=0;
 	}
 	
-	snap.R=tempo[20];
-	snap.F=tempo[21];
-	snap.A=tempo[22];
-	snap.SP=((word)tempo[23])+256*((word)tempo[24]);
-	snap.Imode=tempo[25];
-	snap.border=tempo[26];
+	snap->R=tempo[20];
+	snap->F=tempo[21];
+	snap->A=tempo[22];
+	snap->SP=((word)tempo[23])+256*((word)tempo[24]);
+	snap->Imode=tempo[25];
+	snap->border=tempo[26];
 	
 	if (type==0) {
 			
@@ -486,38 +513,44 @@ int load_sna(char *filename) {
 		v2=tempo[24];
 		addr=((int)v1)+256*((int)v2);
 		if ((addr<16384)||(addr>=65534)) {
+			free(tempo);
+			free(tempo2);
+			free(snap);
 			printf("Error loading SNA file. Return address in ROM.\n");
 			return -1;
 		}
 		addr-=16384;
 		addr+=27;
-		snap.PC=((word)tempo[addr])+256*((word)tempo[addr+1]);
+		snap->PC=((word)tempo[addr])+256*((word)tempo[addr+1]);
 		tempo[addr]=0;
 		tempo[addr+1]=0;
-		snap.SP+=2;
-		snap.IFF1=snap.IFF2;
-		memcpy(snap.page[0],tempo+27,16384);
-		memcpy(snap.page[1],tempo+16411,16384);
-		memcpy(snap.page[2],tempo+32795,16384);
+		snap->SP+=2;
+		snap->IFF1=snap->IFF2;
+		memcpy(snap->page[0],tempo+27,16384);
+		memcpy(snap->page[1],tempo+16411,16384);
+		memcpy(snap->page[2],tempo+32795,16384);
 	} else {
-		snap.PC=((word)tempo2[0])+256*((word)tempo2[1]);
-		memcpy(snap.page[5],tempo+27,16384);
-		memcpy(snap.page[2],tempo+16411,16384);
+		snap->PC=((word)tempo2[0])+256*((word)tempo2[1]);
+		memcpy(snap->page[5],tempo+27,16384);
+		memcpy(snap->page[2],tempo+16411,16384);
 		v1=tempo[2];
-		snap.pager=v1;
+		snap->pager=v1;
 		v1&=0x07;
-		memcpy(snap.page[v1],tempo+32795,16384);
+		memcpy(snap->page[v1],tempo+32795,16384);
 		addr=4;
 		for (loop=0;loop<7;loop++) {
 			if ((loop==2)||(loop==5)||(loop==((int)v1))) {
 				continue;
 			}
-			memcpy(snap.page[loop],tempo2+addr,16384);
+			memcpy(snap->page[loop],tempo2+addr,16384);
 			addr+=16384;
 		}
 	}
 	
-	load_snap(&snap);
+	load_snap(snap);
+	free(tempo);
+	free(tempo2);
+	free(snap);
 	return 0;
 	
 }

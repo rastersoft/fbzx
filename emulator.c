@@ -405,7 +405,7 @@ void load_config(struct computer *object) {
 			continue;
 		}
 		if (!strncmp(line,"mode=",5)) {
-			printf("Cambio a modo %c\n",line[5]-'0');
+			printf("Cambio a modo %d\n",line[5]-'0');
 			mode128k=line[5]-'0';
 			continue;
 		}
