@@ -273,12 +273,10 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 	else
 		ordenador.increment=ordenador.channels;
 	
-	value=0;
 	for(bucle2=0;bucle2<NUM_SNDBUF;bucle2++) {
 		sound[bucle2]=(unsigned char *)malloc(ordenador.buffer_len*ordenador.increment+8);
 		for(bucle=0;bucle<ordenador.buffer_len*ordenador.increment+4;bucle++)
-			sound[bucle2][bucle]=value;
-			value+=4; 
+			sound[bucle2][bucle]=0;
 	}
 
 	printf("Init sound 2\n");

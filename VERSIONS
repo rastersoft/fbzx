@@ -4,6 +4,7 @@
 *Now the snapshot management functions doesn't use so many stack memory
 *Fixed a bug with BIG_ENDIAN machines   
 *Fixed key order for Sinclair Joystick #2
+*Removed sound during reset
 
 2.7.0
 
