@@ -1,10 +1,11 @@
 2.8.0
 
-*Fixed OUTI, OTIR, OUTD and OTDR: now decrements B before doing OUT
-*Now the snapshot management functions doesn't use so many stack memory
-*Fixed a bug with BIG_ENDIAN machines   
-*Fixed key order for Sinclair Joystick #2
-*Removed sound during reset
+*Fixed OUTI, OTIR, OUTD and OTDR: now decrements B before doing OUT (thanks to Fabio Olimpieri)
+*Now the snapshot management functions doesn't use so many stack memory (thanks to Fabio Olimpieri)
+*Fixed a bug in screen painting with big endian machines (thanks to Fabio Olimpieri)
+*Fixed key order for Sinclair Joystick #2 (thanks to Fabio Olimpieri)
+*Fixed the Z80 emulator tests for big endian machines (thanks to Fabio Olimpieri)
+*Removed anoying sound when reseting the emulator
 
 2.7.0
 
