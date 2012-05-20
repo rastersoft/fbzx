@@ -27,6 +27,9 @@ install:
 	cp fbzx.desktop $(PREFIX2)/share/applications
 	cp fbzx.svg $(PREFIX2)/share/pixmaps
 	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS $(PREFIX2)/share/doc/fbzx/
+	chmod 644 $(PREFIX2)/share/fbzx/*
+	chmod 644 $(PREFIX2)/share/spectrum-roms/*
+	chmod 644 $(PREFIX2)/share/doc/fbzx/*
 
 uninstall:
 	rm -f $(PREFIX2)/bin/fbzx
