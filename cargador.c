@@ -467,7 +467,14 @@ int load_sna(char *filename) {
 	}
 	
 	snap->type=type;
-	
+
+	//Some inits
+	for(loop=0;loop<16;loop++)
+		snap->ay_regs[loop]=0;
+	snap->ay_latch=0;
+	snap->issue=3;
+	snap->joystick=1; //kempston
+
 	snap->I=tempo[0];
 	snap->LL=tempo[1];
 	snap->HH=tempo[2];

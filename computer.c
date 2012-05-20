@@ -1403,10 +1403,12 @@ void Z80free_Out (register word Port, register byte Value) {
 
 	// ULAPlus
 	if (Port == 0xBF3B) {
+		do_contention();
 		ordenador.ulaplus_reg = Value;
 		return;
 	}
 	if (Port == 0xFF3B) {
+		do_contention();
 		if (ordenador.ulaplus_reg==0x40) { // mode
 			ordenador.ulaplus=Value&0x01;
 			return;
@@ -1477,6 +1479,7 @@ byte Z80free_In (register word Port) {
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
+		do_contention();
 		if (ordenador.ulaplus_reg==0x40) { // mode
 			return(ordenador.ulaplus&0x01);
 		}
