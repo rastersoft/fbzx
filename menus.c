@@ -38,9 +38,84 @@
 
 void print_copy(unsigned char *fbuffer,int ancho) {
 	
-	print_string(fbuffer,"(C) 2003-2011 Raster Software Vigo",-1,455,13,0,ancho);
+	print_string(fbuffer,"(C) 2003-2012 Raster Software Vigo",-1,455,13,0,ancho);
 	
 }
+
+// shows the help menu
+
+void help_menu() {
+
+	unsigned char *fbuffer,fin;
+	int ancho=screen->w;
+
+	fbuffer=screen->pixels;
+
+	clean_screen();
+
+	print_string(fbuffer,"FBZX (2.9.0)",-1,10,15,0,ancho);
+	print_string(fbuffer,"Available keys",-1,40,14,0,ancho);
+	print_string(fbuffer,"Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0,ancho);
+
+	print_string(fbuffer,"F1:",14,160,12,0,ancho);
+	print_string(fbuffer,"this help",62,160,15,0,ancho);
+
+	print_string(fbuffer,"F2:",336,160,12,0,ancho);
+	print_string(fbuffer,"manage snapshots",382,160,15,0,ancho);
+
+	print_string(fbuffer,"F3:",14,200,12,0,ancho);
+	print_string(fbuffer,"manage TAP/TZX",62,200,15,0,ancho);
+
+	print_string(fbuffer,"F4:",336,200,12,0,ancho);
+	print_string(fbuffer,"change settings",382,200,15,0,ancho);
+
+	print_string(fbuffer,"F5:",14,240,12,0,ancho);
+	print_string(fbuffer,"stop TAPE",62,240,15,0,ancho);
+
+	print_string(fbuffer,"F6:",336,240,12,0,ancho);
+	print_string(fbuffer,"play TAPE",382,240,15,0,ancho);
+
+	print_string(fbuffer,"F7:",14,280,12,0,ancho);
+	print_string(fbuffer,"manage MICRODRIVE",62,280,15,0,ancho);
+
+	print_string(fbuffer,"F8:",336,280,12,0,ancho);
+	print_string(fbuffer,"tools",382,280,15,0,ancho);
+
+	print_string(fbuffer,"F9:",14,320,12,0,ancho);
+	print_string(fbuffer,"Toggle fullscreen",62,320,15,0,ancho);
+
+	print_string(fbuffer,"F10:",336,320,12,0,ancho);
+	print_string(fbuffer,"reset spectrum",398,320,15,0,ancho);
+
+	print_string(fbuffer,"F11/O:",14,360,12,0,ancho);
+	print_string(fbuffer,"volume low",110,360,15,0,ancho);
+
+	print_string(fbuffer,"F12/P:",336,360,12,0,ancho);
+	print_string(fbuffer,"volume up",430,360,15,0,ancho);
+
+	print_string(fbuffer,"ESC:",184,400,12,0,ancho);
+	print_string(fbuffer,"exit emulator",248,400,15,0,ancho);
+
+	print_copy(fbuffer,ancho);
+
+	fin=1;
+	do {
+		unsigned int key = wait_key();
+		switch(key) {
+		case SDLK_ESCAPE: // to exit the help
+			fin=0;
+		break;
+		default:
+			if (launch_menu(key)) {
+				fin=0;
+			}
+		break;
+		}
+	} while(fin);
+	clean_screen();
+}
+
+
 
 int launch_menu(unsigned int key_pressed) {
 
@@ -291,79 +366,6 @@ void settings_menu() {
 		}
 	} while(fin);
 
-	clean_screen();
-}
-
-// shows the help menu
-
-void help_menu() {
-
-	unsigned char *fbuffer,fin;
-	int ancho=screen->w;
-
-	fbuffer=screen->pixels;
-
-	clean_screen();
-
-	print_string(fbuffer,"FBZX (2.8.0)",-1,10,15,0,ancho);
-	print_string(fbuffer,"Available keys",-1,40,14,0,ancho);
-	print_string(fbuffer,"Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0,ancho);
-
-	print_string(fbuffer,"F1:",14,160,12,0,ancho);
-	print_string(fbuffer,"this help",62,160,15,0,ancho);
-
-	print_string(fbuffer,"F2:",336,160,12,0,ancho);
-	print_string(fbuffer,"manage snapshots",382,160,15,0,ancho);
-
-	print_string(fbuffer,"F3:",14,200,12,0,ancho);
-	print_string(fbuffer,"manage TAP/TZX",62,200,15,0,ancho);
-
-	print_string(fbuffer,"F4:",336,200,12,0,ancho);
-	print_string(fbuffer,"change settings",382,200,15,0,ancho);
-
-	print_string(fbuffer,"F5:",14,240,12,0,ancho);
-	print_string(fbuffer,"stop TAPE",62,240,15,0,ancho);
-
-	print_string(fbuffer,"F6:",336,240,12,0,ancho);
-	print_string(fbuffer,"play TAPE",382,240,15,0,ancho);
-
-	print_string(fbuffer,"F7:",14,280,12,0,ancho);
-	print_string(fbuffer,"manage MICRODRIVE",62,280,15,0,ancho);
-
-	print_string(fbuffer,"F8:",336,280,12,0,ancho);
-	print_string(fbuffer,"tools",382,280,15,0,ancho);
-
-	print_string(fbuffer,"F9:",14,320,12,0,ancho);
-	print_string(fbuffer,"Toggle fullscreen",62,320,15,0,ancho);
-
-	print_string(fbuffer,"F10:",336,320,12,0,ancho);
-	print_string(fbuffer,"reset spectrum",398,320,15,0,ancho);
-
-	print_string(fbuffer,"F11/O:",14,360,12,0,ancho);
-	print_string(fbuffer,"volume low",110,360,15,0,ancho);
-
-	print_string(fbuffer,"F12/P:",336,360,12,0,ancho);
-	print_string(fbuffer,"volume up",430,360,15,0,ancho);
-
-	print_string(fbuffer,"ESC:",184,400,12,0,ancho);
-	print_string(fbuffer,"exit emulator",248,400,15,0,ancho);
-
-	print_copy(fbuffer,ancho);
-
-	fin=1;
-	do {
-		unsigned int key = wait_key();
-		switch(key) {
-		case SDLK_ESCAPE: // to exit the help
-			fin=0;
-		break;
-		default:
-			if (launch_menu(key)) {
-				fin=0;
-			}
-		break;
-		}
-	} while(fin);
 	clean_screen();
 }
 
