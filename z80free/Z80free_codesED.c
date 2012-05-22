@@ -726,9 +726,11 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 			processor->PC-=2;
 			return (17);
 		} else {
-			Z80free_resFlag(processor,F_H|F_N|F_PV|F_3|F_5);
+			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
+			Z80free_setFlag(processor,F_N);
 		Z80free_valFlag(processor,F_C,tmp2);
-			return (12);
+		if (processor->Rm.wr.BC)
+			Z80free_setFlag(processor,F_PV);			return (12);
 		}
 	break;
 	case 178: // INIR
@@ -788,9 +790,11 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 			processor->PC-=2;
 			return (17);
 		} else {
-			Z80free_resFlag(processor,F_H|F_N|F_PV|F_3|F_5);
+			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
+			Z80free_setFlag(processor,F_N);
 		Z80free_valFlag(processor,F_C,tmp2);
-			return (12);
+		if (processor->Rm.wr.BC)
+			Z80free_setFlag(processor,F_PV);			return (12);
 		}
 	break;
 	case 186: // INDR

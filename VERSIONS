@@ -1,3 +1,10 @@
+2.9.0
+
+*Fixed CPIR and CPDR, so now Ant Attack works fine (thanks to Fabio Olimpieri)
+*Now CPIR and CPDR sets the N bit
+*Access to the ULAPLUS registers now produces memory contention, as it should be (thanks to Fabio Olimpieri)
+*Now initializates some registers when loading a .sna snapshot (thanks to Fabio Olimpieri)
+
 2.8.0
 
 *Fixed OUTI, OTIR, OUTD and OTDR: now decrements B before doing OUT (thanks to Fabio Olimpieri)
