@@ -279,8 +279,8 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
-	case 78: // IM 1
-		processor->IM=1;
+	case 78: // IM 0
+		processor->IM=0;
 		return (4);
 	break;
 	case 79: // LD R,A
@@ -724,6 +724,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.wr.BC--;
 		if ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {
 			processor->PC-=2;
+			Z80free_valFlag(processor,F_C,tmp2);
 			return (17);
 		} else {
 			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
@@ -788,6 +789,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.wr.BC--;
 		if ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {
 			processor->PC-=2;
+			Z80free_valFlag(processor,F_C,tmp2);
 			return (17);
 		} else {
 			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
