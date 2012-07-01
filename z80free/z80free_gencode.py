@@ -741,11 +741,13 @@ class z80_parser(generic_parser):
 				self.file_out.write("\t\t"+code_write[0].replace("@DATA@","Z80free_In(processor->Rm.wr.BC)")+"\n")
 				self.file_out.write("\t\tZ80free_adjustFlagSZP (processor,"+code_read[0]+");\n")
 				self.file_out.write("\t\tZ80free_resFlag(processor,F_H|F_N);\n")
+				self.file_out.write("\t\tZ80free_adjustFlags (processor, "+code_read[0]+");\n")
 				return False
 			elif bits==0:
 				self.file_out.write("\t\ttmp1=Z80free_In(processor->Rm.wr.BC);\n")
 				self.file_out.write("\t\tZ80free_adjustFlagSZP (processor,tmp1);\n")
 				self.file_out.write("\t\tZ80free_resFlag(processor,F_H|F_N);\n")
+				self.file_out.write("\t\tZ80free_adjustFlags (processor, tmp1);\n")
 				return False
 
 		if opcode=="OUT":
@@ -776,13 +778,12 @@ class z80_parser(generic_parser):
 			return False
 		
 		if opcode=="RETN":
-			self.file_out.write("\t\tprocessor->IFF1=(processor->IFF2 ? 2 : 0);\n")
+			self.file_out.write("\t\tprocessor->IFF1=processor->IFF2;\n")
 			self.file_out.write("\t\tprocessor->PC=Z80free_doPop(processor);\n")
 			return False
 		
 		if opcode=="RETI":
-			self.file_out.write("\t\tprocessor->IFF1=2;\n")
-			self.file_out.write("\t\tprocessor->IFF2=1;\n")
+			self.file_out.write("\t\tprocessor->IFF1=processor->IFF2;\n")
 			self.file_out.write("\t\tprocessor->PC=Z80free_doPop(processor);\n")
 			return False
 		
@@ -830,18 +831,29 @@ class z80_parser(generic_parser):
 
 		if opcode=="INI":
 			self.file_out.write("\t\t/*INI, IND, INIR and INDR first decrement B and then uses it*/\n")
-			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));\n")
+			self.file_out.write("\t\ttmp1=Z80free_In(processor->Rm.wr.BC);\n")
+			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
-			self.file_out.write("\t\tZ80free_valFlag(processor,F_N, 1);\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\ttmp3=((((word) processor->Rm.br.C)+1)&0xFF)+(word) tmp1;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			self.file_out.write("\t\tZ80free_valFlag(processor,F_Z, (processor->Rm.br.B == 0));\n")
 			return False
 		
 		if opcode=="OUTI":
-			self.file_out.write("\t\t/*OUTI, OUTD, OTIR and OTDR first decrement B and then uses it*/\n")
+			self.file_out.write("\t\t/*OUTI, OUTD, OTIR and OTDR first decrements B and then uses it*/\n")
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
-			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
+			self.file_out.write("\t\ttmp1=Z80free_Rd(processor->Rm.wr.HL);\n")
+			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\ttmp3=(word) processor->Rm.br.L+(word)tmp1;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			return False
 
 		if opcode=="LDD":
@@ -875,15 +887,28 @@ class z80_parser(generic_parser):
 			return False
 
 		if opcode=="IND":
-			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));\n")
+			self.file_out.write("\t\ttmp1=Z80free_In(processor->Rm.wr.BC);\n")
+			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\ttmp3=((((word) processor->Rm.br.C)-1)&0xFF)+(word) tmp1;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			return False
 		
 		if opcode=="OUTD":
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
-			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
+			self.file_out.write("\t\ttmp1=Z80free_Rd(processor->Rm.wr.HL);\n")
+			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\ttmp3=(word) processor->Rm.br.L+(word)tmp1;\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
+
 			return False
 
 		if opcode=="LDIR":
@@ -904,42 +929,59 @@ class z80_parser(generic_parser):
 
 		if opcode=="CPIR":
 			self.file_out.write("\t\ttmp2=F_C&processor->Rm.br.F;\n")
-			self.file_out.write("\t\tZ80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL++),0,1);\n")
+			self.file_out.write("\t\ttmp1=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL++),0,1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.BC--;\n")
 			self.file_out.write("\t\tif ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
-			self.file_out.write("\t\t\tZ80free_resFlag(processor,F_H|F_PV|F_3|F_5);\n")
+			self.file_out.write("\t\t\t//Bit3 and bit 5 are set only at the end of the loop to save cpu time\n")
+			self.file_out.write("\t\t\tif (processor->Rm.br.F&F_H)\n")
+			self.file_out.write("\t\t\t\ttmp1--;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_3,tmp1&0x08);\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_5,tmp1&0x02);\n")
+			self.file_out.write("\t\t\tZ80free_resFlag(processor,F_PV);\n")
 			self.file_out.write("\t\t\tZ80free_setFlag(processor,F_N);\n")
-			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
-			self.file_out.write("\t\tif (processor->Rm.wr.BC)\n")
-			self.file_out.write("\t\t\tZ80free_setFlag(processor,F_PV);")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
+			self.file_out.write("\t\t\tif (processor->Rm.wr.BC)\n")
+			self.file_out.write("\t\t\t\tZ80free_setFlag(processor,F_PV);\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
 
 		if opcode=="INIR":
-			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));\n")
+			self.file_out.write("\t\ttmp1=Z80free_In(processor->Rm.wr.BC);\n")
+			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\t\ttmp3=((((word) processor->Rm.br.C)+1)&0xFF)+(word) tmp1;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
 		
 		if opcode=="OTIR":
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
-			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
+			self.file_out.write("\t\ttmp1=Z80free_Rd(processor->Rm.wr.HL);\n")
+			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL++;\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\t\ttmp3=(word) processor->Rm.br.L+(word)tmp1;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
@@ -962,42 +1004,59 @@ class z80_parser(generic_parser):
 
 		if opcode=="CPDR":
 			self.file_out.write("\t\ttmp2=F_C&processor->Rm.br.F;\n")
-			self.file_out.write("\t\tZ80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL--),0,1);\n")
+			self.file_out.write("\t\ttmp1=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL--),0,1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.BC--;\n")
 			self.file_out.write("\t\tif ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
-			self.file_out.write("\t\t\tZ80free_resFlag(processor,F_H|F_PV|F_3|F_5);\n")
+			self.file_out.write("\t\t\t//Bit3 and bit 5 are set only at the end of the loop to save cpu time\n")
+			self.file_out.write("\t\t\tif (processor->Rm.br.F&F_H)\n")
+			self.file_out.write("\t\t\t\ttmp1--;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_3,tmp1&0x08);\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_5,tmp1&0x02);\n")
+			self.file_out.write("\t\t\tZ80free_resFlag(processor,F_PV);\n")
 			self.file_out.write("\t\t\tZ80free_setFlag(processor,F_N);\n")
-			self.file_out.write("\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
-			self.file_out.write("\t\tif (processor->Rm.wr.BC)\n")
-			self.file_out.write("\t\t\tZ80free_setFlag(processor,F_PV);")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,tmp2);\n")
+			self.file_out.write("\t\t\tif (processor->Rm.wr.BC)\n")
+			self.file_out.write("\t\t\t\tZ80free_setFlag(processor,F_PV);\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
 
 		if opcode=="INDR":
-			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));\n")
+			self.file_out.write("\t\ttmp1=Z80free_In(processor->Rm.wr.BC);\n")
+			self.file_out.write("\t\tZ80free_Wr(processor->Rm.wr.HL,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\t\ttmp3=((((word) processor->Rm.br.C)-1)&0xFF)+(word) tmp1;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
 		
 		if opcode=="OTDR":
 			self.file_out.write("\t\tprocessor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);\n")
-			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));\n")
+			self.file_out.write("\t\ttmp1=Z80free_Rd(processor->Rm.wr.HL);\n")
+			self.file_out.write("\t\tZ80free_Out(processor->Rm.wr.BC,tmp1);\n")
 			self.file_out.write("\t\tprocessor->Rm.wr.HL--;\n")
 			self.file_out.write("\t\tif (processor->Rm.br.B) {\n")
 			self.file_out.write("\t\t\tprocessor->PC-=2;\n")
 			self.file_out.write("\t\t\treturn ("+str(tst1)+");\n")
 			self.file_out.write("\t\t} else {\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_N,((tmp1&0x80)!=0));\n")
+			self.file_out.write("\t\t\ttmp3=(word) processor->Rm.br.L+(word)tmp1;\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_C,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_H,((tmp3&0x100)!=0));\n")
+			self.file_out.write("\t\t\tZ80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));\n")
 			self.file_out.write("\t\t\treturn ("+str(tst2)+");\n")
 			self.file_out.write("\t\t}\n")
 			return True
@@ -1183,6 +1242,7 @@ class parser_ED(z80_parser):
 		self.file_out.write('int '+self.filename+' (Z80FREE *processor,byte opcode) {\n')
 		self.file_out.write('\tstatic byte tmp1;\n')
 		self.file_out.write('\tstatic byte tmp2;\n')
+		self.file_out.write('\tstatic word tmp3;\n')
 		self.file_out.write('\n')
 		
 		

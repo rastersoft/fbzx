@@ -89,7 +89,6 @@ int Z80free_ustep(Z80FREE *processor) {
 				}
 				processor->Status=Z80INT;
 				processor->IFF1=0;
-				processor->IFF2=0;
 				Z80free_doPush(processor,processor->PC);
 				if (processor->IM!=2) { // we will forget IM0 mode for now; maybe in the future...
 					processor->PC=0x0038;
@@ -214,7 +213,7 @@ inline int Z80free_getFlag(Z80FREE *processor, byte flag) {
  * --------------------------------------------------------- 
  */
 
-static int Z80free_parityBit[256] = { 
+int Z80free_parityBit[256] = {
 	
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 
 	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,

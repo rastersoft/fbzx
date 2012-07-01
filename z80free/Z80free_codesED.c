@@ -22,6 +22,7 @@
 int Z80free_codesED (Z80FREE *processor,byte opcode) {
 	static byte tmp1;
 	static byte tmp2;
+	static word tmp3;
 
 	switch(opcode) {
 	case 0: // NOP
@@ -220,6 +221,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.B=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.B);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.B);
 		return (8);
 	break;
 	case 65: // OUT_BC B
@@ -239,7 +241,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 69: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -255,6 +257,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.C=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.C);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.C);
 		return (8);
 	break;
 	case 73: // OUT_BC C
@@ -274,8 +277,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 77: // RETI
-		processor->IFF1=2;
-		processor->IFF2=1;
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -291,6 +293,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.D=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.D);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.D);
 		return (8);
 	break;
 	case 81: // OUT_BC D
@@ -310,7 +313,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 85: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -326,6 +329,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.E=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.E);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.E);
 		return (8);
 	break;
 	case 89: // OUT_BC E
@@ -345,7 +349,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 93: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -361,6 +365,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.H=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.H);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.H);
 		return (8);
 	break;
 	case 97: // OUT_BC H
@@ -380,7 +385,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 101: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -396,6 +401,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.L=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.L);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.L);
 		return (8);
 	break;
 	case 105: // OUT_BC L
@@ -415,7 +421,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 109: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -431,6 +437,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		tmp1=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,tmp1);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, tmp1);
 		return (8);
 	break;
 	case 113: // OUT_BC 0
@@ -450,7 +457,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 117: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -465,6 +472,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		processor->Rm.br.A=Z80free_In(processor->Rm.wr.BC);
 		Z80free_adjustFlagSZP (processor,processor->Rm.br.A);
 		Z80free_resFlag(processor,F_H|F_N);
+		Z80free_adjustFlags (processor, processor->Rm.br.A);
 		return (8);
 	break;
 	case 121: // OUT_BC A
@@ -484,7 +492,7 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 125: // RETN
-		processor->IFF1=(processor->IFF2 ? 2 : 0);
+		processor->IFF1=processor->IFF2;
 		processor->PC=Z80free_doPop(processor);
 		return (10);
 	break;
@@ -623,18 +631,29 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 	break;
 	case 162: // INI
 		/*INI, IND, INIR and INDR first decrement B and then uses it*/
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));
+		tmp1=Z80free_In(processor->Rm.wr.BC);
+		Z80free_Wr(processor->Rm.wr.HL,tmp1);
 		processor->Rm.wr.HL++;
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
-		Z80free_valFlag(processor,F_N, 1);
+		Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+		tmp3=((((word) processor->Rm.br.C)+1)&0xFF)+(word) tmp1;
+		Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 		Z80free_valFlag(processor,F_Z, (processor->Rm.br.B == 0));
 		return (12);
 	break;
 	case 163: // OUTI
-		/*OUTI, OUTD, OTIR and OTDR first decrement B and then uses it*/
+		/*OUTI, OUTD, OTIR and OTDR first decrements B and then uses it*/
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
-		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
+		tmp1=Z80free_Rd(processor->Rm.wr.HL);
+		Z80free_Out(processor->Rm.wr.BC,tmp1);
 		processor->Rm.wr.HL++;
+		Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+		tmp3=(word) processor->Rm.br.L+(word)tmp1;
+		Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 		return (12);
 	break;
 	case 164: // NOP
@@ -680,15 +699,27 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 		return (12);
 	break;
 	case 170: // IND
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));
+		tmp1=Z80free_In(processor->Rm.wr.BC);
+		Z80free_Wr(processor->Rm.wr.HL,tmp1);
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		processor->Rm.wr.HL--;
+		Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+		tmp3=((((word) processor->Rm.br.C)-1)&0xFF)+(word) tmp1;
+		Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 		return (12);
 	break;
 	case 171: // OUTD
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
-		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
+		tmp1=Z80free_Rd(processor->Rm.wr.HL);
+		Z80free_Out(processor->Rm.wr.BC,tmp1);
 		processor->Rm.wr.HL--;
+		Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+		tmp3=(word) processor->Rm.br.L+(word)tmp1;
+		Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+		Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 		return (12);
 	break;
 	case 172: // NOP
@@ -720,39 +751,57 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 	break;
 	case 177: // CPIR
 		tmp2=F_C&processor->Rm.br.F;
-		Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL++),0,1);
+		tmp1=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL++),0,1);
 		processor->Rm.wr.BC--;
 		if ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {
 			processor->PC-=2;
 			Z80free_valFlag(processor,F_C,tmp2);
 			return (17);
 		} else {
-			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
+			//Bit3 and bit 5 are set only at the end of the loop to save cpu time
+			if (processor->Rm.br.F&F_H)
+				tmp1--;
+			Z80free_valFlag(processor,F_3,tmp1&0x08);
+			Z80free_valFlag(processor,F_5,tmp1&0x02);
+			Z80free_resFlag(processor,F_PV);
 			Z80free_setFlag(processor,F_N);
-		Z80free_valFlag(processor,F_C,tmp2);
-		if (processor->Rm.wr.BC)
-			Z80free_setFlag(processor,F_PV);			return (12);
+			Z80free_valFlag(processor,F_C,tmp2);
+			if (processor->Rm.wr.BC)
+				Z80free_setFlag(processor,F_PV);
+			return (12);
 		}
 	break;
 	case 178: // INIR
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));
+		tmp1=Z80free_In(processor->Rm.wr.BC);
+		Z80free_Wr(processor->Rm.wr.HL,tmp1);
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		processor->Rm.wr.HL++;
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);
 		} else {
+			Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+			tmp3=((((word) processor->Rm.br.C)+1)&0xFF)+(word) tmp1;
+			Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 			return (12);
 		}
 	break;
 	case 179: // OTIR
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
-		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
+		tmp1=Z80free_Rd(processor->Rm.wr.HL);
+		Z80free_Out(processor->Rm.wr.BC,tmp1);
 		processor->Rm.wr.HL++;
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);
 		} else {
+			Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+			tmp3=(word) processor->Rm.br.L+(word)tmp1;
+			Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 			return (12);
 		}
 	break;
@@ -785,39 +834,57 @@ int Z80free_codesED (Z80FREE *processor,byte opcode) {
 	break;
 	case 185: // CPDR
 		tmp2=F_C&processor->Rm.br.F;
-		Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL--),0,1);
+		tmp1=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(processor->Rm.wr.HL--),0,1);
 		processor->Rm.wr.BC--;
 		if ((processor->Rm.wr.BC)&&(!(processor->Rm.br.F&F_Z))) {
 			processor->PC-=2;
 			Z80free_valFlag(processor,F_C,tmp2);
 			return (17);
 		} else {
-			Z80free_resFlag(processor,F_H|F_PV|F_3|F_5);
+			//Bit3 and bit 5 are set only at the end of the loop to save cpu time
+			if (processor->Rm.br.F&F_H)
+				tmp1--;
+			Z80free_valFlag(processor,F_3,tmp1&0x08);
+			Z80free_valFlag(processor,F_5,tmp1&0x02);
+			Z80free_resFlag(processor,F_PV);
 			Z80free_setFlag(processor,F_N);
-		Z80free_valFlag(processor,F_C,tmp2);
-		if (processor->Rm.wr.BC)
-			Z80free_setFlag(processor,F_PV);			return (12);
+			Z80free_valFlag(processor,F_C,tmp2);
+			if (processor->Rm.wr.BC)
+				Z80free_setFlag(processor,F_PV);
+			return (12);
 		}
 	break;
 	case 186: // INDR
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_In(processor->Rm.wr.BC));
+		tmp1=Z80free_In(processor->Rm.wr.BC);
+		Z80free_Wr(processor->Rm.wr.HL,tmp1);
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
 		processor->Rm.wr.HL--;
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);
 		} else {
+			Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+			tmp3=((((word) processor->Rm.br.C)-1)&0xFF)+(word) tmp1;
+			Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 			return (12);
 		}
 	break;
 	case 187: // OTDR
 		processor->Rm.br.B=Z80free_doIncDec(processor,processor->Rm.br.B,1);
-		Z80free_Out(processor->Rm.wr.BC,Z80free_Rd(processor->Rm.wr.HL));
+		tmp1=Z80free_Rd(processor->Rm.wr.HL);
+		Z80free_Out(processor->Rm.wr.BC,tmp1);
 		processor->Rm.wr.HL--;
 		if (processor->Rm.br.B) {
 			processor->PC-=2;
 			return (17);
 		} else {
+			Z80free_valFlag(processor,F_N,((tmp1&0x80)!=0));
+			tmp3=(word) processor->Rm.br.L+(word)tmp1;
+			Z80free_valFlag(processor,F_C,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_H,((tmp3&0x100)!=0));
+			Z80free_valFlag(processor,F_PV,(Z80free_parityBit[(((byte)tmp3)&0x07)^processor->Rm.br.B]));
 			return (12);
 		}
 	break;

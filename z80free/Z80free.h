@@ -28,6 +28,8 @@ typedef unsigned short int word;
 typedef unsigned char byte;
 #endif
 
+extern int Z80free_parityBit[256];
+
 #define F_S      0x80
 #define F_Z      0x40
 #define F_5      0x20
