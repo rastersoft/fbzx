@@ -38,7 +38,8 @@
 
 void print_copy(unsigned char *fbuffer,int ancho) {
 	
-	print_string(fbuffer,"(C) 2003-2012 Raster Software Vigo",-1,455,13,0,ancho);
+	print_string(fbuffer,"(C) 2003-2012 Raster Software Vigo",-1,439,13,0,ancho);
+	print_string(fbuffer,"(C) 2012 Fabio Olimpieri",-1,457,13,0,ancho);
 	
 }
 
