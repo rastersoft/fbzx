@@ -1,3 +1,10 @@
+2.10.0
+
+*Fixed CPIR, CPDR, INI, INIR, IND, INDR, OUTI, OTIR, OUTD and OTDR instructions
+*Fixed RETI and RETN instructions to better mimic the original behaviour
+*Big rewrote of the AY-3-8912 code, greatly improving the emulation
+(all changes thanks to Fabio Olimpieri)
+
 2.9.0
 
 *Fixed CPIR and CPDR, so now Ant Attack works fine (thanks to Fabio Olimpieri)
