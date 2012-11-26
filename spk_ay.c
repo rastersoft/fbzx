@@ -1,9 +1,9 @@
-/* 
+/*
  * Copyright (C) 2012 Fabio Olimpieri
  * Copyright 2003-2009 (C) Raster Software Vigo (Sergio Costas)
  * This file is part of FBZX and FBZX Wii
  *
- * FBZX (qWii) is free software; you can redistribute it and/or modify
+ * FBZX (Wii) is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * The AY white noise RNG algorithm is based on info from MAME's ay8910.c -
  * MAME's licence explicitly permits free use of info (even encourages it).
  */
@@ -67,7 +67,7 @@ inline void play_ay (unsigned int tstados) {
 	if (ordenador.tst_ay2 > 127) {
 		ordenador.tst_ay2 -= 128;
 		
-		env_period=2*((unsigned int) ordenador.ay_registers[11]) + 256 * ((unsigned int) (ordenador.ay_registers[12]));
+		env_period=2*(((unsigned int) ordenador.ay_registers[11]) + 256 * ((unsigned int) (ordenador.ay_registers[12])));
 		if (!env_period) env_period = 1;
 		
 			if (ordenador.aych_envel<env_period) // to check
