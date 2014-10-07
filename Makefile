@@ -12,7 +12,7 @@ fbzx: computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z
 	$(CC) -o fbzx computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o $(LDFLAGS)
 
 clean:
-	rm fbzx *.o *~
+	rm -f fbzx *.o *~
 
 install:
 	rm -f $(PREFIX2)/bin/fbzx
@@ -22,11 +22,13 @@ install:
 	mkdir -p $(PREFIX2)/share/applications
 	mkdir -p $(PREFIX2)/share/pixmaps
 	mkdir -p $(PREFIX2)/share/doc/fbzx
+	mkdir -p $(PREFIX2)/share/appdata
 	cp spectrum-roms/* $(PREFIX2)/share/spectrum-roms
 	cp keymap.bmp $(PREFIX2)/share/fbzx
 	cp fbzx.desktop $(PREFIX2)/share/applications
 	cp fbzx.svg $(PREFIX2)/share/pixmaps
 	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS $(PREFIX2)/share/doc/fbzx/
+	cp fbzx.appdata.xml $(PREFIX2)/share/appdata/
 	chmod 644 $(PREFIX2)/share/fbzx/*
 	chmod 644 $(PREFIX2)/share/spectrum-roms/*
 	chmod 644 $(PREFIX2)/share/doc/fbzx/*
@@ -38,6 +40,7 @@ uninstall:
 	rm -f $(PREFIX2)/share/pixmaps/fbzx.svg
 	rm -rf $(PREFIX2)/share/doc/fbzx
 	rm -rf $(PREFIX2)/share/spectrum-roms
+	rm -f $(PREFIX2)/share/appdata/fbzx.appdata.xml
 
 spk_ay.o: spk_ay.c spk_ay.h emulator.h sound.h computer.h z80free/Z80free.h
 	$(CC) $(CFLAGS) -c -o spk_ay.o spk_ay.c

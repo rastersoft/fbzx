@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2013 First Lastname <your@email.com> -->
+<application>
+ <id type="desktop">fbzx.desktop</id>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-3.0</project_license>
+ <name>FBZX</name>
+ <summary>ZX Spectrum emulator</summary>
+ <description>
+  <p>
+   FBZX is a Sinclair ZX Spectrum emulator. Its main features are:
+   <ul>
+   <li>emulates acurately the Original spectrum (both issue 2 and issue 3), the classic 128K, the Amstrad Plus 2, the Amstrad Plus 2A and the Spanish 128K. This include screen, keyboard and sound (both speaker and AY-3-8912 chip).</li>
+<li>Screen emulation is extremely acurate, so it can emulate border efects and even atribute efects.</li>
+<li>Supports Z80 snapshots, both loading and saving, and loading .SNA snapshots.</li>
+<li>Supports TAP (both read and write) and TZX (only read) tape files, supporting normal speed loading and fast speed loading.</li>
+<li>Emulates joysticks: kempston, cursor and sinclair.</li>
+<li>Emulates the Interface I and Microdrive.</li>
+<li>Emulates the ULAPlus.</li>
+<li>Based in a new, fully free, Z80 emulator (Z80Free).</li>
+  </p>
+ </description>
+ <screenshots>
+  <screenshot type="default">http://www.rastersoft.com/imagen/fbzx.png</screenshot>
+ </screenshots>
+ <url type="homepage">http://www.rastersoft.com/fbzx.html</url>
+ <updatecontact>raster@rastersoft.com</updatecontact>
+</application>
