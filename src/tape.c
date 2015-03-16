@@ -17,11 +17,12 @@
  * 
  */
 
+#include <stdio.h>
+#include "tape.h"
 #include "z80free/Z80free.h"
 #include "computer.h"
 #include "emulator.h"
 #include "menus.h"
-#include "tape.h"
 
 int elcontador=0;
 int eltstado=0;
@@ -29,7 +30,7 @@ char elbit=0;
 
 /* reads a tape file and updates the readed bit */
 
-inline void tape_read(FILE *fichero, int tstados) {
+void tape_read(FILE *fichero, int tstados) {
 
 	if(ordenador.pause)
 		return;
@@ -43,7 +44,7 @@ inline void tape_read(FILE *fichero, int tstados) {
 
 // manages TAP files in REAL_MODE
 
-inline void tape_read_tap (FILE * fichero, int tstados) {
+void tape_read_tap (FILE * fichero, int tstados) {
 
 	static unsigned char value, value2;
 	int retval;
@@ -162,7 +163,7 @@ inline void tape_read_tap (FILE * fichero, int tstados) {
 
 // manages TZX files
 
-inline void tape_read_tzx (FILE * fichero, int tstados) {
+void tape_read_tzx (FILE * fichero, int tstados) {
 
 	static unsigned char value, value2,value3,value4,done;
 	static unsigned int bucle,bucle2;
@@ -633,13 +634,13 @@ unsigned char file_empty(FILE *fichero) {
 void save_file(FILE *fichero) {
 
 	long position;
-	unsigned char xor,salir;
+	unsigned char op_xor,salir;
 	byte dato;
 	int longitud;
 			
 	position=ftell(fichero); // store current position
 	fseek(fichero,0,SEEK_END); // put position at end
-	xor=0;
+	op_xor=0;
 	
 	longitud=(int)(procesador.Rm.wr.DE);
 	longitud+=2;
@@ -651,7 +652,7 @@ void save_file(FILE *fichero) {
 
 	fprintf(fichero,"%c",procesador.Rm.br.A); // flag
 
-	xor^=procesador.Rm.br.A;
+	op_xor^=procesador.Rm.br.A;
 
 	salir = 0;
 	do {
@@ -660,12 +661,12 @@ void save_file(FILE *fichero) {
 		if (!salir) {
 			dato=Z80free_Rd(procesador.Rm.wr.IX); // read data
 			fprintf(fichero,"%c",dato);
-			xor^=dato;
+			op_xor^=dato;
 			procesador.Rm.wr.IX++;			
 			procesador.Rm.wr.DE--;			
 		}
 	} while (!salir);
-	fprintf(fichero,"%c",xor);
+	fprintf(fichero,"%c",op_xor);
 	procesador.Rm.wr.IX++;
 	procesador.Rm.wr.IX++;
 	fseek(fichero,position,SEEK_SET); // put position at end
@@ -679,13 +680,14 @@ void save_file(FILE *fichero) {
 void fastload_block (FILE * fichero) {
 
 	unsigned int longitud;
-	unsigned char value[65536], salir,empty,flag_found;	
+	unsigned char value[65538], salir,empty,flag_found;
 	unsigned int veces;
 	int retval;
 
 	ordenador.other_ret = 1;	// next instruction must be RET
 
 	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
+		printf("Verify\n");
 		procesador.Rm.br.F |= F_C;	 // verify OK
 		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 		procesador.Rm.wr.DE = 0;
@@ -736,19 +738,20 @@ void fastload_block (FILE * fichero) {
 
 	salir = 0;
 	do {
-		if (longitud == 0)
+		if (longitud == 0) {
 			salir = 1;
-		if (procesador.Rm.wr.DE == 0)
-			salir = 2;
-		if (!salir) {
-			retval=fread (value, 1, 1, fichero);	// read byte
-			Z80free_Wr (procesador.Rm.wr.IX, (byte) value[0]);	// store the byte
-			procesador.Rm.wr.IX++;
-			procesador.Rm.wr.DE--;
-			longitud--;
+			break;
 		}
-	}
-	while (!salir);
+		if (procesador.Rm.wr.DE == 0) {
+			salir = 2;
+			break;
+		}
+		retval=fread (value, 1, 1, fichero);	// read byte
+		Z80free_Wr (procesador.Rm.wr.IX, (byte) value[0]);	// store the byte
+		procesador.Rm.wr.IX++;
+		procesador.Rm.wr.DE--;
+		longitud--;
+	} while (!salir);
 
 	clean_screen ();
 

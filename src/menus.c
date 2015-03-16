@@ -30,8 +30,9 @@
 #include <string.h>
 #include "characters.h"
 #include "menus.h"
-#include "tape.h"
 #include <SDL/SDL.h>
+
+#include "tape.h"
 
 
 // shows the settings menu
@@ -50,7 +51,7 @@ void help_menu() {
 	unsigned char *fbuffer,fin;
 	int ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 
 	clean_screen();
 
@@ -154,10 +155,10 @@ int launch_menu(unsigned int key_pressed) {
 void settings_menu() {
 
 	unsigned char *fbuffer,fin;
-	unsigned char texto[41];
+	char texto[41];
 	int ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 
 	fin=1;
 
@@ -375,10 +376,11 @@ void settings_menu() {
 
 void do_poke() {
 
-	unsigned char *videomem,string[80];
+	unsigned char *videomem;
+	char string[80];
 	int ancho,retorno,address,old_value,new_value;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -467,7 +469,7 @@ void tools_menu() {
 	unsigned char *fbuffer,fin;
 	int ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 
 	fin=1;
 	do {
@@ -517,7 +519,7 @@ void snapshots_menu() {
 	unsigned char *fbuffer,fin;
 	int ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 
 	clean_screen();
 
@@ -579,7 +581,7 @@ void taps_menu() {
 	unsigned char *fbuffer,fin;
 	int ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 	
 	fin=1;
 	do {
@@ -666,11 +668,12 @@ void taps_menu() {
 
 void select_tapfile() {
 
-	unsigned char *videomem,*filename;
+	unsigned char *videomem;
+	char *filename;
 	int ancho,retorno,retval;
-	unsigned char char_id[11];
+	char char_id[11];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -734,9 +737,9 @@ void create_tapfile() {
 
 	unsigned char *videomem;
 	int ancho,retorno;
-	unsigned char nombre2[1024];
+	char nombre2[1024];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -798,7 +801,7 @@ void microdrive_menu() {
 	unsigned char *fbuffer,fin;
 	int retval,ancho=screen->w;
 
-	fbuffer=screen->pixels;
+	fbuffer=(unsigned char *)screen->pixels;
 	
 	fin=1;
 	do {
@@ -865,11 +868,12 @@ void microdrive_menu() {
 
 void select_mdrfile() {
 
-	unsigned char *videomem,*filename;
+	unsigned char *videomem;
+	char *filename;
 	int ancho,retorno,retval;
 	// unsigned char char_id[11];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -918,9 +922,9 @@ void create_mdrfile() {
 
 	unsigned char *videomem;
 	int ancho,retorno,bucle,retval;
-	unsigned char nombre2[1024];
+	char nombre2[1024];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -982,10 +986,10 @@ void create_scrfile() {
 
 	unsigned char *videomem;
 	int ancho,retorno,retval;
-	unsigned char nombre2[1024];
+	char nombre2[1024];
 	FILE *fichero;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -1044,12 +1048,12 @@ void create_scrfile() {
 int ask_filename(char *nombre_final,int y_coord,char *extension) {
 
 	int longitud,retorno;
-	unsigned char nombre[37],nombre2[38];
+	char nombre[37],nombre2[38];
 
 	unsigned char *videomem;
 	int ancho;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	nombre[0]=127;
@@ -1352,11 +1356,11 @@ int ask_filename(char *nombre_final,int y_coord,char *extension) {
 
 int ask_value(int *final_value,int y_coord,int max_value) {
 
-	unsigned char nombre2[50];
+	char nombre2[50];
 	unsigned char *videomem;
 	int ancho,value,tmp,retorno;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	retorno=0;
@@ -1451,9 +1455,9 @@ void save_z80file() {
 
 	unsigned char *videomem;
 	int ancho,retorno;
-	unsigned char nombre2[1024];
+	char nombre2[1024];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -1493,10 +1497,11 @@ void save_z80file() {
 void load_z80file() {
 
 
-	unsigned char *videomem,*filename;
+	unsigned char *videomem;
+	char *filename;
 	int ancho,retorno;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -1536,12 +1541,13 @@ void load_z80file() {
 void load_scrfile() {
 
 
-	unsigned char *videomem,*filename,value;
+	unsigned char *videomem,value;
+	char *filename;
 	int ancho,retorno,loop;
 	FILE *fichero;
 	unsigned char paleta_tmp[64];
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	clean_screen();
@@ -1605,14 +1611,14 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 	struct dirent *entry;
 	DIR *directory;
 	struct stat estado;
-	unsigned char path[2049],fichero[2049],extension[5],found;
+	char path[2049],fichero[2049],extension[5],found;
 	int bucle,length;
 	
 	strcpy(path,cpath);
 	if('/'!=path[strlen(path)-1])
 		strcat(path,"/"); // add the final / to the path
 
-	listhead=malloc(sizeof(struct fichero));
+	listhead=(struct fichero *)malloc(sizeof(struct fichero));
 	strcpy(listhead->nombre,"..");
 	listhead->tipo=2;
 	listhead->next=NULL;
@@ -1657,7 +1663,7 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 			} else
 				found=0;			
 			if(((found)||(S_ISDIR(estado.st_mode)))&&('.'!=entry->d_name[0])) { // is a directory. We must add it				
-				listend->next=malloc(sizeof(struct fichero));
+				listend->next=(struct fichero *)malloc(sizeof(struct fichero));
 				listend=listend->next;
 				listend->next=NULL;
 				strcpy(listend->nombrepath,fichero);
@@ -1695,10 +1701,11 @@ void delete_filelist(struct fichero *filelist) {
 char *select_file(char *path,enum LOAD_FILE_TYPES kind) {
 
 	struct fichero *filelist,*fl2;
-	unsigned char fin,read,*salida;
+	unsigned char fin,read;
+	char *salida;
 	int bucle,ancho,numitems,selected,from,longitud;
 
-	salida=(unsigned char *)malloc(2049);
+	salida=(char *)malloc(2049);
 	salida[0]=0;
 
 	ancho=screen->w;
@@ -1817,7 +1824,7 @@ void keyboard_menu() {
 	int bucle1,bucle2,retval;
 	unsigned char *buffer,*buffer2,valor;
 
-	buffer=screen->pixels;
+	buffer=(unsigned char *)screen->pixels;
 	
 	clean_screen();
 	fichero=myfopen("fbzx/keymap.bmp","r");
@@ -1830,7 +1837,7 @@ void keyboard_menu() {
 		for (bucle1=0;bucle1<344;bucle1++)
 			for(bucle2=0;bucle2<640;bucle2++) {
 				retval=fscanf(fichero,"%c",&valor);
-				paint_one_pixel(colors+valor,buffer);
+				paint_one_pixel((unsigned char *)(colors+valor),buffer);
 				buffer+=ordenador.bpp;
 			}
 	} else {
@@ -1839,13 +1846,13 @@ void keyboard_menu() {
 			buffer2=buffer;
 			for(bucle2=0;bucle2<640;bucle2++) {
 				retval=fscanf(fichero,"%c",&valor);
-				paint_one_pixel(colors+valor,buffer);
+				paint_one_pixel((unsigned char *)(colors+valor),buffer);
 				buffer+=(480*ordenador.bpp);
 			}
 			buffer=buffer2-ordenador.bpp;
 		}
 	}
-	print_copy(screen->pixels,screen->w);
+	print_copy((unsigned char *)screen->pixels,screen->w);
 	wait_key();
 	clean_screen();
 }
@@ -1857,7 +1864,7 @@ void clean_screen() {
 	int bucle;
 	unsigned char *buffer;
 
-	buffer=screen->pixels;
+	buffer=(unsigned char *)screen->pixels;
 
 	for(bucle=0;bucle<((screen->h)*(screen->w)*(ordenador.bpp));bucle++)
 		*(buffer++)=0;
@@ -1897,11 +1904,11 @@ void print_files(struct fichero *filelist,int from,int mark) {
 	struct fichero *fl2;
 	int bucle,numitems,ancho,pos;
 	char ink1,ink2;
-	unsigned char spaces[39]="                                      ";
-	unsigned char namefile[2089];
+	char spaces[39]="                                      ";
+	char namefile[2089];
 	unsigned char *videomem;
 
-	videomem=screen->pixels;
+	videomem=(unsigned char *)screen->pixels;
 	ancho=screen->w;
 
 	fl2=filelist;

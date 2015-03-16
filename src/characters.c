@@ -37,10 +37,10 @@ void printchar(unsigned char *memo, unsigned char carac, int x, int y, unsigned 
 		lugar2=lugar;
 		for (bucle2=0;bucle2 < 16;bucle2++) {
 			if ((characters[carac-32][pos]) & bit_rot)
-				paint_one_pixel (colors + (int) (color), lugar2);
+				paint_one_pixel ((unsigned char*)(colors + (int) (color)), lugar2);
 			//*((unsigned int *)lugar2)=*(colors+(int)(color-16));
 			else if ((ordenador.text_mini==0)||((bucle1%2==0)&&(bucle2%2==0)))
-				paint_one_pixel (colors + (int) (back), lugar2);
+				paint_one_pixel ((unsigned char*)(colors + (int) (back)), lugar2);
 			//*((unsigned int *)lugar2)=*(colors+(int)(back-16));
 			if ((ordenador.text_mini==0)||(bucle2%2==1)) {
 				lugar2+=ordenador.bpp;
@@ -64,7 +64,7 @@ void print_string(unsigned char *memo, char *cadena, int x, int y, unsigned char
 	int length, ncarac, bucle, xx;
 	int xxx, yyy;
 	int w,h;
-	unsigned char *str2;
+	char *str2;
 
 	if (ordenador.text_mini==1) {
 		if (x!=-1)

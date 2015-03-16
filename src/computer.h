@@ -22,6 +22,8 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
+#include "z80free/Z80free.h"
+#include "tape.hpp"
 
 // #define MUT
 
@@ -144,7 +146,7 @@ struct computer {
 	unsigned int tape_pause_at_end;
 	FILE *tap_file;
 	unsigned char tape_fast_load; // 0 normal load; 1 fast load
-	unsigned char current_tap[2049];
+	char current_tap[2049];
 
 	unsigned char tape_current_bit;
 	unsigned int tape_block_level;
@@ -160,7 +162,7 @@ struct computer {
 
 	// Microdrive global variables
 	FILE *mdr_file;                  // Current microdrive file
-	unsigned char mdr_current_mdr[2049]; // current path and name for microdrive file
+	char mdr_current_mdr[2049]; // current path and name for microdrive file
 	unsigned char mdr_active;	// 0: not installed; 1: installed
 	unsigned char mdr_paged;	// 0: not pagined; 1: pagined
 	unsigned int mdr_tapehead; // current position in the tape
@@ -175,7 +177,7 @@ struct computer {
 
 	// OSD global variables
 
-	unsigned char osd_text[200];
+	char osd_text[200];
 	unsigned int osd_time;
 
 	// pagination global variables
@@ -183,6 +185,7 @@ struct computer {
 	unsigned char mport1,mport2; // ports for memory management (128K and +3)
 	unsigned int video_offset; // 0 for page 5, and 32768 for page 7
 	unsigned char *block0,*block1,*block2,*block3; // pointers for memory access (one for each 16K block).
+	unsigned char page48k; // 1 if the 48K ROM page is currently paged into
 
 	// public
 
@@ -193,22 +196,23 @@ struct computer {
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
 	unsigned char turbo;
+
+	Tape OOTape;
 };
 
 void computer_init();
 void register_screen(SDL_Surface *);
-inline void show_screen(int);
-inline void paint_pixels(unsigned char, unsigned char, unsigned char);
-inline void read_keyboard();
+void show_screen(int);
+void paint_pixels(unsigned char, unsigned char, unsigned char);
+void read_keyboard(SDL_Event *pevento2);
 void fill_audio(void *udata,Uint8 *,int);
 void set_volume(unsigned char);
-inline void play_sound(unsigned int);
-inline void emulate(int);
+void play_sound(unsigned int);
+void emulate(int);
 void ResetComputer();
-inline byte bus_empty();
+byte bus_empty();
 void set_memory_pointers();
-inline void play_ay();
-inline void paint_one_pixel(unsigned char *colour,unsigned char *address);
+void paint_one_pixel(unsigned char *colour,unsigned char *address);
 void computer_set_palete();
 void set_palete_entry(unsigned char entry, byte Value);
 

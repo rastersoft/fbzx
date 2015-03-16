@@ -32,8 +32,8 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 #include "sound.h"
-#include "tape.h"
 #include "microdrive.h"
+#include "tape.h"
 
 char debug_var=1;
 
@@ -255,16 +255,12 @@ void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hw
 
 	// sound initialization
 
-	if (sound_type==SOUND_AUTOMATIC) {
-		ret2=sound_init(1); // check all sound systems
-	} else {
-		ret2=sound_init(0); // try with the one specified in command line
-	}
+	ret2=sound_init(); // check all sound systems
 	if(ret2==0) {
 		sound_aborted=0;
 	} else { // if fails, run without sound
 		sound_type=SOUND_NO;
-		sound_init(0);
+		sound_init();
 		sound_aborted=1;
 	}
 	printf("Init sound\n");
@@ -619,7 +615,7 @@ int main(int argc,char *argv[]) {
 	SDL_WM_SetCaption("FBZX","");
 	ordenador.interr=0;
 
-	ordenador.screenbuffer=ordenador.screen->pixels;
+	ordenador.screenbuffer=(unsigned char *)ordenador.screen->pixels;
 	ordenador.screen_width=ordenador.screen->w;
 
 	// assign initial values for PATH variables
@@ -703,7 +699,7 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador.mdr_paged)&&(PC==0x0556) && (ordenador.tape_fast_load==1)&&(ordenador.tape_file_type==TAP_TAP)) {
+		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
 			if(ordenador.tap_file!=NULL)
 				fastload_block(ordenador.tap_file);
 			else {

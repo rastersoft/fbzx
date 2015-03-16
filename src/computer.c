@@ -28,12 +28,13 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include "tape.h"
 #include "microdrive.h"
+#include "tape.h"
+#include "spk_ay.h"
 
 /* Returns the bus value when reading a port without a periferial */
 
-inline byte bus_empty () {
+byte bus_empty () {
 
 	if (ordenador.mode128k != 3)
 		return (ordenador.bus_value);
@@ -44,7 +45,7 @@ inline byte bus_empty () {
 /* calls all the routines that emulates the computer, runing them for 'tstados'
    tstates */
 
-inline void emulate (int tstados) {
+void emulate (int tstados) {
 
 	if((procesador.I>=0x40)&&(procesador.I<=0x7F)) {
 		ordenador.screen_snow=1;
@@ -67,6 +68,7 @@ void computer_init () {
 
 	int bucle;
 
+	ordenador.page48k = 0;
 	ordenador.bus_counter = 0;
 	ordenador.port254 = 0;
 	ordenador.issue = 3;
@@ -416,6 +418,7 @@ void register_screen (SDL_Surface * pantalla) {
 void set_memory_pointers () {
 
 	static unsigned int rom, ram;
+	static char last_st=-1;
 
 	// assign the offset for video page
 
@@ -428,6 +431,7 @@ void set_memory_pointers () {
 
 	if ((ordenador.mode128k == 3)) {
 		if (ordenador.mport2 & 0x01) {		// +2A/+3 special mode
+			ordenador.page48k = 0; // no 48K ROM paged in
 			ram = (unsigned int) (ordenador.mport1 & 0x06);	// bits 1&2
 			switch (ram) {
 			case 0:
@@ -435,25 +439,43 @@ void set_memory_pointers () {
 				ordenador.block1 = ordenador.memoria + 65536;
 				ordenador.block2 = ordenador.memoria + 65536;
 				ordenador.block3 = ordenador.memoria + 65536;
+				if (last_st != 0) {
+					printf("FullRAM 0\n");
+					last_st = 0;
+				}
 				break;
 			case 2:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 131072;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 131072;
+				if (last_st != 1) {
+					printf("FullRAM 1\n");
+					last_st = 1;
+				}
 				break;
 			case 4:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 131072;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
+				if (last_st != 2) {
+					printf("FullRAM 2\n");
+					last_st = 2;
+				}
 				break;
 			case 6:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 163840;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
+				if (last_st != 3) {
+					printf("FullRAM 3\n");
+					last_st = 3;
+				}
 				break;
+			default:
+				printf("FullRAM desconocido\n");
 			}
 			return;
 		} else {		// ROMs for +2A/+3 normal mode
@@ -464,12 +486,16 @@ void set_memory_pointers () {
 				rom += 2;
 			// assign the first block pointer to the right block bank
 			ordenador.block0 = ordenador.memoria + (16384 * rom);
+			ordenador.page48k = (rom==3) ? 1 : 0; // 48K ROM is in ROM page 3
 		}
 	} else {			// ROMs for 128K/+2 mode
-		if (ordenador.mport1 & 0x10)
+		if (ordenador.mport1 & 0x10) {
 			ordenador.block0 = ordenador.memoria + 16384;
-		else
+			ordenador.page48k = 1;
+		} else {
 			ordenador.block0 = ordenador.memoria;
+			ordenador.page48k = 0;
+		}
 	}
 
 	// RAMs for 128K/+2 mode, and +2A/+3 in normal mode
@@ -479,12 +505,16 @@ void set_memory_pointers () {
 
 	ram = 1 + ((unsigned int) (ordenador.mport1 & 0x07));	// RAM page for block3 plus 1
 	ordenador.block3 = ordenador.memoria + (16384 * ram);	// page n minus 49152
+	if (last_st != ram+3) {
+		printf("Pagina superior %d\n",ram-1);
+		last_st = ram+3;
+	}
 }
 
 /* Paints the spectrum screen during the TSTADOS tstates that the Z80 used
 to execute last instruction */
 
-inline void show_screen (int tstados) {
+void show_screen (int tstados) {
 
 	static unsigned char temporal, ink, paper, fflash, tmp2;
 
@@ -613,9 +643,10 @@ inline void show_screen (int tstados) {
 /* PAINT_PIXELS paints one byte with INK color for 1 bits and PAPER color
 for 0 bits, and increment acordingly the pointer PIXEL */
 
-inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
+void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
 
-	static int bucle,valor,*p;
+	static int bucle,valor;
+	static unsigned int *p;
 	static unsigned char mask;
 
 	if ((ordenador.currpix < 16) || (ordenador.currpix >= 336)
@@ -642,7 +673,7 @@ inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char p
 	}
 }
 
-inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
+void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	switch(ordenador.bpp) {
@@ -679,7 +710,7 @@ inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 
 // Read the keyboard and stores the flags
 
-inline void read_keyboard (SDL_Event *pevento2) {
+void read_keyboard (SDL_Event *pevento2) {
 
 	unsigned int temporal_io;
 	SDL_Event evento,evento2,*pevento;

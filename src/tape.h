@@ -17,10 +17,15 @@
  * 
  */
 
-#ifndef H_SPK_AY
-#define H_SPK_AY
+#ifndef H_TAPE
+#define H_TAPE
 
-inline void play_ay (unsigned int);
-inline void play_sound (unsigned int);
+void tape_read(FILE *, int);
+void tape_read_tap(FILE *, int);
+void tape_read_tzx(FILE *, int);
+void rewind_tape(FILE *,unsigned char);
+unsigned char file_empty(FILE *);
+void fastload_block (FILE *);
+void save_file(FILE *);
 
-#endif;
+#endif
