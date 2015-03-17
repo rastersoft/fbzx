@@ -122,9 +122,7 @@ public:
 	 * Sets the time values for the next bit to be read from the tape
 	 * @return TRUE if there is a new bit; FALSE if there are no more bits in this block
 	 */
-	virtual bool next_bit() {
-		return false;
-	}
+	virtual bool next_bit() = 0;
 
 	/**
 	 * Resets a block to its initial state. Mandatory before starting working with it
