@@ -5,8 +5,9 @@
  *      Author: raster
  */
 
+#include "tape.hh"
+
 #include <stdio.h>
-#include "tape.hpp"
 #include <string.h>
 
 class TapeBlock {
@@ -161,7 +162,7 @@ class TAPBlock : public TapeBlock {
 	}
 
 public:
-	TAPBlock(uint8_t *data,uint16_t size) {
+	TAPBlock(uint8_t *data,uint16_t size) :TapeBlock() {
 
 		this->data = new uint8_t[size];
 		this->data_size = size;
@@ -174,6 +175,8 @@ public:
 	}
 
 	void reset() {
+		this->counter0 = 0;
+		this->counter1 = 0;
 		this->set_state(TAPBLOCK_GUIDE);
 	}
 
@@ -209,12 +212,13 @@ public:
 			}
 			current_bit = ((*(this->data+this->pointer)) & this->bit) == 0;
 			if (current_bit) {
-				this->counter0 = 1710;
-				this->counter1 = 1710;
-			} else {
 				this->counter0 = 852;
 				this->counter1 = 852;
+			} else {
+				this->counter0 = 1710;
+				this->counter1 = 1710;
 			}
+			this->bit /=2;
 			return true;
 		break;
 		case TAPBLOCK_PAUSE:
@@ -252,12 +256,21 @@ void Tape::delete_blocks() {
 	this->current_block = NULL;
 }
 
-bool Tape::load_file(char *filename, bool TAP) {
+bool Tape::load_file(char *filename) {
+	char char_id[10];
+	int retval;
 	this->delete_blocks();
-	if (TAP) {
-		return this->load_tap(filename);
-	} else {
+
+	FILE *file = fopen(filename,"rb");
+	if (file == NULL) {
+		return true; // error while opening the file
+	}
+	retval=fread(char_id,10,1,file); // read the (maybe) TZX header
+	fclose(file);
+	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
 		return this->load_tzx(filename);
+	} else {
+		return this->load_tap(filename);
 	}
 }
 
@@ -301,12 +314,23 @@ void Tape::play(uint32_t tstates) {
 
 	uint32_t residue = tstates;
 
+	if (this->current_block == NULL) {
+		return;
+	}
+
+	if (this->paused) {
+		return;
+	}
+
 	while(true) {
 		residue = this->current_block->play(residue);
 		if (residue != 0) {
-			this->current_block = this->current_block->next_block();
-			if (this->current_block == NULL) {
-				this->current_block = this->blocks;
+			if (this->current_block->next_bit() == false) {
+				this->current_block = this->current_block->next_block();
+				if (this->current_block == NULL) {
+					this->current_block = this->blocks;
+				}
+				this->current_block->reset();
 			}
 		} else {
 			break;
@@ -321,4 +345,15 @@ uint8_t Tape::read_signal() {
 	} else {
 		return this->current_block->read_signal();
 	}
+}
+
+void Tape::rewind() {
+	this->current_block = this->blocks;
+	if (this->current_block != NULL) {
+		this->current_block->reset();
+	}
+}
+
+void Tape::set_pause(bool pause) {
+	this->paused = pause;
 }

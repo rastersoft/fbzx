@@ -17,8 +17,8 @@
  * 
  */
 
+#include "computer.hh"
 #include "z80free/Z80free.h"
-#include "computer.h"
 
 #ifndef emulator_h
 #define emulator_h

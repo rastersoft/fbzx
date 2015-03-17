@@ -1,64 +1,63 @@
-CC=g++
-CPP=g++
+CC=g++ -c
+CPP=g++ -c
+LN=g++
 
 CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
-CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -Wall -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
+CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
-fbzx: tapep.o computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o
-	$(CC) -o fbzx tapep.o computer.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o emulator.o cargador.o characters.o menus.o sound.o tape.o spk_ay.o microdrive.o $(LDFLAGS)
 
-spk_ay.o: spk_ay.c spk_ay.h emulator.h sound.h computer.h z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o spk_ay.o spk_ay.c
-
-microdrive.o: microdrive.c microdrive.h z80free/Z80free.h computer.h emulator.h z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o microdrive.o microdrive.c
-
-sound.o: sound.c sound.h computer.h emulator.h z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o sound.o sound.c
-
-emulator.o: emulator.c z80free/Z80free.h computer.h emulator.h characters.h menus.h cargador.h sound.h tape.h microdrive.h
-	$(CC) $(CFLAGS) -c -o emulator.o emulator.c
-
-computer.o: computer.c z80free/Z80free.h computer.h emulator.h characters.h menus.h cargador.h sound.h tape.h spk_ay.h microdrive.h
-	$(CC) $(CFLAGS) -c -o computer.o computer.c
-
-tapep.o: tape.cpp z80free/Z80free.h computer.h emulator.h menus.h tape.hpp computer.h
-	$(CPP) $(CPPFLAGS) -c -o tapep.o tape.cpp
-
-tape.o: tape.c z80free/Z80free.h computer.h emulator.h menus.h tape.h computer.h
-	$(CC) $(CFLAGS) -c -o tape.o tape.c
-
-cargador.o: cargador.c cargador.h computer.h emulator.h z80free/Z80free.h characters.h menus.h computer.h
-	$(CC) $(CFLAGS) -c -o cargador.o cargador.c
-
-characters.o: characters.c characters.h emulator.h computer.h
-	$(CC) $(CFLAGS) -c -o characters.o characters.c
-
-menus.o: menus.c menus.h characters.h computer.h emulator.h z80free/Z80free.h cargador.h tape.h
-	$(CC) $(CFLAGS) -c -o menus.o menus.c
+fbzx: cargador.o characters.o computer.o emulator.o menus.o microdrive.o sound.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
+	$(LN) -o fbzx cargador.o characters.o computer.o emulator.o menus.o microdrive.o sound.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
 
 Z80free.o: z80free/Z80free.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free.o z80free/Z80free.c
+	$(CC) -o Z80free.o z80free/Z80free.c
 
 Z80free_codes.o: z80free/Z80free_codes.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codes.o z80free/Z80free_codes.c
+	$(CC) -o Z80free_codes.o z80free/Z80free_codes.c
 	
 Z80free_codesCB.o: z80free/Z80free_codesCB.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesCB.o z80free/Z80free_codesCB.c
+	$(CC) -o Z80free_codesCB.o z80free/Z80free_codesCB.c
 
 Z80free_codesED.o: z80free/Z80free_codesED.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesED.o z80free/Z80free_codesED.c
+	$(CC) -o Z80free_codesED.o z80free/Z80free_codesED.c
 	
 Z80free_codesDD.o: z80free/Z80free_codesDD.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesDD.o z80free/Z80free_codesDD.c
+	$(CC) -o Z80free_codesDD.o z80free/Z80free_codesDD.c
 	
 Z80free_codesFD.o: z80free/Z80free_codesFD.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesFD.o z80free/Z80free_codesFD.c
+	$(CC) -o Z80free_codesFD.o z80free/Z80free_codesFD.c
 
 Z80free_codesDDCB.o: z80free/Z80free_codesDDCB.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesDDCB.o z80free/Z80free_codesDDCB.c
+	$(CC) -o Z80free_codesDDCB.o z80free/Z80free_codesDDCB.c
 	
 Z80free_codesFDCB.o: z80free/Z80free_codesFDCB.c z80free/Z80free.h
-	$(CC) $(CFLAGS) -c -o Z80free_codesFDCB.o z80free/Z80free_codesFDCB.c
+	$(CC) -o Z80free_codesFDCB.o z80free/Z80free_codesFDCB.c
+
+cargador.o: cargador.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh cargador.hh
+	$(CPP) -o cargador.o cargador.cpp
+
+characters.o: characters.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh characters.hh
+	$(CPP) -o characters.o characters.cpp
+
+computer.o: computer.cpp tape.hh computer.hh z80free/Z80free.h spk_ay.hh sound.hh microdrive.hh menus.hh emulator.hh characters.hh
+	$(CPP) -o computer.o computer.cpp
+
+emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh computer.hh tape.hh characters.hh cargador.hh emulator.hh
+	$(CPP) -o emulator.o emulator.cpp
+
+menus.o: menus.cpp menus.hh tape.hh computer.hh z80free/Z80free.h emulator.hh characters.hh cargador.hh
+	$(CPP) -o menus.o menus.cpp
+
+microdrive.o: microdrive.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh microdrive.hh
+	$(CPP) -o microdrive.o microdrive.cpp
+
+sound.o: sound.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
+	$(CPP) -o sound.o sound.cpp
+
+spk_ay.o: spk_ay.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
+	$(CPP) -o spk_ay.o spk_ay.cpp
+
+tape.o: tape.cpp tape.hh computer.hh z80free/Z80free.h
+	$(CPP) -o tape.o tape.cpp
 

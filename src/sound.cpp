@@ -18,22 +18,18 @@
  */
 
 #include "z80free/Z80free.h"
-#include "computer.h"
-#include "emulator.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "computer.hh"
+#include "emulator.hh"
 
 char tabla[1024];
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-/*#include <SDL/SDL.h>
-#include "SDL/SDL_audio.h"
-#include "SDL_thread.h"*/
-
-#include "sound.h"
+#include "sound.hh"
 
 #ifdef D_SOUND_OSS
 #include <sys/soundcard.h>

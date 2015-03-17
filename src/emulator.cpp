@@ -17,23 +17,24 @@
  * 
  */
 
+#include "emulator.hh"
+
 #include "z80free/Z80free.h"
-#include "computer.h"
-#include "emulator.h"
-#include "cargador.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "characters.h"
-#include "menus.h"
 #include <string.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
-#include "sound.h"
-#include "microdrive.h"
-#include "tape.h"
+
+#include "cargador.hh"
+#include "characters.hh"
+#include "computer.hh"
+#include "menus.hh"
+#include "microdrive.hh"
+#include "sound.hh"
 
 char debug_var=1;
 
@@ -311,22 +312,23 @@ void load_main_game(char *nombre) {
 	}
 	
 	if ((0==strcasecmp(".tap",puntero))||(0==strcasecmp(".tzx",puntero))) {
-		char char_id[10];
+		/*char char_id[10];
 		ordenador.tape_write = 0; // by default, can't record
 		ordenador.tap_file=fopen(nombre,"r+"); // read and write
 		if(ordenador.tap_file==NULL)
-			return;
+			return;*/
 
 		strcpy(ordenador.current_tap,nombre);
    
-		retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
+		/*retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
 		if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
 			ordenador.tape_file_type = TAP_TZX;
-			rewind_tape(ordenador.tap_file,1);	  
+			//rewind_tape(ordenador.tap_file,1);
 		} else {
 			ordenador.tape_file_type = TAP_TAP;
-			rewind_tape(ordenador.tap_file,1);
-		}
+			//rewind_tape(ordenador.tap_file,1);
+		}*/
+		ordenador.OOTape.load_file(nombre);
 		return;
 	}
 }
@@ -699,26 +701,26 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
+		/*if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
 			if(ordenador.tap_file!=NULL)
 				fastload_block(ordenador.tap_file);
 			else {
 				sprintf(ordenador.osd_text,"No TAP file selected");
 				ordenador.osd_time=50;
 			}
-		}
+		}*/
 		
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
-		if((!ordenador.mdr_paged)&&(PC==0x04C2)&&(ordenador.tape_write==1)&&(ordenador.tape_file_type==TAP_TAP)) {
+		/*if((!ordenador.mdr_paged)&&(PC==0x04C2)&&(ordenador.tape_write==1)&&(ordenador.tape_file_type==TAP_TAP)) {
 			if(ordenador.tap_file!=NULL)
 				save_file(ordenador.tap_file);
 			else {
 				sprintf(ordenador.osd_text,"No TAP file selected");
 				ordenador.osd_time=50;
 			}
-		}
+		}*/
 		
 		/* if ordenador.mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */

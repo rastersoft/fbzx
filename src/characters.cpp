@@ -17,9 +17,11 @@
  * 
  */
 
-#include "characters.h"
+#include "characters.hh"
+
 #include <string.h>
-#include "emulator.h"
+
+#include "emulator.hh"
 
 // prints the ASCII character CHARAC in the framebuffer MEMO, at X,Y with ink color COLOR and paper color BACK, asuming that the screen width is WIDTH
 
@@ -59,12 +61,13 @@ void printchar(unsigned char *memo, unsigned char carac, int x, int y, unsigned 
 
 // prints the string CADENA in X,Y (centered if X=-1), with colors COLOR and BACK
 
-void print_string(unsigned char *memo, char *cadena, int x, int y, unsigned char color, unsigned char back, int width) {
+void print_string(unsigned char *memo, char *o_cadena, int x, int y, unsigned char color, unsigned char back, int width) {
 
 	int length, ncarac, bucle, xx;
 	int xxx, yyy;
 	int w,h;
-	char *str2;
+	unsigned char *cadena = (unsigned char *)o_cadena;
+	unsigned char *str2;
 
 	if (ordenador.text_mini==1) {
 		if (x!=-1)

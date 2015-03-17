@@ -22,8 +22,9 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
+
+#include "tape.hh"
 #include "z80free/Z80free.h"
-#include "tape.hpp"
 
 // #define MUT
 

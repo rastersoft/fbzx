@@ -20,9 +20,9 @@
  * MAME's licence explicitly permits free use of info (even encourages it).
  */
 
-#include "emulator.h"
-#include "sound.h"
 #include <stdlib.h>
+#include "emulator.hh"
+#include "sound.hh"
 
 /* emulates the AY-3-8912 during TSTADOS tstates */
 
@@ -313,7 +313,8 @@ void play_sound (int tstados) {
 				if (ordenador.sound_bit && sample_v) 
 					//Sound bit volume max 96
 					ordenador.sound_current_value=ordenador.volume*6;
-					else ordenador.sound_current_value=0;
+				else
+					ordenador.sound_current_value=0;
 				value = ordenador.sound_current_value;
 				
 				//Mixer

@@ -17,10 +17,6 @@
  * 
  */
 
-#include "z80free/Z80free.h"
-#include "computer.h"
-#include "emulator.h"
-#include "cargador.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -28,12 +24,15 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
-#include "characters.h"
-#include "menus.h"
+#include "z80free/Z80free.h"
 #include <SDL/SDL.h>
 
-#include "tape.h"
-
+#include "cargador.hh"
+#include "characters.hh"
+#include "computer.hh"
+#include "emulator.hh"
+#include "tape.hh"
+#include "menus.hh"
 
 // shows the settings menu
 
@@ -636,7 +635,8 @@ void taps_menu() {
 			ordenador.pause=1;
 			if(ordenador.tap_file!=NULL) {
 				ordenador.tape_current_mode=TAP_TRASH;
-				rewind_tape(ordenador.tap_file,1);		
+				ordenador.OOTape.rewind();
+				//rewind_tape(ordenador.tap_file,1);
 			}
 			sprintf(ordenador.osd_text,"Tape rewinded");
 			ordenador.osd_time=50;			
@@ -645,8 +645,9 @@ void taps_menu() {
 			ordenador.pause=1;
 			ordenador.tape_fast_load=1-ordenador.tape_fast_load;
 			if(ordenador.tap_file!=NULL) {
-				ordenador.tape_current_mode=TAP_TRASH;
-				rewind_tape(ordenador.tap_file,1);
+				/*ordenador.tape_current_mode=TAP_TRASH;
+				rewind_tape(ordenador.tap_file,1);*/
+				ordenador.OOTape.rewind();
 			}
 		break;
 		case SDLK_4:
@@ -678,8 +679,9 @@ void select_tapfile() {
 
 	clean_screen();
 
-	if(ordenador.tap_file!=NULL)
+	/*if(ordenador.tap_file!=NULL) {
 		rewind_tape(ordenador.tap_file,1);
+	}*/
 
 	ordenador.tape_current_bit=0;
 	ordenador.tape_current_mode=TAP_TRASH;
@@ -721,14 +723,15 @@ void select_tapfile() {
 	break;
 	}
 
-	retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
+	ordenador.OOTape.load_file(ordenador.current_tap);
+	/*retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
 	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
 		ordenador.tape_file_type = TAP_TZX;
 		rewind_tape(ordenador.tap_file,1);
 	} else {
 		ordenador.tape_file_type = TAP_TAP;
 		rewind_tape(ordenador.tap_file,1);
-	}
+	}*/
 
 	clean_screen();
 }

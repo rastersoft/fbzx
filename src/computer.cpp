@@ -17,20 +17,22 @@
  * 
  */
 
+#include "computer.hh"
+
 #include "z80free/Z80free.h"
-#include "computer.h"
-#include "emulator.h"
-#include "menus.h"
-#include "characters.h"
-#include "sound.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include "microdrive.h"
-#include "tape.h"
-#include "spk_ay.h"
+
+#include "characters.hh"
+#include "emulator.hh"
+#include "menus.hh"
+#include "microdrive.hh"
+#include "sound.hh"
+#include "spk_ay.hh"
+#include "tape.hh"
 
 /* Returns the bus value when reading a port without a periferial */
 
@@ -54,7 +56,10 @@ void emulate (int tstados) {
 	show_screen (tstados);
 	play_ay (tstados);
 	play_sound (tstados);
-	tape_read (ordenador.tap_file, tstados);
+	//tape_read (ordenador.tap_file, tstados);
+	ordenador.OOTape.play(tstados);
+	ordenador.tape_readed = ordenador.OOTape.read_signal() == 0 ? 0 : 1;
+
 	microdrive_emulate(tstados);
 	if (!ordenador.pause) {
 		if (ordenador.tape_readed)
@@ -440,7 +445,7 @@ void set_memory_pointers () {
 				ordenador.block2 = ordenador.memoria + 65536;
 				ordenador.block3 = ordenador.memoria + 65536;
 				if (last_st != 0) {
-					printf("FullRAM 0\n");
+					//printf("FullRAM 0\n");
 					last_st = 0;
 				}
 				break;
@@ -450,7 +455,7 @@ void set_memory_pointers () {
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 131072;
 				if (last_st != 1) {
-					printf("FullRAM 1\n");
+					//printf("FullRAM 1\n");
 					last_st = 1;
 				}
 				break;
@@ -460,7 +465,7 @@ void set_memory_pointers () {
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
 				if (last_st != 2) {
-					printf("FullRAM 2\n");
+					//printf("FullRAM 2\n");
 					last_st = 2;
 				}
 				break;
@@ -470,7 +475,7 @@ void set_memory_pointers () {
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
 				if (last_st != 3) {
-					printf("FullRAM 3\n");
+					//printf("FullRAM 3\n");
 					last_st = 3;
 				}
 				break;
@@ -506,7 +511,7 @@ void set_memory_pointers () {
 	ram = 1 + ((unsigned int) (ordenador.mport1 & 0x07));	// RAM page for block3 plus 1
 	ordenador.block3 = ordenador.memoria + (16384 * ram);	// page n minus 49152
 	if (last_st != ram+3) {
-		printf("Pagina superior %d\n",ram-1);
+		//printf("Pagina superior %d\n",ram-1);
 		last_st = ram+3;
 	}
 }
@@ -880,11 +885,13 @@ void read_keyboard (SDL_Event *pevento2) {
 		case SDLK_F5:   // STOP tape
 			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
 				ordenador.pause = 1;
+				ordenador.OOTape.set_pause(true);
 			break;
 
 		case SDLK_F6:	// PLAY tape
 			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
 				ordenador.pause = 0;
+				ordenador.OOTape.set_pause(false);
 			break;		
 
 		case SDLK_F9:
@@ -896,7 +903,8 @@ void read_keyboard (SDL_Event *pevento2) {
 			ordenador.pause = 1;
 			if (ordenador.tap_file != NULL) {
 				ordenador.tape_current_mode = TAP_TRASH;
-				rewind_tape (ordenador.tap_file,1);				
+				ordenador.OOTape.rewind();
+				//rewind_tape (ordenador.tap_file,1);
 			}
 		break;
 
@@ -1547,7 +1555,7 @@ byte Z80free_In (register word Port) {
 					pines |= 0x40;
 			}
 		} else {
-			if (ordenador.tape_readed)
+			if (ordenador.OOTape.read_signal() != 0)
 				pines |= 0x40;	// sound input
 			else
 				pines &= 0xBF;	// sound input

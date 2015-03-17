@@ -7,7 +7,8 @@
 
 #include <inttypes.h>
 #include <stdio.h>
-#include "computer.h"
+
+#include "computer.hh"
 
 #ifndef SRC_TAPE_HPP_
 #define SRC_TAPE_HPP_
@@ -27,9 +28,11 @@ public:
 	Tape();
 	~Tape();
 	void play(uint32_t);
-	bool load_file(char *, bool);
+	bool load_file(char *);
 	void set_pause(bool pause);
 	uint8_t read_signal();
+	void rewind();
+	bool fast_read(uint16_t,uint16_t,uint8_t);
 };
 
 #endif /* SRC_TAPE_HPP_ */

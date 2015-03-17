@@ -17,9 +17,9 @@
  * 
  */
 
-#include "microdrive.h"
-#include "computer.h"
-#include "emulator.h"
+#include "microdrive.hh"
+#include "computer.hh"
+#include "emulator.hh"
 
 byte basura;
 

@@ -17,12 +17,13 @@
  * 
  */
 
+#include "cargador.hh"
+
 #include "z80free/Z80free.h"
-#include "computer.h"
-#include "emulator.h"
-#include "cargador.h"
 #include <stdio.h>
 #include <string.h>
+#include "computer.hh"
+#include "emulator.hh"
 
 void uncompress_z80(FILE *fichero,int length,unsigned char *memo) {
 
