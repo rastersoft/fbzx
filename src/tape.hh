@@ -14,7 +14,7 @@
 #ifndef SRC_TAPE_HPP_
 #define SRC_TAPE_HPP_
 
-enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_NO_TAPE, FASTLOAD_NO_FLAG, FASTLOAD_BLOCK_SHORT, FASTLOAD_BLOCK_LONG};
+enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_NO_TAPE, FASTLOAD_NO_FLAG, FASTLOAD_END_TAPE};
 
 class Tape {
 
@@ -57,12 +57,12 @@ public:
 	void rewind();
 	/**
 	 * Tries to fast-read the next block in the tape
-	 * @param address The processor address where to load the block
-	 * @param length The desired length to read
-	 * @param the flag value
-	 * @return FASTLOAD_OK if everything went fine; FASTLOAD_NO_BLOCK if the next block can't be fast-loaded; FASTLOAD_BLOCK_SHORT if the loaded block is shorter than the desired size; FASTLOAD_BLOCK_LONG if the loaded block is larger than the desired size
+	 * @param data Where to return the block's data
+	 * @param length The length of the data
+	 * @param the desired flag
+	 * @return FASTLOAD_OK if everything went fine; FASTLOAD_NO_BLOCK if the next block can't be fast-loaded; FASTLOAD_NO_FLAG if the flag is not valid; FASTLOAD_END_TAPE if the tape reached end and must be rewind
 	 */
-	enum FastLoadReturn fast_read(uint16_t address,uint16_t length,uint8_t flag);
+	enum FastLoadReturn fast_read(uint8_t *data,uint16_t &length,uint8_t flag);
 };
 
 #endif /* SRC_TAPE_HPP_ */

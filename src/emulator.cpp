@@ -701,7 +701,7 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
+		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.page48k == 1)) {
 			if(ordenador.tap_file!=NULL) {
 				do_fast_load();
 			} else {
@@ -764,10 +764,13 @@ void do_fast_load() {
 
 	uint16_t length = procesador.Rm.wr.DE;
 	uint16_t address = procesador.Rm.wr.IX;
+	uint16_t size;
 	uint8_t flag = procesador.Rm.br.A;
+	uint8_t data[65538];
+	uint16_t counter;
 
 	while(true) {
-		enum FastLoadReturn retval = ordenador.OOTape.fast_read(address,length,flag);
+		enum FastLoadReturn retval = ordenador.OOTape.fast_read(data,size,flag);
 
 		switch (retval) {
 		case FASTLOAD_NO_TAPE:
@@ -781,20 +784,36 @@ void do_fast_load() {
 		case FASTLOAD_NO_BLOCK:
 			ordenador.other_ret = 0;	// next instruction must NOT be RET
 			sprintf (ordenador.osd_text, "Can't do fast load. Press F6 to play");
-			ordenador.osd_time = 1000;
+			ordenador.osd_time = 100;
 			return;
 		break;
-		case FASTLOAD_BLOCK_SHORT:
-		case FASTLOAD_BLOCK_LONG:
+		case FASTLOAD_END_TAPE:
 			procesador.Rm.br.F &= (~F_C);	// Load error
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
+			sprintf (ordenador.osd_text, "End of tape. Rewind it.");
+			ordenador.osd_time = 100;
 			return;
-		break;
 		case FASTLOAD_OK:
-			procesador.Rm.br.F |= (F_C);	// Load OK
-			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
-			procesador.Rm.wr.DE = 0;
+			counter = 0;
+			while (true) {
+				if ((size == 0) || (procesador.Rm.wr.DE == 0)) {
+					break;
+				}
+				Z80free_Wr (procesador.Rm.wr.IX, (byte) data[counter]); // store the byte
+				procesador.Rm.wr.IX++;
+				procesador.Rm.wr.DE--;
+				counter++;
+				size--;
+			}
+			if (size == 0) {
+				if (procesador.Rm.wr.DE == 0) {
+					procesador.Rm.br.F |= (F_C);	// Load OK
+					return;
+				}
+			}
+			procesador.Rm.br.F &= (~F_C);	// Load error
+			printf("Error %d %d\n",size,procesador.Rm.wr.DE);
 			return;
 		break;
 		case FASTLOAD_NO_FLAG:
