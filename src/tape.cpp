@@ -20,6 +20,7 @@ protected:
 	uint32_t counter1;
 	bool zero_first;
 public:
+
 	TapeBlock() {
 		this->next = NULL;
 		this->signal = 0;
@@ -34,6 +35,8 @@ public:
 			delete (this->next);
 		}
 	}
+
+	virtual bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) = 0;
 
 	/**
 	 * Adds a new block to the end of the list
@@ -225,8 +228,11 @@ public:
 			return false; // end of data
 		break;
 		}
-
 		return true;
+	}
+
+	bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
+		return false;
 	}
 };
 
@@ -234,6 +240,7 @@ Tape::Tape() {
 	this->blocks = NULL;
 	this->current_block = NULL;
 	this->paused = true;
+	this->block_accesed = false;
 }
 
 Tape::~Tape() {
@@ -254,6 +261,7 @@ void Tape::delete_blocks() {
 	delete (this->blocks);
 	this->blocks = NULL;
 	this->current_block = NULL;
+	this->block_accesed = false;
 }
 
 bool Tape::load_file(char *filename) {
@@ -261,6 +269,7 @@ bool Tape::load_file(char *filename) {
 	int retval;
 	this->delete_blocks();
 
+	this->paused = true;
 	FILE *file = fopen(filename,"rb");
 	if (file == NULL) {
 		return true; // error while opening the file
@@ -322,6 +331,7 @@ void Tape::play(uint32_t tstates) {
 		return;
 	}
 
+	this->block_accesed = true;
 	while(true) {
 		residue = this->current_block->play(residue);
 		if (residue != 0) {
@@ -331,6 +341,7 @@ void Tape::play(uint32_t tstates) {
 					this->current_block = this->blocks;
 				}
 				this->current_block->reset();
+				this->block_accesed = false;
 			}
 		} else {
 			break;
@@ -352,8 +363,37 @@ void Tape::rewind() {
 	if (this->current_block != NULL) {
 		this->current_block->reset();
 	}
+	this->block_accesed = false;
 }
 
 void Tape::set_pause(bool pause) {
 	this->paused = pause;
+}
+
+enum FastLoadReturn Tape::fast_read(uint16_t address,uint16_t length,uint8_t flag) {
+
+	uint16_t min_length;
+
+	if (this->blocks == NULL) {
+		return FASTLOAD_NO_BLOCK;
+	}
+
+	if (this->block_accesed) {
+		if (this->current_block != NULL) {
+			this->current_block = this->current_block->next_block();
+		}
+		if (this->current_block == NULL) {
+			this->rewind();
+		}
+	}
+
+	uint8_t block_data[65537];
+	uint16_t block_size;
+	uint8_t block_flag;
+	if (!this->current_block->fast_load(block_data,block_size,block_flag)) {
+		return FASTLOAD_NO_BLOCK;
+	}
+
+
+	min_length = length > block_size ? block_size : length;
 }
