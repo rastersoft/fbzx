@@ -701,14 +701,14 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		/*if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
-			if(ordenador.tap_file!=NULL)
-				fastload_block(ordenador.tap_file);
-			else {
+		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.tape_file_type==TAP_TAP) && (ordenador.page48k == 1)) {
+			if(ordenador.tap_file!=NULL) {
+				do_fast_load();
+			} else {
 				sprintf(ordenador.osd_text,"No TAP file selected");
 				ordenador.osd_time=50;
 			}
-		}*/
+		}
 		
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
@@ -749,4 +749,57 @@ int main(int argc,char *argv[]) {
 
 	save_config(&ordenador);
 	return 0;
+}
+
+void do_fast_load() {
+
+	ordenador.other_ret = 1;	// next instruction must be RET
+
+	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
+		procesador.Rm.br.F |= F_C;	 // verify OK
+		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
+		procesador.Rm.wr.DE = 0;
+		return;
+	}
+
+	uint16_t length = procesador.Rm.wr.DE;
+	uint16_t address = procesador.Rm.wr.IX;
+	uint8_t flag = procesador.Rm.br.A;
+
+	while(true) {
+		enum FastLoadReturn retval = ordenador.OOTape.fast_read(address,length,flag);
+
+		switch (retval) {
+		case FASTLOAD_NO_TAPE:
+			procesador.Rm.br.F &= (~F_C);	// Load error
+			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
+			procesador.Rm.wr.DE = 0;
+			sprintf (ordenador.osd_text, "No tape selected");
+			ordenador.osd_time = 100;
+			return;
+		break;
+		case FASTLOAD_NO_BLOCK:
+			ordenador.other_ret = 0;	// next instruction must NOT be RET
+			sprintf (ordenador.osd_text, "Can't do fast load. Press F6 to play");
+			ordenador.osd_time = 1000;
+			return;
+		break;
+		case FASTLOAD_BLOCK_SHORT:
+		case FASTLOAD_BLOCK_LONG:
+			procesador.Rm.br.F &= (~F_C);	// Load error
+			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
+			procesador.Rm.wr.DE = 0;
+			return;
+		break;
+		case FASTLOAD_OK:
+			procesador.Rm.br.F |= (F_C);	// Load OK
+			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
+			procesador.Rm.wr.DE = 0;
+			return;
+		break;
+		case FASTLOAD_NO_FLAG:
+			continue;
+		break;
+		}
+	}
 }

@@ -9,11 +9,12 @@
 #include <stdio.h>
 
 #include "computer.hh"
+#include "emulator.hh"
 
 #ifndef SRC_TAPE_HPP_
 #define SRC_TAPE_HPP_
 
-enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_BLOCK_SHORT, FASTLOAD_BLOCK_LONG};
+enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_NO_TAPE, FASTLOAD_NO_FLAG, FASTLOAD_BLOCK_SHORT, FASTLOAD_BLOCK_LONG};
 
 class Tape {
 

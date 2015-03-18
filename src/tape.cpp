@@ -6,6 +6,7 @@
  */
 
 #include "tape.hh"
+#include "z80free/Z80free.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -232,7 +233,10 @@ public:
 	}
 
 	bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
-		return false;
+		flag = data[0];
+		size = this->data_size - 2;
+		memcpy(data,this->data+1,size);
+		return true;
 	}
 };
 
@@ -375,7 +379,7 @@ enum FastLoadReturn Tape::fast_read(uint16_t address,uint16_t length,uint8_t fla
 	uint16_t min_length;
 
 	if (this->blocks == NULL) {
-		return FASTLOAD_NO_BLOCK;
+		return FASTLOAD_NO_TAPE;
 	}
 
 	if (this->block_accesed) {
@@ -385,15 +389,39 @@ enum FastLoadReturn Tape::fast_read(uint16_t address,uint16_t length,uint8_t fla
 		if (this->current_block == NULL) {
 			this->rewind();
 		}
+		this->current_block->reset();
 	}
+	this->block_accesed = false;
 
-	uint8_t block_data[65537];
+	uint8_t block_data[65538];
 	uint16_t block_size;
 	uint8_t block_flag;
 	if (!this->current_block->fast_load(block_data,block_size,block_flag)) {
 		return FASTLOAD_NO_BLOCK;
 	}
-
+	if (block_data[0] != flag) {
+		return FASTLOAD_NO_FLAG;
+	}
 
 	min_length = length > block_size ? block_size : length;
+	unsigned char old_contention = ordenador.contended_zone;
+	ordenador.contended_zone = 0;
+	for (uint16_t loop = 0; loop < min_length; loop++) {
+		Z80free_Wr(address+loop,block_data[loop]);
+	}
+	ordenador.contended_zone = old_contention;
+
+	this->current_block = this->current_block->next_block();
+	if (this->current_block == NULL) {
+		this->rewind();
+	}
+	this->current_block->reset();
+
+	if (length == block_size) {
+		return FASTLOAD_OK;
+	} else if (length < block_size) {
+		return FASTLOAD_BLOCK_LONG;
+	} else {
+		return FASTLOAD_BLOCK_SHORT;
+	}
 }

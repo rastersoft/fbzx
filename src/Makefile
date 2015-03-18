@@ -40,13 +40,13 @@ cargador.o: cargador.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh carga
 characters.o: characters.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh characters.hh
 	$(CPP) -o characters.o characters.cpp
 
-computer.o: computer.cpp tape.hh computer.hh z80free/Z80free.h spk_ay.hh sound.hh microdrive.hh menus.hh emulator.hh characters.hh
+computer.o: computer.cpp tape.hh emulator.hh z80free/Z80free.h computer.hh spk_ay.hh sound.hh microdrive.hh menus.hh characters.hh
 	$(CPP) -o computer.o computer.cpp
 
-emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh computer.hh tape.hh characters.hh cargador.hh emulator.hh
+emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh computer.hh tape.hh emulator.hh characters.hh cargador.hh
 	$(CPP) -o emulator.o emulator.cpp
 
-menus.o: menus.cpp menus.hh tape.hh computer.hh z80free/Z80free.h emulator.hh characters.hh cargador.hh
+menus.o: menus.cpp menus.hh tape.hh emulator.hh z80free/Z80free.h computer.hh characters.hh cargador.hh
 	$(CPP) -o menus.o menus.cpp
 
 microdrive.o: microdrive.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh microdrive.hh
@@ -58,6 +58,6 @@ sound.o: sound.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
 spk_ay.o: spk_ay.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
 	$(CPP) -o spk_ay.o spk_ay.cpp
 
-tape.o: tape.cpp tape.hh computer.hh z80free/Z80free.h
+tape.o: tape.cpp z80free/Z80free.h tape.hh emulator.hh computer.hh
 	$(CPP) -o tape.o tape.cpp
 

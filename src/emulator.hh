@@ -41,5 +41,6 @@ void SDL_Fullscreen_Switch(void);
 void load_rom(char);
 void load_main_game(char *nombre);
 FILE *myfopen(char *filename,char *mode);
+void do_fast_load();
 
 #endif
