@@ -735,6 +735,9 @@ void fastload_block (FILE * fichero) {
 	} while(flag_found == 0);
 
 	salir = 0;
+	// avoid contention during fast load
+	unsigned char old_contended = ordenador.contended_zone;
+	ordenador.contended_zone=0;
 	do {
 		if (longitud == 0)
 			salir = 1;
@@ -749,6 +752,7 @@ void fastload_block (FILE * fichero) {
 		}
 	}
 	while (!salir);
+	ordenador.contended_zone = old_contended;
 
 	clean_screen ();
 
