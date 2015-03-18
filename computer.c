@@ -847,13 +847,11 @@ inline void read_keyboard (SDL_Event *pevento2) {
 			break;
 
 		case SDLK_F5:   // STOP tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 1;
+			ordenador.pause = 1;
 			break;
 
 		case SDLK_F6:	// PLAY tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 0;
+			ordenador.pause = 0;
 			break;		
 
 		case SDLK_F9:
@@ -1514,6 +1512,9 @@ byte Z80free_In (register word Port) {
 			} else {
 				if (ordenador.port254 & 0x10)
 					pines |= 0x40;
+			}
+			if (random()<(RAND_MAX/200)) {
+				pines |= 0x40;
 			}
 		} else {
 			if (ordenador.tape_readed)
