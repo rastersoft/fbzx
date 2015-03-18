@@ -6,7 +6,7 @@ CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D
 CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
-#basecmd $(CPP)
+#basecmd $(CPP) $(CPPFLAGS)
 #extra_obj Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o
 
 fbzx: %c

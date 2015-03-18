@@ -35,29 +35,29 @@ Z80free_codesFDCB.o: z80free/Z80free_codesFDCB.c z80free/Z80free.h
 	$(CC) -o Z80free_codesFDCB.o z80free/Z80free_codesFDCB.c
 
 cargador.o: cargador.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh cargador.hh
-	$(CPP) -o cargador.o cargador.cpp
+	$(CPP) $(CPPFLAGS) -o cargador.o cargador.cpp
 
 characters.o: characters.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh characters.hh
-	$(CPP) -o characters.o characters.cpp
+	$(CPP) $(CPPFLAGS) -o characters.o characters.cpp
 
 computer.o: computer.cpp tape.hh emulator.hh z80free/Z80free.h computer.hh spk_ay.hh sound.hh microdrive.hh menus.hh characters.hh
-	$(CPP) -o computer.o computer.cpp
+	$(CPP) $(CPPFLAGS) -o computer.o computer.cpp
 
 emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh computer.hh tape.hh emulator.hh characters.hh cargador.hh
-	$(CPP) -o emulator.o emulator.cpp
+	$(CPP) $(CPPFLAGS) -o emulator.o emulator.cpp
 
 menus.o: menus.cpp menus.hh tape.hh emulator.hh z80free/Z80free.h computer.hh characters.hh cargador.hh
-	$(CPP) -o menus.o menus.cpp
+	$(CPP) $(CPPFLAGS) -o menus.o menus.cpp
 
 microdrive.o: microdrive.cpp emulator.hh z80free/Z80free.h computer.hh tape.hh microdrive.hh
-	$(CPP) -o microdrive.o microdrive.cpp
+	$(CPP) $(CPPFLAGS) -o microdrive.o microdrive.cpp
 
 sound.o: sound.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
-	$(CPP) -o sound.o sound.cpp
+	$(CPP) $(CPPFLAGS) -o sound.o sound.cpp
 
 spk_ay.o: spk_ay.cpp sound.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
-	$(CPP) -o spk_ay.o spk_ay.cpp
+	$(CPP) $(CPPFLAGS) -o spk_ay.o spk_ay.cpp
 
 tape.o: tape.cpp z80free/Z80free.h tape.hh emulator.hh computer.hh
-	$(CPP) -o tape.o tape.cpp
+	$(CPP) $(CPPFLAGS) -o tape.o tape.cpp
 

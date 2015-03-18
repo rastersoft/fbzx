@@ -58,7 +58,7 @@ void emulate (int tstados) {
 	play_sound (tstados);
 	//tape_read (ordenador.tap_file, tstados);
 	ordenador.OOTape.play(tstados);
-	ordenador.tape_readed = ordenador.OOTape.read_signal() == 0 ? 0 : 1;
+	ordenador.tape_readed = (ordenador.OOTape.read_signal() == 0) ? 0 : 1;
 
 	microdrive_emulate(tstados);
 	if (!ordenador.pause) {
@@ -883,15 +883,13 @@ void read_keyboard (SDL_Event *pevento2) {
 			break;
 
 		case SDLK_F5:   // STOP tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 1;
-				ordenador.OOTape.set_pause(true);
+			ordenador.pause = 1;
+			ordenador.OOTape.set_pause(true);
 			break;
 
 		case SDLK_F6:	// PLAY tape
-			if ((ordenador.tape_fast_load == 0) || (ordenador.tape_file_type==TAP_TZX))
-				ordenador.pause = 0;
-				ordenador.OOTape.set_pause(false);
+			ordenador.pause = 0;
+			ordenador.OOTape.set_pause(false);
 			break;		
 
 		case SDLK_F9:
@@ -904,7 +902,6 @@ void read_keyboard (SDL_Event *pevento2) {
 			if (ordenador.tap_file != NULL) {
 				ordenador.tape_current_mode = TAP_TRASH;
 				ordenador.OOTape.rewind();
-				//rewind_tape (ordenador.tap_file,1);
 			}
 		break;
 

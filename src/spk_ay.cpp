@@ -307,10 +307,10 @@ void play_sound (int tstados) {
 	while (ordenador.tstados_counter_sound >= ordenador.tst_sample)	{
 
 		ordenador.tstados_counter_sound -= ordenador.tst_sample;
-		if (sound_type!=1) //!SOUND_OSS
+		if (sound_type!=SOUND_NO)
 			for (bucle = 0; bucle < ordenador.increment; bucle++) {
 				sample_v = ordenador.sample1b[bucle];
-				if (ordenador.sound_bit && sample_v) 
+				if (ordenador.sound_bit && sample_v)
 					//Sound bit volume max 96
 					ordenador.sound_current_value=ordenador.volume*6;
 				else

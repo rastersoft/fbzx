@@ -390,12 +390,17 @@ enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag
 	if (this->current_block == NULL) {
 		return FASTLOAD_END_TAPE;
 	}
-	this->current_block->reset();
-	this->block_accesed = true;
+	this->block_accesed = false;
 
 	if (!this->current_block->fast_load(data,length,block_flag)) {
 		return FASTLOAD_NO_BLOCK;
 	}
+	this->current_block = this->current_block->next_block();
+	if (this->current_block != NULL) {
+		this->current_block->reset();
+	}
+
+	printf("Cargo bloque de longitud %d\n",length);
 	if (block_flag != flag) {
 		return FASTLOAD_NO_FLAG;
 	}

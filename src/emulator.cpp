@@ -755,6 +755,9 @@ void do_fast_load() {
 
 	ordenador.other_ret = 1;	// next instruction must be RET
 
+	procesador.Rm.br.F &= ~F_Z;
+	procesador.IFF1 = 0;
+	procesador.IFF2 = 0;
 	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
 		procesador.Rm.br.F |= F_C;	 // verify OK
 		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
@@ -817,6 +820,7 @@ void do_fast_load() {
 			return;
 		break;
 		case FASTLOAD_NO_FLAG:
+			printf("No flag\n");
 			continue;
 		break;
 		}
