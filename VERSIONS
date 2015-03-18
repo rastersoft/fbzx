@@ -1,3 +1,8 @@
+2.11.0
+
+*Allows to play and pause the tape even with the FAST LOAD mode enabled  
+*Adds some noise in the tape bit to ensure that the user knows when a program is waiting to load from tape
+
 2.10.0
 
 *Fixed CPIR, CPDR, INI, INIR, IND, INDR, OUTI, OTIR, OUTD and OTDR instructions
