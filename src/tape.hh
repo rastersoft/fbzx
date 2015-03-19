@@ -27,6 +27,11 @@ class Tape {
 	void delete_blocks();
 	bool load_tap(char *);
 	bool load_tzx(char *);
+	bool tzx_standard_block(FILE *);
+	bool tzx_turbo_block(FILE *);
+	bool read_8bit(FILE *, uint8_t &);
+	bool read_16bit(FILE *, uint16_t &);
+	bool read_24bit(FILE *, uint32_t &);
 public:
 	Tape();
 	~Tape();
