@@ -17,6 +17,8 @@
  * 
  */
 
+#include "llscreen.hh"
+
 struct fichero {
 	char nombre[256]; // filename (for files and directories)
 	char nombrepath[2049]; // filename with path
@@ -26,7 +28,6 @@ struct fichero {
 
 enum LOAD_FILE_TYPES {FILETYPE_Z80, FILETYPE_TAP_TZX, FILETYPE_MDR, FILETYPE_SCR};
 
-void clean_screen();
 void help_menu();
 void load_z80file();
 char *select_file(char *,enum LOAD_FILE_TYPES);

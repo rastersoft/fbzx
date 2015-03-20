@@ -25,6 +25,7 @@
 
 #include "tape.hh"
 #include "z80free/Z80free.h"
+#include "llscreen.hh"
 
 // #define MUT
 
@@ -39,7 +40,7 @@ struct computer {
 	unsigned int temporal_io;
 
 	// screen private global variables
-	SDL_Surface *screen;
+	//SDL_Surface *screen;
 	unsigned char *screenbuffer;
 	unsigned int screen_width;
 	unsigned int translate[6144],translate2[6144];
@@ -56,7 +57,6 @@ struct computer {
 	int currline,currpix;
 
 	int tstados_counter; // counts tstates leaved to the next call
-	int resx,resy,bpp; // screen resolutions
 	int init_line; // cuantity to add to the base address to start to paint
 	int next_line; // cuantity to add when we reach the end of line to go to next line
 	int next_scanline; // cuantity to add to pass to the next scanline
@@ -213,8 +213,5 @@ void emulate(int);
 void ResetComputer();
 byte bus_empty();
 void set_memory_pointers();
-void paint_one_pixel(unsigned char *colour,unsigned char *address);
-void computer_set_palete();
-void set_palete_entry(unsigned char entry, byte Value);
 
 #endif

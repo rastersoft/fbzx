@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2009 (C) Raster Software Vigo (Sergio Costas)
+ * Copyright 2003-2015 (C) Raster Software Vigo (Sergio Costas)
  * This file is part of FBZX
  *
  * FBZX is free software; you can redistribute it and/or modify
@@ -26,8 +26,8 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-#include "characters.hh"
 #include "emulator.hh"
+#include "llscreen.hh"
 #include "menus.hh"
 #include "microdrive.hh"
 #include "sound.hh"
@@ -123,190 +123,6 @@ void computer_init () {
 	ordenador.tape_loop_counter = 0;
 }
 
-void computer_set_palete() {
-
-	SDL_Color colores[16];
-
-	if (ordenador.bw==0) {
-		// Color mode
-
-		colores[0].r = 0;
-		colores[0].g = 0;
-		colores[0].b = 0;
-		colores[1].r = 0;
-		colores[1].g = 0;
-		colores[1].b = 192;
-		colores[2].r = 192;
-		colores[2].g = 0;
-		colores[2].b = 0;
-		colores[3].r = 192;
-		colores[3].g = 0;
-		colores[3].b = 192;
-		colores[4].r = 0;
-		colores[4].g = 192;
-		colores[4].b = 0;
-		colores[5].r = 0;
-		colores[5].g = 192;
-		colores[5].b = 192;
-		colores[6].r = 192;
-		colores[6].g = 192;
-		colores[6].b = 0;
-		colores[7].r = 192;
-		colores[7].g = 192;
-		colores[7].b = 192;
-		colores[8].r = 0;
-		colores[8].g = 0;
-		colores[8].b = 0;
-		colores[9].r = 0;
-		colores[9].g = 0;
-		colores[9].b = 255;
-		colores[10].r = 255;
-		colores[10].g = 0;
-		colores[10].b = 0;
-		colores[11].r = 255;
-		colores[11].g = 0;
-		colores[11].b = 255;
-		colores[12].r = 0;
-		colores[12].g = 255;
-		colores[12].b = 0;
-		colores[13].r = 0;
-		colores[13].g = 255;
-		colores[13].b = 255;
-		colores[14].r = 255;
-		colores[14].g = 255;
-		colores[14].b = 0;
-		colores[15].r = 255;
-		colores[15].g = 255;
-		colores[15].b = 255;
-
-		SDL_SetColors (ordenador.screen, colores, 16, 16);	// set 16 colors from the 16th
-
-		if (ordenador.bpp!=1) {
-			colors[0]=SDL_MapRGB(screen->format,0,0,0);
-			colors[1]=SDL_MapRGB(screen->format,0,0,192);
-			colors[2]=SDL_MapRGB(screen->format,192,0,0);
-			colors[3]=SDL_MapRGB(screen->format,192,0,192);
-			colors[4]=SDL_MapRGB(screen->format,0,192,0);
-			colors[5]=SDL_MapRGB(screen->format,0,192,192);
-			colors[6]=SDL_MapRGB(screen->format,192,192,0);
-			colors[7]=SDL_MapRGB(screen->format,192,192,192);
-			colors[8]=SDL_MapRGB(screen->format,0,0,0);
-			colors[9]=SDL_MapRGB(screen->format,0,0,255);
-			colors[10]=SDL_MapRGB(screen->format,255,0,0);
-			colors[11]=SDL_MapRGB(screen->format,255,0,255);
-			colors[12]=SDL_MapRGB(screen->format,0,255,0);
-			colors[13]=SDL_MapRGB(screen->format,0,255,255);
-			colors[14]=SDL_MapRGB(screen->format,255,255,0);
-			colors[15]=SDL_MapRGB(screen->format,255,255,255);
-		}
-	} else {
-
-		// B&W mode
-
-		colores[0].r = 0;
-		colores[0].g = 0;
-		colores[0].b = 0;
-
-		colores[1].r = 22;
-		colores[1].g = 22;
-		colores[1].b = 22;
-
-		colores[2].r = 57;
-		colores[2].g = 57;
-		colores[2].b = 57;
-
-		colores[3].r = 79;
-		colores[3].g = 79;
-		colores[3].b = 79;
-
-		colores[4].r = 113;
-		colores[4].g = 113;
-		colores[4].b = 113;
-
-		colores[5].r = 135;
-		colores[5].g = 135;
-		colores[5].b = 135;
-
-		colores[6].r = 160;
-		colores[6].g = 160;
-		colores[6].b = 160;
-
-		colores[7].r = 192;
-		colores[7].g = 192;
-		colores[7].b = 192;
-
-		colores[8].r = 0;
-		colores[8].g = 0;
-		colores[8].b = 0;
-
-		colores[9].r = 29;
-		colores[9].g = 29;
-		colores[9].b = 29;
-
-		colores[10].r = 76;
-		colores[10].g = 76;
-		colores[10].b = 76;
-
-		colores[11].r = 105;
-		colores[11].g = 105;
-		colores[11].b = 105;
-
-		colores[12].r = 150;
-		colores[12].g = 150;
-		colores[12].b = 150;
-
-		colores[13].r = 179;
-		colores[13].g = 179;
-		colores[13].b = 179;
-
-		colores[14].r = 226;
-		colores[14].g = 226;
-		colores[14].b = 226;
-
-		colores[15].r = 255;
-		colores[15].g = 255;
-		colores[15].b = 255;
-
-		SDL_SetColors (ordenador.screen, colores, 16, 16);	// set 16 colors from the 16th
-
-		if (ordenador.bpp!=1) {
-			colors[0]=SDL_MapRGB(screen->format,0,0,0);
-			colors[1]=SDL_MapRGB(screen->format,22,22,22);
-			colors[2]=SDL_MapRGB(screen->format,57,57,57);
-			colors[3]=SDL_MapRGB(screen->format,79,79,79);
-			colors[4]=SDL_MapRGB(screen->format,113,113,113);
-			colors[5]=SDL_MapRGB(screen->format,135,135,135);
-			colors[6]=SDL_MapRGB(screen->format,160,160,160);
-			colors[7]=SDL_MapRGB(screen->format,192,192,192);
-			colors[8]=SDL_MapRGB(screen->format,0,0,0);
-			colors[9]=SDL_MapRGB(screen->format,29,29,29);
-			colors[10]=SDL_MapRGB(screen->format,76,76,76);
-			colors[11]=SDL_MapRGB(screen->format,105,105,105);
-			colors[12]=SDL_MapRGB(screen->format,150,150,150);
-			colors[13]=SDL_MapRGB(screen->format,179,179,179);
-			colors[14]=SDL_MapRGB(screen->format,226,226,226);
-			colors[15]=SDL_MapRGB(screen->format,255,255,255);
-		}
-	}
-
-	unsigned int c;
-
-	for(c=0x10;c<60;c++) {
-		colors[c]=0x00000000;
-	}
-
-	if (ordenador.bpp==1) {
-		unsigned int v;
-		for (c=0x10;c<0x60;c++) {
-			v=c+((c<<8)&0x0000FF00)+((c<<16)&0x00FF0000)+((c<<24)&0xFF000000);
-			colors[c-0x10]=v;
-		}
-	}
-	for(c=0;c<64;c++) {
-		set_palete_entry((unsigned char)c,ordenador.ulaplus_palete[c]);
-	}
-}
-
 /* Registers the screen surface where the Spectrum will put the picture,
 prepares the palette and creates two arrays (translate and translate2)
 that gives the memory address for each scan */
@@ -333,8 +149,6 @@ void register_screen (SDL_Surface * pantalla) {
 					bucle5++;
 				}
 	ordenador.tstados_counter = 0;
-
-	ordenador.screen = pantalla;
 
 	ordenador.border = 0;
 	ordenador.currline = 0;
@@ -391,15 +205,15 @@ void register_screen (SDL_Surface * pantalla) {
 		break;
 	}
 	
-	ordenador.next_line*=ordenador.bpp;
-	ordenador.next_scanline*=ordenador.bpp;
-	ordenador.init_line*=ordenador.bpp;
-	ordenador.next_pixel*=ordenador.bpp;
-	ordenador.jump_pixel*=ordenador.bpp;
+	ordenador.next_line *= llscreen->bpp;
+	ordenador.next_scanline *= llscreen->bpp;
+	ordenador.init_line *= llscreen->bpp;
+	ordenador.next_pixel *= llscreen->bpp;
+	ordenador.jump_pixel *= llscreen->bpp;
 	
-	computer_set_palete();
+	llscreen->set_paletes(ordenador.bw);
 
-	ordenador.pixel = ((unsigned char *) (ordenador.screen->pixels)) +	ordenador.init_line;
+	ordenador.pixel = ((unsigned char *) (pantalla->pixels)) + ordenador.init_line;
 	ordenador.interr = 0;
 
 	ordenador.p_translt = ordenador.translate;
@@ -611,28 +425,22 @@ void show_screen (int tstados) {
 				}
 					
 				if (ordenador.osd_time)
-					print_string (ordenador.screenbuffer,ordenador.osd_text, -1,460, 12, 0,ordenador.screen_width);
+					llscreen->print_string(ordenador.osd_text, -1,460, 12, 0);
 				else {
 					if (ordenador.zaurus_mini==0)
-						print_string (ordenador.screenbuffer,"                                      ",-1, 460, 12, 0,ordenador.screen_width);
+						llscreen->print_string("                                      ",-1, 460, 12, 0);
 					else
-						print_string (ordenador.screenbuffer,"                            ",-1, 460, 12, 0,ordenador.screen_width);
+						llscreen->print_string("                            ",-1, 460, 12, 0);
 				}
 			}
 				
-			if (ordenador.mustlock) {
-				SDL_UnlockSurface (ordenador.screen);
-				SDL_Flip (ordenador.screen);
-				SDL_LockSurface (ordenador.screen);
-			} else {
-				SDL_Flip (ordenador.screen);
-			}
+			llscreen->do_flip();
 			
 			curr_frames=0;
 			ordenador.currline = 0;
 			ordenador.interr = 1;
 			ordenador.cicles_counter=0;
-			ordenador.pixel = ((unsigned char *) (ordenador.screen->pixels))+ordenador.init_line;	// +ordenador.init_line;
+			ordenador.pixel = ((unsigned char *) (llscreen->screen->pixels))+ordenador.init_line;	// +ordenador.init_line;
 			ordenador.p_translt = ordenador.translate;
 			ordenador.p_translt2 = ordenador.translate2;
 			ordenador.contador_flash++;
@@ -662,55 +470,20 @@ void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
 	for (bucle = 0; bucle < 8; bucle++) {
 		valor = (octet & mask) ? (int) ink : (int) paper;
 		p=(colors+valor);
-		paint_one_pixel((unsigned char *)p,ordenador.pixel);
+		llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel);
 		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)&&(ordenador.dblscan)) {
-			paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
+			llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
 		}
 		ordenador.pixel+=ordenador.next_pixel;
 		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)) {
-			paint_one_pixel((unsigned char *)p,ordenador.pixel);
+			llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel);
 			if (ordenador.dblscan) {
-				paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
+				llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
 			}
 			ordenador.pixel+=ordenador.next_pixel;
 		}
 		mask = ((mask >> 1) & 0x7F);
 	}
-}
-
-void paint_one_pixel(unsigned char *colour,unsigned char *address) {
-
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	switch(ordenador.bpp) {
-	case 1:
-		*address=*colour;
-	break;
-	case 3:
-		*(address++)=*(colour++);
-	case 2:
-		*(address++)=*(colour++);
-		*(address++)=*(colour++);
-	break;
-	case 4:
-		*((unsigned int *)address)=*((unsigned int *)colour);
-	break;
-	}
-#else // BIG_ENDIAN
-	switch(ordenador.bpp) {
-		case 1:
-			*address=*(colour+3);
-		break;
-		case 3:
-			*(address++)=*(++colour);
-		case 2:
-			*(address++)=*(++colour);
-			*(address++)=*(++colour);
-		break;
-		case 4:
-			*((unsigned int *)address)=*((unsigned int *)colour);
-		break;
-	}
-#endif
 }
 
 // Read the keyboard and stores the flags
@@ -893,7 +666,7 @@ void read_keyboard (SDL_Event *pevento2) {
 			break;		
 
 		case SDLK_F9:
-			SDL_Fullscreen_Switch();
+			llscreen->fullscreen_switch();
 			break;
 
 		case SDLK_F10:	// Reset emulator
@@ -1404,29 +1177,6 @@ byte Z80free_Rd (register word Addr) {
 	}
 }
 
-void set_palete_entry(unsigned char entry, byte Value) {
-
-
-	SDL_Color color;
-
-	color.r = ((Value<<3)&0xE0)+((Value)&0x1C)+((Value>>3)&0x03);
-	color.g = (Value&0xE0)+((Value>>3)&0x1C)+((Value>>6)&0x03);
-	color.b = ((Value<<6)&0xC0)+((Value<<4)&0x30)+((Value<<2)&0x0C)+((Value)&0x03);
-
-	if (ordenador.bw!=0) {
-		int final;
-		final=(((int)color.r)*3+((int)color.g)*6+((int)color.b))/10;
-		color.r=color.g=color.b=(unsigned char)final;
-	}
-	// Color mode
-
-	SDL_SetColors (ordenador.screen, &color, 32+entry, 1); // set 16 colors from the 16th
-
-	if (ordenador.bpp!=1) {
-		colors[entry+16]=SDL_MapRGB(screen->format,color.r,color.g,color.b);
-	}
-}
-
 void Z80free_Out (register word Port, register byte Value) {
 
 	// Microdrive access
@@ -1451,7 +1201,7 @@ void Z80free_Out (register word Port, register byte Value) {
 		}
 		if (ordenador.ulaplus_reg<0x40) { // register set mode
 			ordenador.ulaplus_palete[ordenador.ulaplus_reg]=Value;
-			set_palete_entry(ordenador.ulaplus_reg,Value);
+			llscreen->set_palete_entry(ordenador.ulaplus_reg,Value);
 		}
 	}
 

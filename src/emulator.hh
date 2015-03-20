@@ -27,7 +27,7 @@
 
 extern char debug_var;
 
-extern SDL_Surface *screen;
+//extern SDL_Surface *screen;
 extern Z80FREE procesador;
 extern struct computer ordenador;
 extern unsigned char *sound[NUM_SNDBUF];
@@ -37,7 +37,6 @@ extern char path_mdrs[2049];
 extern unsigned int colors[80];
 extern unsigned int jump_frames,curr_frames;
 
-void SDL_Fullscreen_Switch(void);
 void load_rom(char);
 void load_main_game(char *nombre);
 FILE *myfopen(char *filename,char *mode);

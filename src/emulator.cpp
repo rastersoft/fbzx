@@ -26,12 +26,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_thread.h>
 
 #include "cargador.hh"
-#include "characters.hh"
 #include "computer.hh"
+#include "llscreen.hh"
 #include "menus.hh"
 #include "microdrive.hh"
 #include "sound.hh"
@@ -40,26 +38,15 @@ char debug_var=1;
 
 Z80FREE procesador;
 struct computer ordenador;
-SDL_Surface *screen;
+//SDL_Surface *screen;
 char salir,sound_aborted;
 unsigned char *sound[NUM_SNDBUF];
 char path_snaps[2049];
 char path_taps[2049];
 char path_mdrs[2049];
 unsigned int colors[80];
-unsigned int jump_frames,curr_frames;
+unsigned int jump_frames, curr_frames;
 char *filenames[5];
-
-void SDL_Fullscreen_Switch()
-{
-	Uint32 flags = screen->flags;
-	if ( flags & SDL_FULLSCREEN )
-		flags &= ~SDL_FULLSCREEN;
-	else
-		flags |= SDL_FULLSCREEN;
-
-	screen = SDL_SetVideoMode(screen->w, screen->h, screen->format->BitsPerPixel,flags);
-}
 
 FILE *myfopen(char *filename,char *mode) {
 	
@@ -89,7 +76,7 @@ char *load_a_rom(char **filenames) {
 	int offset=0;
 	FILE *fichero;
 	int size;
-	
+
 	for(pointer=filenames;*pointer!=NULL;pointer++) {
 		fichero=myfopen(*pointer,"r");
 		if(fichero==NULL) {
@@ -195,64 +182,9 @@ void load_rom(char type) {
   	fclose(fichero);
 }
 
-void init_screen(int resx,int resy,int depth,int fullscreen,int dblbuffer,int hwsurface) {
+void init_sound() {
 
-	int retorno,bucle,bucle2,valores,ret2;
-	unsigned char value;
-
-	//if (sound_type!=3)
-	retorno=SDL_Init(SDL_INIT_VIDEO);
-	/*else
-		retorno=SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO);*/
-	if(retorno!=0) {
-		printf("Can't initialize SDL library. Exiting\n");
-		exit(1);
-	}
-
-	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK)) {
-		ordenador.use_js=0;
-		printf("Can't initialize JoyStick subsystem\n");
-	} else {
-		printf("JoyStick subsystem initialized\n");
-		ordenador.use_js=1;
-		if(SDL_NumJoysticks()>0){
-			// Open joystick
-			for (bucle=0;bucle<SDL_NumJoysticks();bucle++) {
-	  			if (NULL==SDL_JoystickOpen(bucle)) {
-	  				printf("Can't open joystick %d\n",bucle);
-	  			}
-  			}
-  		}
-	}
-
-	// screen initialization
-	valores=SDL_HWPALETTE|SDL_ANYFORMAT;
-	if (fullscreen==1)
-		valores|=SDL_FULLSCREEN;
-  
-	if (dblbuffer==1)
-		valores|=SDL_DOUBLEBUF;
-	if (hwsurface==1)
-		valores|=SDL_HWSURFACE;
-	else
-		valores|=SDL_SWSURFACE;
-  
-	screen=SDL_SetVideoMode(resx,resy,depth,valores);
-	if(screen==NULL) {
-		printf("Can't assign SDL Surface. Exiting\n");
-		exit(1);
-	}
-
-	ordenador.bpp=screen->format->BytesPerPixel;
-	printf("Bytes per pixel: %d\n",ordenador.bpp);
-  
-	if(SDL_MUSTLOCK(screen)) {
-		ordenador.mustlock=1;
-		SDL_LockSurface(screen);
-	} else
-		ordenador.mustlock=0;
-
-	printf("Locking screen\n");
+	int bucle,bucle2,ret2;
 
 	// sound initialization
 
@@ -288,7 +220,7 @@ void end_system() {
 	sound_close();
 	
 	if(ordenador.mustlock)
-		SDL_UnlockSurface(screen);
+		SDL_UnlockSurface(llscreen->screen);
 
 	if(ordenador.tap_file!=NULL)
 		fclose(ordenador.tap_file);
@@ -466,7 +398,11 @@ void load_config(struct computer *object) {
 
 int main(int argc,char *argv[]) {
 
-	int bucle,tstados,argumento,fullscreen,dblbuffer,hwsurface,length;
+	int bucle,tstados,argumento,length;
+	bool fullscreen = false;
+	bool dblbuffer = false;
+	bool hwsurface = false;
+	bool text_mini = false;
 	char gamefile[4096];
 	word PC=0;
 
@@ -474,13 +410,9 @@ int main(int argc,char *argv[]) {
 	sound_type=SOUND_AUTOMATIC;
 	gamefile[0]=0;
 	ordenador.zaurus_mini=0;
-	ordenador.text_mini=0;
 	ordenador.ulaplus=0;
 	ordenador.ulaplus_reg=0;
-	fullscreen=0;
-	dblbuffer=0;
-	hwsurface=0;
-	
+
 	argumento=0;
 	jump_frames=0;
 	curr_frames=0;
@@ -560,16 +492,16 @@ int main(int argc,char *argv[]) {
 			argumento++;
 		} else if (0==strcmp(argv[argumento],"-micro")) {
 			ordenador.zaurus_mini=3;
-			ordenador.text_mini=1;
+			text_mini = true;
 			argumento++;
 		}else if(0==strcmp(argv[argumento],"-fs")) {
-			fullscreen=1;
+			fullscreen = true;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-hw")) {
-			hwsurface=1;
+			hwsurface = true;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-db")) {
-			dblbuffer=1;
+			dblbuffer = true;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-ds")) {
 			ordenador.dblscan=1;
@@ -597,28 +529,29 @@ int main(int argc,char *argv[]) {
 	atexit(end_system);
 	switch(ordenador.zaurus_mini) {
 	case 0:
-		init_screen(640,480,0,0,dblbuffer,hwsurface);
+		llscreen = new LLScreen(640,480,0,0,dblbuffer,hwsurface,text_mini);
 	break;
 	case 1:
 	case 2:
-		init_screen(480,640,0,0,dblbuffer,hwsurface);
+		llscreen = new LLScreen(480,640,0,0,dblbuffer,hwsurface,text_mini);
 	break;
 	case 3:
-		init_screen(320,240,0,0,dblbuffer,hwsurface);
+		llscreen = new LLScreen(320,240,0,0,dblbuffer,hwsurface,text_mini);
 	break;
 	}
+	init_sound();
 	printf("Modo: %d\n",ordenador.mode128k);
-	register_screen(screen);
+	register_screen(llscreen->screen);
 	printf("Screen registered\n");
 	printf("Modo: %d\n",ordenador.mode128k);
 	if(fullscreen) {
-		SDL_Fullscreen_Switch();
+		llscreen->fullscreen_switch();
 	}
 	SDL_WM_SetCaption("FBZX","");
 	ordenador.interr=0;
 
-	ordenador.screenbuffer=(unsigned char *)ordenador.screen->pixels;
-	ordenador.screen_width=ordenador.screen->w;
+	ordenador.screenbuffer=(unsigned char *)llscreen->screen->pixels;
+	ordenador.screen_width=llscreen->screen->w;
 
 	// assign initial values for PATH variables
 
@@ -669,7 +602,7 @@ int main(int argc,char *argv[]) {
 	sleep(1);
 
 	printf("Reset screen\n");
-	clean_screen();
+	llscreen->clean_screen();
 
 	if (sound_aborted==1) {
 		strcpy(ordenador.osd_text,"Running without sound (read the FAQ)");
@@ -684,7 +617,7 @@ int main(int argc,char *argv[]) {
 	sprintf(ordenador.osd_text,"Press F1 for help");
 	ordenador.osd_time=200;
 
-	printf("BPP: %d\n",ordenador.bpp);
+	printf("BPP: %d\n",llscreen->bpp);
 	while(salir) {
 
 		do {
