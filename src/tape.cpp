@@ -617,6 +617,10 @@ void Tape::set_pause(bool pause) {
 	this->paused = pause;
 }
 
+bool Tape::get_pause() {
+	return this->paused;
+}
+
 enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag) {
 
 	uint8_t block_flag;

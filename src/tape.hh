@@ -83,6 +83,12 @@ public:
 	 * @param pause TRUE to pause the tape, FALSE to release it
 	 */
 	void set_pause(bool pause);
+
+	/**
+	 * Returns whether the tape is paused or not
+	 * @return TRUE if paused; FALSE if not paused
+	 */
+	bool get_pause();
 	/**
 	 * Reads the current signal being "emited" by the tape.
 	 * @return the current signal value, which can be 0 or 1.

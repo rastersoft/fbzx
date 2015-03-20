@@ -51,21 +51,21 @@ void emulate (int tstados) {
 
 	if((procesador.I>=0x40)&&(procesador.I<=0x7F)) {
 		ordenador.screen_snow=1;
-	} else
+	} else {
 		ordenador.screen_snow=0;
+	}
 	show_screen (tstados);
 	play_ay (tstados);
 	play_sound (tstados);
-	//tape_read (ordenador.tap_file, tstados);
 	ordenador.OOTape.play(tstados);
-	ordenador.tape_readed = (ordenador.OOTape.read_signal() == 0) ? 0 : 1;
-
 	microdrive_emulate(tstados);
-	if (!ordenador.pause) {
-		if (ordenador.tape_readed)
+
+	if (!ordenador.OOTape.get_pause()) {
+		if (ordenador.OOTape.read_signal() != 0) {
 			ordenador.sound_bit = 1;
-		else
+		} else {
 			ordenador.sound_bit = 0;	// if not paused, asign SOUND_BIT the value of tape
+		}
 	}
 }
 
@@ -80,10 +80,7 @@ void computer_init () {
 	ordenador.mode128k = 0;
 	ordenador.joystick = 0;
 
-	ordenador.tape_readed = 0;
-	ordenador.pause = 1;	// tape stop
 	ordenador.tape_fast_load = 1;	// fast load by default
-	ordenador.tape_current_mode = TAP_TRASH;
 	ordenador.tap_file = NULL;
 
 	ordenador.osd_text[0] = 0;
@@ -119,15 +116,13 @@ void computer_init () {
 	ordenador.ayval_n = 0;
 	ordenador.ay_envel_value = 0;
 	ordenador.ay_envel_way = 0;
-	
-	ordenador.tape_loop_counter = 0;
 }
 
 /* Registers the screen surface where the Spectrum will put the picture,
 prepares the palette and creates two arrays (translate and translate2)
 that gives the memory address for each scan */
 
-void register_screen (SDL_Surface * pantalla) {
+void register_screen () {
 
 	//int resx,resy;
 	int bucle, bucle2, bucle3, bucle4, bucle5;
@@ -213,7 +208,8 @@ void register_screen (SDL_Surface * pantalla) {
 	
 	llscreen->set_paletes(ordenador.bw);
 
-	ordenador.pixel = ((unsigned char *) (pantalla->pixels)) + ordenador.init_line;
+	ordenador.base_pixel = ((unsigned char *) (llscreen->llscreen->pixels));
+	ordenador.pixel = ordenador.base_pixel + ordenador.init_line;
 	ordenador.interr = 0;
 
 	ordenador.p_translt = ordenador.translate;
@@ -440,7 +436,7 @@ void show_screen (int tstados) {
 			ordenador.currline = 0;
 			ordenador.interr = 1;
 			ordenador.cicles_counter=0;
-			ordenador.pixel = ((unsigned char *) (llscreen->screen->pixels))+ordenador.init_line;	// +ordenador.init_line;
+			ordenador.pixel = ordenador.base_pixel+ordenador.init_line;
 			ordenador.p_translt = ordenador.translate;
 			ordenador.p_translt2 = ordenador.translate2;
 			ordenador.contador_flash++;
@@ -656,12 +652,10 @@ void read_keyboard (SDL_Event *pevento2) {
 			break;
 
 		case SDLK_F5:   // STOP tape
-			ordenador.pause = 1;
 			ordenador.OOTape.set_pause(true);
 			break;
 
 		case SDLK_F6:	// PLAY tape
-			ordenador.pause = 0;
 			ordenador.OOTape.set_pause(false);
 			break;		
 
@@ -671,11 +665,8 @@ void read_keyboard (SDL_Event *pevento2) {
 
 		case SDLK_F10:	// Reset emulator
 			ResetComputer ();
-			ordenador.pause = 1;
-			if (ordenador.tap_file != NULL) {
-				ordenador.tape_current_mode = TAP_TRASH;
-				ordenador.OOTape.rewind();
-			}
+			ordenador.OOTape.set_pause(true);
+			ordenador.OOTape.rewind();
 		break;
 
 		case SDLK_F11:	// lower volume
@@ -1214,7 +1205,7 @@ void Z80free_Out (register word Port, register byte Value) {
 		ordenador.port254 = (unsigned char) Value;
 		ordenador.border = (((unsigned char) Value) & 0x07);
 
-		if (ordenador.pause) {
+		if (ordenador.OOTape.get_pause()) {
 			if (Value & 0x10)
 				ordenador.sound_bit = 1;
 			else
@@ -1293,7 +1284,7 @@ byte Z80free_In (register word Port) {
 		if (!(temporal_io & 0x8000))
 			pines &= ordenador.s15;
 
-		if (ordenador.pause) {
+		if (ordenador.OOTape.get_pause()) {
 			if (ordenador.issue == 2)	{
 				if (ordenador.port254 & 0x18)
 					pines |= 0x40;

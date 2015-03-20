@@ -608,28 +608,20 @@ void taps_menu() {
 			fin=0;
 		break;
 		case SDLK_1:
-			ordenador.pause=1;
+			ordenador.OOTape.set_pause(true);
 			select_tapfile();
+			ordenador.OOTape.rewind();
 		break;
 		case SDLK_2:
 			fin=0;
-			ordenador.pause=1;
-			if(ordenador.tap_file!=NULL) {
-				ordenador.tape_current_mode=TAP_TRASH;
-				ordenador.OOTape.rewind();
-				//rewind_tape(ordenador.tap_file,1);
-			}
+			ordenador.OOTape.set_pause(true);
+			ordenador.OOTape.rewind();
 			sprintf(ordenador.osd_text,"Tape rewinded");
 			ordenador.osd_time=50;			
 		break;
 		case SDLK_3:
-			ordenador.pause=1;
-			ordenador.tape_fast_load=1-ordenador.tape_fast_load;
-			if(ordenador.tap_file!=NULL) {
-				/*ordenador.tape_current_mode=TAP_TRASH;
-				rewind_tape(ordenador.tap_file,1);*/
-				ordenador.OOTape.rewind();
-			}
+			ordenador.OOTape.set_pause(true);
+			ordenador.tape_fast_load = 1-ordenador.tape_fast_load;
 		break;
 		case SDLK_4:
 			ordenador.tape_write=1-ordenador.tape_write;
@@ -660,9 +652,6 @@ void select_tapfile() {
 	/*if(ordenador.tap_file!=NULL) {
 		rewind_tape(ordenador.tap_file,1);
 	}*/
-
-	ordenador.tape_current_bit=0;
-	ordenador.tape_current_mode=TAP_TRASH;
 
 	llscreen->print_string("Choose the TAPE file to load",-1,32,13,0);
 
@@ -754,7 +743,6 @@ void create_tapfile() {
 	}
 	ordenador.tape_write=1; // allow to write
 	strcpy(ordenador.current_tap,nombre2);
-	ordenador.tape_file_type = TAP_TAP;
 	switch(retorno) {
 	case 0:
 	break;
@@ -1791,7 +1779,7 @@ unsigned int wait_key() {
 	fin=1;
 
 	do {
-		SDL_Flip(llscreen->screen);
+		llscreen->do_flip();
 		if(!SDL_WaitEvent(&evento))
 			continue;
 

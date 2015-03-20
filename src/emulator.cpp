@@ -219,13 +219,10 @@ void end_system() {
 	
 	sound_close();
 	
-	if(ordenador.mustlock)
-		SDL_UnlockSurface(llscreen->screen);
+	delete(llscreen);
 
 	if(ordenador.tap_file!=NULL)
 		fclose(ordenador.tap_file);
-
-	SDL_Quit();
 }
 
 void load_main_game(char *nombre) {
@@ -541,7 +538,7 @@ int main(int argc,char *argv[]) {
 	}
 	init_sound();
 	printf("Modo: %d\n",ordenador.mode128k);
-	register_screen(llscreen->screen);
+	register_screen();
 	printf("Screen registered\n");
 	printf("Modo: %d\n",ordenador.mode128k);
 	if(fullscreen) {
@@ -549,9 +546,6 @@ int main(int argc,char *argv[]) {
 	}
 	SDL_WM_SetCaption("FBZX","");
 	ordenador.interr=0;
-
-	ordenador.screenbuffer=(unsigned char *)llscreen->screen->pixels;
-	ordenador.screen_width=llscreen->screen->w;
 
 	// assign initial values for PATH variables
 

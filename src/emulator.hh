@@ -27,7 +27,6 @@
 
 extern char debug_var;
 
-//extern SDL_Surface *screen;
 extern Z80FREE procesador;
 extern struct computer ordenador;
 extern unsigned char *sound[NUM_SNDBUF];

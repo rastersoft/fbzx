@@ -40,12 +40,8 @@ struct computer {
 	unsigned int temporal_io;
 
 	// screen private global variables
-	//SDL_Surface *screen;
-	unsigned char *screenbuffer;
-	unsigned int screen_width;
 	unsigned int translate[6144],translate2[6144];
 	unsigned char zaurus_mini;
-	unsigned char text_mini;
 	unsigned char dblscan;
 	unsigned char bw;
 
@@ -53,6 +49,7 @@ struct computer {
 
 	unsigned int *p_translt,*p_translt2;
 	unsigned char *pixel; // current address
+	unsigned char *base_pixel;
 	char border,flash;
 	int currline,currpix;
 
@@ -89,7 +86,6 @@ struct computer {
 
 	// Linux joystick private global variables
 
-	unsigned char use_js;
 	unsigned char updown,leftright;
 
 	// sound global variables
@@ -134,31 +130,9 @@ struct computer {
 
 	// tape global variables
 
-	enum tapmodes tape_current_mode;
-	unsigned char pause; // 1=tape stop
-	enum taptypes tape_file_type;
-	unsigned int tape_counter0;
-	unsigned int tape_counter1;
-	unsigned int tape_counter_rep;
-	unsigned char tape_byte;
-	unsigned char tape_bit;
-	unsigned char tape_readed;
-	unsigned int tape_byte_counter;
-	unsigned int tape_pause_at_end;
 	FILE *tap_file;
 	unsigned char tape_fast_load; // 0 normal load; 1 fast load
 	char current_tap[2049];
-
-	unsigned char tape_current_bit;
-	unsigned int tape_block_level;
-	unsigned int tape_sync_level0;
-	unsigned int tape_sync_level1;
-	unsigned int tape_bit0_level;
-	unsigned int tape_bit1_level;
-	unsigned char tape_bits_at_end;
-	unsigned int tape_loop_counter;
-	long tape_loop_pos;
-
 	unsigned char tape_write; // 0 can't write; 1 can write
 
 	// Microdrive global variables
@@ -202,7 +176,7 @@ struct computer {
 };
 
 void computer_init();
-void register_screen(SDL_Surface *);
+void register_screen();
 void show_screen(int);
 void paint_pixels(unsigned char, unsigned char, unsigned char);
 void read_keyboard(SDL_Event *pevento2);
