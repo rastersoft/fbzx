@@ -140,114 +140,7 @@ public:
 	}
 };
 
-class TAPBlock : public TapeBlock {
-
-	uint8_t *data;
-	uint16_t data_size;
-	uint8_t bit;
-	uint32_t loop;
-	uint32_t pause;
-
-	int pointer;
-	enum TAPBLOCK_states {TAPBLOCK_GUIDE, TAPBLOCK_DATA, TAPBLOCK_PAUSE} current_state;
-
-	void set_state(enum TAPBLOCK_states new_state) {
-
-		this->current_state = new_state;
-		switch (new_state) {
-		case TAPBLOCK_GUIDE:
-			if (!(0x80 & this->data[0])) {
-				this->loop = 4031; // 5 seconds (aprox)
-			} else {
-				this->loop = 1611; // 2 seconds (aprox)
-			}
-		break;
-		case TAPBLOCK_DATA:
-			this->pointer = 0;
-			this->bit = 0x80;
-		break;
-		case TAPBLOCK_PAUSE:
-		break;
-		}
-	}
-
-public:
-	TAPBlock(uint8_t *data,uint16_t size,uint16_t pause) :TapeBlock() {
-
-		this->data = new uint8_t[size];
-		this->data_size = size;
-		this->pause = (uint32_t)pause;
-		memcpy(this->data,data,size);
-		this->current_state = TAPBLOCK_GUIDE;
-		this->loop = 0;
-		this->pointer = 0;
-		this->bit = 0x80;
-		this->set_state(TAPBLOCK_GUIDE);
-	}
-
-	void reset() {
-		this->counter0 = 0;
-		this->counter1 = 0;
-		this->set_state(TAPBLOCK_GUIDE);
-	}
-
-	bool next_bit() {
-
-		bool current_bit;
-
-		switch (this->current_state) {
-		case TAPBLOCK_GUIDE:
-			if (this->loop > 0) {
-				// guide tone loop
-				this->counter0 = 2168;
-				this->counter1 = 2168;
-				this->loop--;
-			} else {
-				// sync bit
-				this->counter0 = 667;
-				this->counter1 = 735;
-				this->set_state(TAPBLOCK_DATA);
-			}
-			return true;
-		break;
-		case TAPBLOCK_DATA:
-			if (this->bit == 0) {
-				this->bit = 0x80;
-				this->pointer++;
-				if (this->pointer == this->data_size) {
-					this->counter0 = this->pause * 3500;
-					this->counter1 = 0;
-					this->set_state(TAPBLOCK_PAUSE);
-					return true;
-				}
-			}
-			current_bit = ((*(this->data+this->pointer)) & this->bit) == 0;
-			if (current_bit) {
-				this->counter0 = 855;
-				this->counter1 = 855;
-			} else {
-				this->counter0 = 1710;
-				this->counter1 = 1710;
-			}
-			this->bit /=2;
-			return true;
-		break;
-		case TAPBLOCK_PAUSE:
-			return false; // end of data
-		break;
-		}
-		return true;
-	}
-
-	bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
-		flag = this->data[0];
-		size = this->data_size - 2;
-		memcpy(data,this->data+1,size);
-		return true;
-	}
-};
-
-class TURBOBlock : public TapeBlock {
+class FullBlock : public TapeBlock {
 
 	uint8_t *data;
 	uint32_t data_size;
@@ -261,7 +154,9 @@ class TURBOBlock : public TapeBlock {
 	uint32_t pause;
 
 	uint8_t bit;
+	uint8_t bit_counter;
 	uint32_t loop;
+	bool allow_fast_load;
 
 	int pointer;
 	enum TURBOBLOCK_states {TURBOBLOCK_GUIDE, TURBOBLOCK_DATA, TURBOBLOCK_PAUSE} current_state;
@@ -276,6 +171,11 @@ class TURBOBlock : public TapeBlock {
 		case TURBOBLOCK_DATA:
 			this->pointer = 0;
 			this->bit = 0x80;
+			if (this->data_size == 1) {
+				this->bit_counter = this->bits_at_end;
+			} else {
+				this->bit_counter = 8;
+			}
 		break;
 		case TURBOBLOCK_PAUSE:
 		break;
@@ -283,8 +183,37 @@ class TURBOBlock : public TapeBlock {
 	}
 
 public:
-	TURBOBlock(uint8_t *data,uint32_t size, uint16_t pilot, uint16_t sync0, uint16_t sync1, uint16_t zero, uint16_t one, uint16_t lpilot, uint8_t bits_at_end, uint16_t pause) :TapeBlock() {
 
+	FullBlock(uint8_t *data,uint32_t size, uint16_t pause) :TapeBlock() {
+
+		this->allow_fast_load = true;
+		this->data = new uint8_t[size];
+		this->data_size = size;
+		this->pilot = 2168;
+		this->sync0 = 667;
+		this->sync1 = 735;
+		this->zero = 855;
+		this->one = 1710;
+		if (!(0x80 & data[0])) {
+			this->lpilot = 8063; // 5 seconds (aprox)
+		} else {
+			this->lpilot = 3223; // 2 seconds (aprox)
+		}
+		this->bits_at_end = 8;
+		this->pause = (uint32_t)pause;
+
+		memcpy(this->data,data,size);
+		this->current_state = TURBOBLOCK_GUIDE;
+		this->loop = this->lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
+	}
+
+	FullBlock(uint8_t *data,uint32_t size, uint16_t pilot, uint16_t sync0, uint16_t sync1, uint16_t zero, uint16_t one, uint16_t lpilot, uint8_t bits_at_end, uint16_t pause) :TapeBlock() {
+
+		this->allow_fast_load = false;
 		this->data = new uint8_t[size];
 		this->data_size = size;
 		this->pilot = pilot;
@@ -298,9 +227,10 @@ public:
 
 		memcpy(this->data,data,size);
 		this->current_state = TURBOBLOCK_GUIDE;
-		this->loop = 0;
+		this->loop = lpilot;
 		this->pointer = 0;
 		this->bit = 0x80;
+		this->bit_counter = 8;
 		this->set_state(TURBOBLOCK_GUIDE);
 	}
 
@@ -330,9 +260,14 @@ public:
 			return true;
 		break;
 		case TURBOBLOCK_DATA:
-			if (this->bit == 0) {
+			if (this->bit_counter == 0) {
 				this->bit = 0x80;
 				this->pointer++;
+				if ((this->data_size-1) == this->pointer) {
+					this->bit_counter = this->bits_at_end;
+				} else {
+					this->bit_counter = 8;
+				}
 				if (this->pointer == this->data_size) {
 					this->counter0 = this->pause * 3500;
 					this->counter1 = 0;
@@ -349,6 +284,7 @@ public:
 				this->counter1 = this->one;
 			}
 			this->bit /=2;
+			this->bit_counter--;
 			return true;
 		break;
 		case TURBOBLOCK_PAUSE:
@@ -356,6 +292,17 @@ public:
 		break;
 		}
 		return true;
+	}
+
+	bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
+		if (this->allow_fast_load) {
+			flag = this->data[0];
+			size = this->data_size - 2;
+			memcpy(data,this->data+1,size);
+			return true;
+		} else {
+			return false;
+		}
 	}
 };
 
@@ -469,7 +416,7 @@ bool Tape::load_tap(char *filename) {
 			fclose(file);
 			return (true); // end-of-file and error
 		}
-		this->add_block(new TAPBlock(data,size,1000));
+		this->add_block(new FullBlock(data,size,1000));
 	} while(true);
 
 	fclose(file);
@@ -538,7 +485,7 @@ bool Tape::tzx_standard_block(FILE *file) {
 		fclose(file);
 		return (true); // end-of-file and error
 	}
-	this->add_block(new TAPBlock(data,size,pause));
+	this->add_block(new FullBlock(data,size,pause));
 	return false;
 }
 
@@ -596,7 +543,7 @@ bool Tape::tzx_turbo_block(FILE *file) {
 		fclose(file);
 		return (true); // end-of-file and error
 	}
-	this->add_block(new TURBOBlock(data,size,pilot,sync0,sync1,zero,one,lpilot,bits_at_end,pause));
+	this->add_block(new FullBlock(data,size,pilot,sync0,sync1,zero,one,lpilot,bits_at_end,pause));
 	return false;
 }
 
