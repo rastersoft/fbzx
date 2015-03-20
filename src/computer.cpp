@@ -1551,6 +1551,9 @@ byte Z80free_In (register word Port) {
 				if (ordenador.port254 & 0x10)
 					pines |= 0x40;
 			}
+			if (random()<(RAND_MAX/200)) { // add tape noise when paused
+				pines |= 0x40;
+			}
 		} else {
 			if (ordenador.OOTape.read_signal() != 0)
 				pines |= 0x40;	// sound input
