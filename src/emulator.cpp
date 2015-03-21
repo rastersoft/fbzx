@@ -75,14 +75,13 @@ char *load_a_rom(char **filenames) {
 	char **pointer;
 	int offset=0;
 	FILE *fichero;
-	int size;
 
 	for(pointer=filenames;*pointer!=NULL;pointer++) {
 		fichero=myfopen(*pointer,"r");
 		if(fichero==NULL) {
 			return (*pointer);
 		}
-		size=fread(ordenador.memoria+offset,16384,1,fichero);
+		fread(ordenador.memoria+offset,16384,1,fichero);
 		offset+=16384;
 		fclose(fichero);
 	}
@@ -93,7 +92,6 @@ void load_rom(char type) {
 
 	char *retval;
 	FILE *fichero;
-	int size;
 
 	switch(type) {
 	case 0:
@@ -178,7 +176,7 @@ void load_rom(char type) {
 			exit(1);
 		}
 	}
-	size=fread(ordenador.shadowrom,8192,1,fichero);
+	fread(ordenador.shadowrom,8192,1,fichero);
   	fclose(fichero);
 }
 
@@ -227,7 +225,7 @@ void end_system() {
 
 void load_main_game(char *nombre) {
 
-	int longitud,retval;
+	int longitud;
 	char *puntero;
 	
 	longitud=strlen(nombre);
@@ -241,22 +239,7 @@ void load_main_game(char *nombre) {
 	}
 	
 	if ((0==strcasecmp(".tap",puntero))||(0==strcasecmp(".tzx",puntero))) {
-		/*char char_id[10];
-		ordenador.tape_write = 0; // by default, can't record
-		ordenador.tap_file=fopen(nombre,"r+"); // read and write
-		if(ordenador.tap_file==NULL)
-			return;*/
-
 		strcpy(ordenador.current_tap,nombre);
-   
-		/*retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
-		if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
-			ordenador.tape_file_type = TAP_TZX;
-			//rewind_tape(ordenador.tap_file,1);
-		} else {
-			ordenador.tape_file_type = TAP_TAP;
-			//rewind_tape(ordenador.tap_file,1);
-		}*/
 		ordenador.OOTape.load_file(nombre);
 		return;
 	}
@@ -692,8 +675,6 @@ void do_fast_load() {
 		return;
 	}
 
-	uint16_t length = procesador.Rm.wr.DE;
-	uint16_t address = procesador.Rm.wr.IX;
 	uint16_t size;
 	uint8_t flag = procesador.Rm.br.A;
 	uint8_t data[65538];

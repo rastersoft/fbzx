@@ -355,7 +355,6 @@ void Tape::delete_blocks() {
 
 bool Tape::load_file(char *filename) {
 	char char_id[10];
-	int retval;
 	this->delete_blocks();
 
 	this->paused = true;
@@ -363,7 +362,7 @@ bool Tape::load_file(char *filename) {
 	if (file == NULL) {
 		return true; // error while opening the file
 	}
-	retval=fread(char_id,10,1,file); // read the (maybe) TZX header
+	fread(char_id,10,1,file); // read the (maybe) TZX header
 	fclose(file);
 	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
 		return this->load_tzx(filename);

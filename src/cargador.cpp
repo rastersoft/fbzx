@@ -28,7 +28,7 @@
 void uncompress_z80(FILE *fichero,int length,unsigned char *memo) {
 
 	unsigned char byte_loaded,EDfound,counter;
-	int position,retval;
+	int position;
 
 	counter=0;
 	byte_loaded=0;
@@ -43,11 +43,11 @@ void uncompress_z80(FILE *fichero,int length,unsigned char *memo) {
 			counter--;
 			continue;
 		} else
-			retval=fread(&byte_loaded,1,1,fichero);
+			fread(&byte_loaded,1,1,fichero);
     
 		if(EDfound==2) { // we have two EDs
 			counter=byte_loaded;
-			retval=fread(&byte_loaded,1,1,fichero);
+			fread(&byte_loaded,1,1,fichero);
 			EDfound=0;
 			continue;
 		}
@@ -72,7 +72,6 @@ int save_z80(char *filename) {
 
   FILE *fichero;
   unsigned char value,bucle;
-  int retval;
 
   fichero=fopen(filename,"r");
   if(fichero!=NULL) {
@@ -124,8 +123,8 @@ int save_z80(char *filename) {
   fprintf(fichero,"%c",value);
 
   if(ordenador.mode128k==0) { // 48K
-    retval=fwrite((ordenador.memoria+147456),16384,1,fichero); // video memory
-    retval=fwrite((ordenador.memoria+98304),32768,1,fichero); // memory pages 2 & 3
+    fwrite((ordenador.memoria+147456),16384,1,fichero); // video memory
+    fwrite((ordenador.memoria+98304),32768,1,fichero); // memory pages 2 & 3
     fclose(fichero);
     return 0;
   }
@@ -143,7 +142,7 @@ int save_z80(char *filename) {
   for(bucle=0;bucle<8;bucle++) {
     fprintf(fichero,"%c%c",0xFF,0xFF); // length=0xFFFF (uncompressed)
     fprintf(fichero,"%c",bucle+3); // page number
-    retval=fwrite(ordenador.memoria+(16384*bucle)+65536,16384,1,fichero); // store page
+    fwrite(ordenador.memoria+(16384*bucle)+65536,16384,1,fichero); // store page
   }
   fclose(fichero);
   return 0;
@@ -155,7 +154,7 @@ int load_z80(char *filename) {
 	unsigned char tempo[30],tempo2[56],type,compressed,page,byte_read[3];
 	unsigned char *memo;
 	FILE *fichero;
-	int longitud=0,longitud2,bucle,retval;
+	int longitud=0,longitud2,bucle;
 
 	memo=(unsigned char *)malloc(49152);
 	snap=(struct z80snapshot *)malloc(sizeof(struct z80snapshot));
@@ -181,13 +180,13 @@ int load_z80(char *filename) {
 	}
 
 	printf("Read header (first 30 bytes)\n");
-	retval=fread(tempo,1,30,fichero);
+	fread(tempo,1,30,fichero);
 
 	if((tempo[6]==0)&&(tempo[7]==0)) { // extended Z80
 		printf("It's an extended Z80 file\n");
 		type=1; // new type
-		
-		retval=fread(tempo2,1,2,fichero); // read the length of the extension
+
+		fread(tempo2,1,2,fichero); // read the length of the extension
  
 		longitud=((int)tempo2[0])+256*((int)tempo2[1]);
 		if(longitud>54) {
@@ -198,7 +197,7 @@ int load_z80(char *filename) {
 			return -3; // not a supported Z80 file
 		}
 		printf("Length: %d\n",longitud);
-		retval=fread(tempo2+2,1,longitud,fichero);
+		fread(tempo2+2,1,longitud,fichero);
 
 		if(longitud==23) // z80 ver 2.01
 			switch(tempo2[4]) {
@@ -332,7 +331,7 @@ int load_z80(char *filename) {
 		return -3;*/  // z80 file not yet supported
 
 			while(!feof(fichero)) {
-				retval=fread(byte_read,3,1,fichero);
+				fread(byte_read,3,1,fichero);
 				if(feof(fichero))
 					break;
 				longitud2=((int)byte_read[0])+256*((int)byte_read[1]);
@@ -367,14 +366,14 @@ int load_z80(char *filename) {
 				}
 				printf("Loading page %d of length %d\n",page,longitud);
 				if(longitud2==0xFFFF) // uncompressed raw data
-					retval=fread(snap->page[page],16384,1,fichero);
+					fread(snap->page[page],16384,1,fichero);
 				else
 					uncompress_z80(fichero,16384,snap->page[page]);
 			}
 
 		} else {
 			while(!feof(fichero)) {
-				retval=fread(byte_read,3,1,fichero);
+				fread(byte_read,3,1,fichero);
 				if(feof(fichero))
 					break;
 				longitud2=((int)byte_read[0])+256*((int)byte_read[1]);
@@ -393,7 +392,7 @@ int load_z80(char *filename) {
 					break;
 				}
 				if(longitud2==0xFFFF) // uncompressed raw data
-					retval=fread(snap->page[page],16384,1,fichero);
+					fread(snap->page[page],16384,1,fichero);
 				else
 					uncompress_z80(fichero,16384,snap->page[page]);
 			}
@@ -414,9 +413,9 @@ int load_z80(char *filename) {
 		} else {
 			// 48k uncompressed z80 loader
       
-			retval=fread(snap->page[0],16384,1,fichero);
-			retval=fread(snap->page[1],16384,1,fichero);
-			retval=fread(snap->page[2],16384,1,fichero);
+			fread(snap->page[0],16384,1,fichero);
+			fread(snap->page[1],16384,1,fichero);
+			fread(snap->page[2],16384,1,fichero);
 		}
 		
 	}

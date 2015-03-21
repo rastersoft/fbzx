@@ -109,8 +109,6 @@ byte microdrive_in(word Port) {
 
 void microdrive_out(word Port,byte Value) {
 
-	int retval;
-
 	/* allow access to the port only if motor 1 is ON and there's a file open */
 	
 	if(((Port|0xFFE7)==0xFFE7)&&(ordenador.mdr_drive==0x01)&&(ordenador.mdr_current_mdr[0])) {
@@ -135,7 +133,7 @@ void microdrive_out(word Port,byte Value) {
 					sprintf(ordenador.osd_text,"Can't store the cartridge");
 					ordenador.osd_time=150;
 				} else {
-					retval=fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
+					fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
 					fclose(ordenador.mdr_file);
 					ordenador.mdr_file=NULL;
 					ordenador.mdr_modified=0;

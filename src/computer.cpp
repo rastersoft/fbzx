@@ -233,7 +233,6 @@ void register_screen () {
 void set_memory_pointers () {
 
 	static unsigned int rom, ram;
-	static char last_st=-1;
 
 	// assign the offset for video page
 
@@ -254,40 +253,24 @@ void set_memory_pointers () {
 				ordenador.block1 = ordenador.memoria + 65536;
 				ordenador.block2 = ordenador.memoria + 65536;
 				ordenador.block3 = ordenador.memoria + 65536;
-				if (last_st != 0) {
-					//printf("FullRAM 0\n");
-					last_st = 0;
-				}
 				break;
 			case 2:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 131072;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 131072;
-				if (last_st != 1) {
-					//printf("FullRAM 1\n");
-					last_st = 1;
-				}
 				break;
 			case 4:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 131072;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
-				if (last_st != 2) {
-					//printf("FullRAM 2\n");
-					last_st = 2;
-				}
 				break;
 			case 6:
 				ordenador.block0 = ordenador.memoria + 131072;
 				ordenador.block1 = ordenador.memoria + 163840;
 				ordenador.block2 = ordenador.memoria + 131072;
 				ordenador.block3 = ordenador.memoria + 65536;
-				if (last_st != 3) {
-					//printf("FullRAM 3\n");
-					last_st = 3;
-				}
 				break;
 			default:
 				printf("FullRAM desconocido\n");
@@ -320,10 +303,6 @@ void set_memory_pointers () {
 
 	ram = 1 + ((unsigned int) (ordenador.mport1 & 0x07));	// RAM page for block3 plus 1
 	ordenador.block3 = ordenador.memoria + (16384 * ram);	// page n minus 49152
-	if (last_st != ram+3) {
-		//printf("Pagina superior %d\n",ram-1);
-		last_st = ram+3;
-	}
 }
 
 /* Paints the spectrum screen during the TSTADOS tstates that the Z80 used

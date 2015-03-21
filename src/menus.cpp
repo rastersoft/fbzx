@@ -644,8 +644,7 @@ void select_tapfile() {
 
 
 	char *filename;
-	int retorno,retval;
-	char char_id[11];
+	int retorno;
 
 	llscreen->clean_screen();
 
@@ -765,7 +764,6 @@ void create_tapfile() {
 void microdrive_menu() {
 
 	unsigned char fin;
-	int retval;
 
 	fin=1;
 	do {
@@ -813,7 +811,7 @@ void microdrive_menu() {
 				ordenador.mdr_cartridge[137922]=1;
 			ordenador.mdr_file=fopen(ordenador.mdr_current_mdr,"wb"); // create for write
 			if(ordenador.mdr_file!=NULL) {				
-				retval=fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
+				fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
 				fclose(ordenador.mdr_file);
 				ordenador.mdr_file=NULL;
 				ordenador.mdr_modified=0;
@@ -834,8 +832,7 @@ void select_mdrfile() {
 
 
 	char *filename;
-	int retorno,retval;
-	// unsigned char char_id[11];
+	int retorno;
 
 	llscreen->clean_screen();
 
@@ -853,7 +850,7 @@ void select_mdrfile() {
 		retorno=-1;
 	else {
 		retorno=0;
-		retval=fread(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // read the cartridge in memory
+		fread(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // read the cartridge in memory
 		ordenador.mdr_modified=0; // not modified
 		fclose(ordenador.mdr_file);
 		ordenador.mdr_tapehead=0;
@@ -882,7 +879,7 @@ void select_mdrfile() {
 void create_mdrfile() {
 
 
-	int retorno,bucle,retval;
+	int retorno,bucle;
 	char nombre2[1024];
 
 	llscreen->clean_screen();
@@ -914,7 +911,7 @@ void create_mdrfile() {
 			for(bucle=0;bucle<137921;bucle++)
 				ordenador.mdr_cartridge[bucle]=0xFF; // erase cartridge
 			ordenador.mdr_cartridge[137922]=0;
-			retval=fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
+			fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
 			fclose(ordenador.mdr_file);
 			ordenador.mdr_file=NULL;
 			ordenador.mdr_modified=0;
@@ -943,7 +940,7 @@ void create_mdrfile() {
 void create_scrfile() {
 
 
-	int retorno,retval;
+	int retorno;
 	char nombre2[1024];
 	FILE *fichero;
 
@@ -975,9 +972,9 @@ void create_scrfile() {
 		if(fichero==NULL)
 			retorno=-2;
 		else {
-			retval=fwrite(ordenador.block1+0x04000,6912,1,fichero); // save screen
+			fwrite(ordenador.block1+0x04000,6912,1,fichero); // save screen
 			if (ordenador.ulaplus!=0) {
-				retval=fwrite(ordenador.ulaplus_palete,64,1,fichero); // save ULAPlus palete
+				fwrite(ordenador.ulaplus_palete,64,1,fichero); // save ULAPlus palete
 			}
 			fclose(fichero);
 			retorno=0;
@@ -1000,13 +997,10 @@ void create_scrfile() {
 }
 
 
-int ask_filename(char *nombre_final,int y_coord,char *extension) {
+int ask_filename(char *nombre_final,int y_coord,string extension) {
 
 	int longitud,retorno;
 	char nombre[37],nombre2[38];
-
-
-	int ancho;
 
 	nombre[0]=127;
 	nombre[1]=0;
@@ -1014,7 +1008,7 @@ int ask_filename(char *nombre_final,int y_coord,char *extension) {
 	retorno=0;
 
 	do {
-		sprintf (nombre2, " %s.%s ", nombre,extension);
+		sprintf (nombre2, " %s.%s ", nombre,extension.c_str());
 		llscreen->print_string(nombre2, -1, y_coord, 15, 0);
 		switch (wait_key ()) {
 		case SDLK_BACKSPACE:
@@ -1296,9 +1290,9 @@ int ask_filename(char *nombre_final,int y_coord,char *extension) {
 
 	longitud=strlen(path_snaps);
 	if((path_snaps[longitud-1]!='/')&&(longitud>1))
-		sprintf(nombre_final,"%s/%s.%s",path_snaps,nombre,extension); // name
+		sprintf(nombre_final,"%s/%s.%s",path_snaps,nombre,extension.c_str()); // name
 	else
-		sprintf(nombre_final,"%s%s.%s",path_snaps,nombre,extension);
+		sprintf(nombre_final,"%s%s.%s",path_snaps,nombre,extension.c_str());
 
 	return (retorno);
 }

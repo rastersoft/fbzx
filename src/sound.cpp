@@ -270,7 +270,7 @@ int sound_init_oss() {
 	
 	int parameter;
 	int parameter2;
-	int bytes,stereo;
+	int bytes;
 	int retval;
 	audio_buf_info bi;
 
@@ -323,7 +323,6 @@ int sound_init_oss() {
 	}
 	
 	bytes=0; //8 bits
-	stereo=0; // no stereo
 
 	retval=ioctl(audio_fd,SNDCTL_DSP_SETFMT,&parameter);
 	if(retval != 0) {
