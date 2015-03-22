@@ -573,7 +573,7 @@ int main(int argc,char *argv[]) {
 	sleep(1);
 
 	printf("Reset screen\n");
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	if (sound_aborted==1) {
 		strcpy(ordenador.osd_text,"Running without sound (read the FAQ)");

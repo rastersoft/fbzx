@@ -26,11 +26,13 @@ struct fichero {
 	struct fichero *next;
 };
 
+#define CURSOR_ELEMENT '_'
+
 enum LOAD_FILE_TYPES {FILETYPE_Z80, FILETYPE_TAP_TZX, FILETYPE_MDR, FILETYPE_SCR};
 
 void help_menu();
 void load_z80file();
-char *select_file(char *,enum LOAD_FILE_TYPES);
+char *select_file(string,char *,enum LOAD_FILE_TYPES);
 struct fichero *read_directory(char *,enum LOAD_FILE_TYPES);
 unsigned int wait_key();
 void print_files(struct fichero *,int,int);

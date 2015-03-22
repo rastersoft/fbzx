@@ -48,7 +48,7 @@ void help_menu() {
 
 	unsigned char fin;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	llscreen->print_string("FBZX (2.12.0)",-1,1,15,0);
 	llscreen->print_string("Available keys",-1,2,14,0);
@@ -96,7 +96,7 @@ void help_menu() {
 		break;
 		}
 	} while(fin);
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -144,7 +144,7 @@ void settings_menu() {
 	texto[0]=0;
 
 	do {
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 
 		llscreen->print_string("Current settings",-1,0,15,0);
 		switch(ordenador.mode128k) {
@@ -334,7 +334,7 @@ void settings_menu() {
 		}
 	} while(fin);
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -345,22 +345,22 @@ void do_poke() {
 	char string[80];
 	int retorno,address,old_value,new_value;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	while(1) {
-		llscreen->print_string("Type address to POKE",-1,32,15,0);
-		llscreen->print_string("(ESC to exit)",-1,52,12,0);
+		llscreen->print_string("Type address to POKE",-1,2,15,0);
+		llscreen->print_string("(ESC to exit)",-1,3,12,0);
 
-		retorno=ask_value(&address,84,65535);
+		retorno=ask_value(&address,5,65535);
 
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 
 		if (retorno==2) {
 			return;
 		}
 
 		if ((address<16384) && ((ordenador.mode128k != 3) || (1 != (ordenador.mport2 & 0x01)))) {
-			llscreen->print_string("That address is ROM memory.",-1,13,15,0);
+			llscreen->print_string("That address is ROM memory.",-1,1,15,0);
 			continue;
 		}
 
@@ -385,14 +385,14 @@ void do_poke() {
 		break;
 		}
 
-		llscreen->print_string("Type new value to POKE",-1,32,15,0);
-		llscreen->print_string("(ESC to cancel)",-1,52,12,0);
+		llscreen->print_string("Type new value to POKE",-1,2,15,0);
+		llscreen->print_string("(ESC to cancel)",-1,3,12,0);
 		sprintf(string,"Address: %d; old value: %d\n",address,old_value);
-		llscreen->print_string(string,-1,130,14,0);
+		llscreen->print_string(string,-1,8,14,0);
 
-		retorno=ask_value(&new_value,84,255);
+		retorno=ask_value(&new_value,5,255);
 
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 
 		if (retorno==2) {
 			continue;
@@ -419,7 +419,7 @@ void do_poke() {
 		}
 
 		sprintf(string,"Set address %d from %d to %d\n",address,old_value,new_value);
-		llscreen->print_string(string,-1,130,14,0);
+		llscreen->print_string(string,-1,8,14,0);
 
 	}
 }
@@ -432,18 +432,16 @@ void tools_menu() {
 
 	fin=1;
 	do {
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 
-		llscreen->print_string("Tools",-1,10,15,0);
+		llscreen->print_string("Tools",-1,1,15,0);
 
-		llscreen->print_string("1:",14,50,12,0);
-		llscreen->print_string("show keyboard template",62,50,15,0);
+		llscreen->print_string("1: \001\017show keyboard template",14,3,12,0);
+		llscreen->print_string("",62,50,15,0);
 
-		llscreen->print_string("2:",14,90,12,0);
-		llscreen->print_string("insert POKEs",62,90,15,0);
+		llscreen->print_string("2: \001\017insert POKEs",14,5,12,0);
 
-		llscreen->print_string("ESC:",14,250,12,0);
-		llscreen->print_string("return emulator",78,250,15,0);
+		llscreen->print_string("ESC: \001\017return to emulator",14,12,12,0);
 
 		print_copy();
 
@@ -465,7 +463,7 @@ void tools_menu() {
 
 	} while(fin);
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -477,25 +475,23 @@ void snapshots_menu() {
 
 	unsigned char fin;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("SNAPSHOTS",-1,10,15,0);
+	llscreen->print_string("SNAPSHOTS",-1,1,15,0);
 
-	llscreen->print_string("1:",14,100,12,0);
-	llscreen->print_string("load a Z80/SNA snapshot",62,100,15,0);
+	llscreen->print_string("1: \001\017load a Z80/SNA snapshot",14,4,12,0);
 
 	if(ordenador.mode128k!=3) { // not in +3 mode
-		llscreen->print_string("2:",14,160,12,0);
-		llscreen->print_string("make a Z80 snapshot",62,160,15,0);
+		llscreen->print_string("2: \001\017make a Z80 snapshot",14,6,12,0);
 	} else {
-		llscreen->print_string("Can't make snapshots in +3 mode",14,160,15,0);
+		llscreen->print_string("Can't make snapshots in +3 mode",14,6,15,0);
 	}
 
-	llscreen->print_string("3: \001\017load a SCR snapshot",14,220,12,0);
+	llscreen->print_string("3: \001\017load a SCR snapshot",14,8,12,0);
 
-	llscreen->print_string("4: \001\017save a SCR snapshot",14,280,12,0);
+	llscreen->print_string("4: \001\017save a SCR snapshot",14,10,12,0);
 
-	llscreen->print_string("ESC: \001\017return to emulator",-1,400,12,0);
+	llscreen->print_string("ESC: \001\017return to emulator",-1,14,12,0);
 
 	print_copy();
 
@@ -526,7 +522,7 @@ void snapshots_menu() {
 		break;
 		}
 	} while(fin);
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -538,43 +534,36 @@ void taps_menu() {
 	
 	fin=1;
 	do {
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 
-		llscreen->print_string("TAP/TZX files",-1,10,15,0);
+		llscreen->print_string("TAP/TZX files",-1,1,15,0);
 
-		llscreen->print_string("1:",14,50,12,0);
-		llscreen->print_string("select a TAP/TZX file",62,50,15,0);
+		llscreen->print_string("1: \001\017select a TAP/TZX file",14,4,12,0);
 
+		llscreen->print_string("2: \001\017rewind TAP/TZX file",14,6,12,0);
 
-		llscreen->print_string("2:",14,90,12,0);
-		llscreen->print_string("rewind TAP/TZX file",62,90,15,0);
+		llscreen->print_string("3: \001\017fast/normal speed",14,8,12,0);
 
-		llscreen->print_string("3:",14,130,12,0);
-		llscreen->print_string("fast/normal speed",62,130,15,0);
-
-		llscreen->print_string("4:",14,170,12,0);
-		llscreen->print_string("write protection",62,170,15,0);
+		llscreen->print_string("4: \001\017write protection",14,10,12,0);
 		
-		llscreen->print_string("5:",14,210,12,0);
-		llscreen->print_string("create TAP file",62,210,15,0);
+		llscreen->print_string("5: \001\017create empty TAP file",14,12,12,0);
 				
-		llscreen->print_string("ESC:",14,250,12,0);
-		llscreen->print_string("return emulator",78,250,15,0);
+		llscreen->print_string("ESC: \001\017return to emulator",14,16,12,0);
 
-		llscreen->print_string("Current TAP/TZX file is:",-1,300,12,0);
-		llscreen->print_string(ordenador.current_tap,-1,320,12,0);
+		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
+		llscreen->print_string(ordenador.current_tap,-1,320,20,0);
 
 		print_copy();
 
 		if(ordenador.tape_fast_load)
-			llscreen->print_string("Fast load enabled	",10,420,14,0);
+			llscreen->print_string("Fast load enabled",10,-4,14,0);
 		else
-			llscreen->print_string("Fast load disabled ",10,420,14,0);
+			llscreen->print_string("Fast load disabled",10,-4,14,0);
 		
 		if(ordenador.tape_write)
-			llscreen->print_string("Write enabled",390,420,14,0);
+			llscreen->print_string("Write enabled",390,-4,14,0);
 		else
-			llscreen->print_string("Write disabled",390,420,14,0);
+			llscreen->print_string("Write disabled",390,-4,14,0);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
@@ -608,7 +597,7 @@ void taps_menu() {
 
 	} while(fin);
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 // shows a menu to allow user to choose a tape file
@@ -619,18 +608,12 @@ void select_tapfile() {
 	char *filename;
 	int retorno;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	/*if(ordenador.tap_file!=NULL) {
-		rewind_tape(ordenador.tap_file,1);
-	}*/
-
-	llscreen->print_string("Choose the TAPE file to load",-1,32,13,0);
-
-	filename=select_file(path_taps,FILETYPE_TAP_TZX);
+	filename=select_file("Choose the TAPE file to load",path_taps,FILETYPE_TAP_TZX);
 
 	if(filename==NULL) { // Aborted
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 		return;
 	}
 
@@ -645,7 +628,7 @@ void select_tapfile() {
 	else
 		retorno=0;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	strcpy(ordenador.current_tap,filename);
 
@@ -655,24 +638,15 @@ void select_tapfile() {
 	case 0: // all right
 	break;
 	case -1:
-		llscreen->print_string("Error: Can't load that file",-1,232,10,0);
-		llscreen->print_string("Press any key",-1,248,10,0);
+		llscreen->print_string("Error: Can't load that file",-1,-4,10,0);
+		llscreen->print_string("Press any key",-1,-3,10,0);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
 	}
 
 	ordenador.OOTape.load_file(ordenador.current_tap);
-	/*retval=fread(char_id,10,1,ordenador.tap_file); // read the (maybe) TZX header
-	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
-		ordenador.tape_file_type = TAP_TZX;
-		rewind_tape(ordenador.tap_file,1);
-	} else {
-		ordenador.tape_file_type = TAP_TAP;
-		rewind_tape(ordenador.tap_file,1);
-	}*/
-
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 void create_tapfile() {
@@ -681,18 +655,18 @@ void create_tapfile() {
 	int retorno;
 	char nombre2[1024];
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose a name for the TAP file",-1,32,14,0);
-	llscreen->print_string("(up to 30 characters)",-1,52,14,0);
+	llscreen->print_string("Choose a name for the TAP file",-1,2,14,0);
+	llscreen->print_string("(up to 30 characters)",-1,3,14,0);
 
-	llscreen->print_string("TAP file will be saved in:",-1,132,12,0);
-	llscreen->print_string(path_taps,0,152,12,0);
+	llscreen->print_string("TAP file will be saved in:",-1,19,12,0);
+	llscreen->print_string(path_taps,0,20,12,0);
 
 
-	retorno=ask_filename(nombre2,84,"tap");
+	retorno=ask_filename(nombre2,5,"tap");
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	if(retorno==2) // abort
 		return;
@@ -719,17 +693,17 @@ void create_tapfile() {
 	case 0:
 	break;
 	case -1:
-		llscreen->print_string("File already exists",-1,80,10,0);
+		llscreen->print_string("File already exists",-1,5,10,0);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
 	case -2:
-		llscreen->print_string("Can't create file",-1,80,10,0);
+		llscreen->print_string("Can't create file",-1,5,10,0);
 		ordenador.current_tap[0]=0;
 		wait_key();
 	break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 // shows the microdrive menu
@@ -740,31 +714,27 @@ void microdrive_menu() {
 
 	fin=1;
 	do {
-			llscreen->clean_screen();
+			llscreen->clear_screen();
 
-		llscreen->print_string("MICRODRIVE files",-1,10,15,0);
+		llscreen->print_string("MICRODRIVE files",-1,1,15,0);
 
-		llscreen->print_string("1:",14,50,12,0);
-		llscreen->print_string("select a MDR file",62,50,15,0);
+		llscreen->print_string("1: \001\017select a MDR file",14,3,12,0);
 
-		llscreen->print_string("2:",14,90,12,0);
-		llscreen->print_string("create a MDR file",62,90,15,0);
+		llscreen->print_string("2: \001\017create a MDR file",14,5,12,0);
 
-		llscreen->print_string("3:",14,130,12,0);
-		llscreen->print_string("write protection",62,130,15,0);
+		llscreen->print_string("3: \001\017write protection",14,7,12,0);
 				
-		llscreen->print_string("ESC:",14,170,12,0);
-		llscreen->print_string("return emulator",78,170,15,0);
+		llscreen->print_string("ESC: \001\017return to emulator",14,10,12,0);
 
-		llscreen->print_string("Current MDR file is:",-1,300,12,0);
-		llscreen->print_string(ordenador.mdr_current_mdr,-1,320,12,0);
+		llscreen->print_string("Current MDR file is:",-1,13,12,0);
+		llscreen->print_string(ordenador.mdr_current_mdr,-1,14,12,0);
 
 		print_copy();
 		
 		if(!ordenador.mdr_cartridge[137922])
-			llscreen->print_string("Write enabled",-1,420,14,0);
+			llscreen->print_string("Write enabled",-1,-4,14,0);
 		else
-			llscreen->print_string("Write disabled",-1,420,14,0);
+			llscreen->print_string("Write disabled",-1,-4,14,0);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
@@ -796,7 +766,7 @@ void microdrive_menu() {
 
 	} while(fin);
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 // shows a menu to allow user to choose a microdrive file
@@ -807,14 +777,12 @@ void select_mdrfile() {
 	char *filename;
 	int retorno;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose the MICRODRIVE file to load",-1,32,13,0);
-
-	filename=select_file(path_mdrs,FILETYPE_MDR); // MDR files
+	filename=select_file("Choose the MICRODRIVE file to load",path_mdrs,FILETYPE_MDR); // MDR files
 
 	if(filename==NULL) { // Aborted
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 		return;
 	}
 
@@ -829,7 +797,7 @@ void select_mdrfile() {
 		ordenador.mdr_tapehead=0;
 	}
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	strcpy(ordenador.mdr_current_mdr,filename);
 
@@ -839,14 +807,14 @@ void select_mdrfile() {
 	case 0: // all right
 		break;
 	case -1:
-		llscreen->print_string("Error: Can't load that file",-1,232,10,0);
-		llscreen->print_string("Press any key",-1,248,10,0);
+		llscreen->print_string("Error: Can't load that file",-1,-3,10,0);
+		llscreen->print_string("Press any key",-1,-2,10,0);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 		break;
 	}
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 void create_mdrfile() {
@@ -855,17 +823,17 @@ void create_mdrfile() {
 	int retorno,bucle;
 	char nombre2[1024];
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose a name for the MDR file",-1,32,14,0);
-	llscreen->print_string("(up to 30 characters)",-1,52,14,0);
+	llscreen->print_string("Choose a name for the MDR file",-1,4,14,0);
+	llscreen->print_string("(up to 30 characters)",-1,5,14,0);
 
-	llscreen->print_string("MDR file will be saved in:",-1,132,12,0);
-	llscreen->print_string(path_mdrs,0,152,12,0);
+	llscreen->print_string("MDR file will be saved in:",-1,10,12,0);
+	llscreen->print_string(path_mdrs,0,11,12,0);
 
-	retorno=ask_filename(nombre2,84,"mdr");
+	retorno=ask_filename(nombre2,7,"mdr");
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	if(retorno==2) // abort
 		return;
@@ -896,17 +864,17 @@ void create_mdrfile() {
 	case 0:
 	break;
 	case -1:
-		llscreen->print_string("File already exists",-1,80,10,0);
+		llscreen->print_string("File already exists",-1,9,10,0);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	case -2:
-		llscreen->print_string("Can't create file",-1,80,10,0);
+		llscreen->print_string("Can't create file",-1,9,10,0);
 		ordenador.mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -917,17 +885,17 @@ void create_scrfile() {
 	char nombre2[1024];
 	FILE *fichero;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose a name for the SCR file",-1,32,14,0);
-	llscreen->print_string("(up to 30 characters)",-1,52,14,0);
+	llscreen->print_string("Choose a name for the SCR file",-1,4,14,0);
+	llscreen->print_string("(up to 30 characters)",-1,5,14,0);
 
-	llscreen->print_string("SCR file will be saved in:",-1,132,12,0);
-	llscreen->print_string(path_mdrs,0,152,12,0);
+	llscreen->print_string("SCR file will be saved in:",-1,10,12,0);
+	llscreen->print_string(path_mdrs,0,11,12,0);
 
-	retorno=ask_filename(nombre2,84,"scr");
+	retorno=ask_filename(nombre2,7,"scr");
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	if(retorno==2) // abort
 		return;
@@ -956,17 +924,17 @@ void create_scrfile() {
 
 	switch(retorno) {
 	case -1:
-		llscreen->print_string("File already exists",-1,80,10,0);
+		llscreen->print_string("File already exists",-1,9,10,0);
 		wait_key();
 	break;
 	case -2:
-		llscreen->print_string("Can't create file",-1,80,10,0);
+		llscreen->print_string("Can't create file",-1,9,10,0);
 		wait_key();
 	break;
 	default:
 	break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -975,7 +943,7 @@ int ask_filename(char *nombre_final,int y_coord,string extension) {
 	int longitud,retorno;
 	char nombre[37],nombre2[38];
 
-	nombre[0]=127;
+	nombre[0] = CURSOR_ELEMENT;
 	nombre[1]=0;
 	longitud=0;
 	retorno=0;
@@ -986,9 +954,9 @@ int ask_filename(char *nombre_final,int y_coord,string extension) {
 		switch (wait_key ()) {
 		case SDLK_BACKSPACE:
 			if (longitud > 0) {
-				nombre[longitud]=0;
+				nombre[longitud] = 0;
 				longitud--;
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 			}
 		break;
 		case SDLK_ESCAPE:
@@ -1000,259 +968,259 @@ int ask_filename(char *nombre_final,int y_coord,string extension) {
 		case SDLK_a:
 			if (longitud < 30) {
 				nombre[longitud++]='a';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_b:
 			if (longitud < 30) {
 				nombre[longitud++]='b';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_c:
 			if (longitud < 30) {
 				nombre[longitud++]='c';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_d:
 			if (longitud < 30) {
 				nombre[longitud++]='d';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_e:
 			if (longitud < 30) {
 				nombre[longitud++]='e';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_f:
 			if (longitud < 30) {
 				nombre[longitud++]='f';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_g:
 			if (longitud < 30) {
 				nombre[longitud++]='g';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_h:
 			if (longitud < 30) {
 				nombre[longitud++]='h';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_i:
 			if (longitud < 30) {
 				nombre[longitud++]='i';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_j:
 			if (longitud < 30) {
 				nombre[longitud++]='j';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_k:
 			if (longitud < 30) {
 				nombre[longitud++]='k';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_l:
 			if (longitud < 30) {
 				nombre[longitud++]='l';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_m:
 			if (longitud < 30) {
 				nombre[longitud++]='m';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_n:
 			if (longitud < 30) {
 				nombre[longitud++]='n';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_o:
 			if (longitud < 30) {
 				nombre[longitud++]='o';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_p:
 			if (longitud < 30) {
 				nombre[longitud++]='p';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_q:
 			if (longitud < 30) {
 				nombre[longitud++]='q';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_r:
 			if (longitud < 30) {
 				nombre[longitud++]='r';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_s:
 			if (longitud < 30) {
 				nombre[longitud++]='s';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_t:
 			if (longitud < 30) {
 				nombre[longitud++]='t';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_u:
 			if (longitud < 30) {
 				nombre[longitud++]='u';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_v:
 			if (longitud < 30) {
 				nombre[longitud++]='v';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_w:
 			if (longitud < 30) {
 				nombre[longitud++]='w';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_x:
 			if (longitud < 30) {
 				nombre[longitud++]='x';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_y:
 			if (longitud < 30) {
 				nombre[longitud++]='y';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_z:
 			if (longitud < 30) {
 				nombre[longitud++]='z';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_0:
 			if (longitud < 30) {
 				nombre[longitud++]='0';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_1:
 			if (longitud < 30) {
 				nombre[longitud++]='1';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_2:
 			if (longitud < 30) {
 				nombre[longitud++]='2';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_3:
 			if (longitud < 30) {
 				nombre[longitud++]='3';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_4:
 			if (longitud < 30) {
 				nombre[longitud++]='4';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_5:
 			if (longitud < 30) {
 				nombre[longitud++]='5';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_6:
 			if (longitud < 30) {
 				nombre[longitud++]='6';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_7:
 			if (longitud < 30) {
 				nombre[longitud++]='7';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_8:
 			if (longitud < 30) {
 				nombre[longitud++]='8';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_9:
 			if (longitud < 30) {
 				nombre[longitud++]='9';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
 		case SDLK_MINUS:
 			if (longitud < 30) {
 				nombre[longitud++]='-';
-				nombre[longitud]=127;
+				nombre[longitud] = CURSOR_ELEMENT;
 				nombre[longitud + 1]=0;
 			}
 		break;
@@ -1271,8 +1239,6 @@ int ask_filename(char *nombre_final,int y_coord,string extension) {
 }
 
 
-
-
 int ask_value(int *final_value,int y_coord,int max_value) {
 
 	char nombre2[50];
@@ -1282,7 +1248,7 @@ int ask_value(int *final_value,int y_coord,int max_value) {
 	retorno=0;
 	value=0;
 	do {
-		sprintf (nombre2, " %d\177 ", value);
+		sprintf (nombre2, " %d%c ", value,CURSOR_ELEMENT);
 		llscreen->print_string(nombre2, -1, y_coord, 15, 0);
 		switch (wait_key ()) {
 		case SDLK_BACKSPACE:
@@ -1373,18 +1339,18 @@ void save_z80file() {
 	int retorno;
 	char nombre2[1024];
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose a name for the Z80 snapshot",-1,32,14,0);
-	llscreen->print_string("(up to 30 characters)",-1,52,14,0);
+	llscreen->print_string("Choose a name for the Z80 snapshot",-1,4,14,0);
+	llscreen->print_string("(up to 30 characters)",-1,5,14,0);
 
-	llscreen->print_string("Snapshot will be saved in:",-1,132,12,0);
-	llscreen->print_string(path_snaps,0,152,12,0);
+	llscreen->print_string("Snapshot will be saved in:",-1,11,12,0);
+	llscreen->print_string(path_snaps,0,11,12,0);
 
 
-	retorno=ask_filename(nombre2,84,"z80");
+	retorno=ask_filename(nombre2,7,"z80");
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	if(retorno==2) // abort
 		return;
@@ -1394,15 +1360,15 @@ void save_z80file() {
 	case 0:
 		break;
 	case -1:
-		llscreen->print_string("File already exists",-1,80,10,0);
+		llscreen->print_string("File already exists",-1,9,10,0);
 		wait_key();
 		break;
 	case -2:
-		llscreen->print_string("Can't create file",-1,80,10,0);
+		llscreen->print_string("Can't create file",-1,9,10,0);
 		wait_key();
 		break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 // shows a menu to allow user to load a snapshot file
@@ -1414,37 +1380,35 @@ void load_z80file() {
 	char *filename;
 	int retorno;
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose the Z80 snapshot file to load",-1,32,13,0);
-
-	filename=select_file(path_snaps,FILETYPE_Z80);
+	filename=select_file("Choose the Z80 snapshot file to load",path_snaps,FILETYPE_Z80);
 
 	if(filename==NULL) { // Aborted
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 		return;
 	}
 
 	retorno=load_z80(filename);
 	free(filename);
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	switch(retorno) {
 	case 0: // all right
 		break;
 	case -1:
-		llscreen->print_string("Error: Can't load that file",-1,232,10,0);
-		llscreen->print_string("Press any key",-1,248,10,0);
+		llscreen->print_string("Error: Can't load that file",-1,-3,10,0);
+		llscreen->print_string("Press any key",-1,-2,10,0);
 		wait_key();
 		break;
 	case -2:
 	case -3:
-		llscreen->print_string("Error: unsuported snap file",-1,232,10,0);
-		llscreen->print_string("Press any key",-1,248,10,0);
+		llscreen->print_string("Error: unsuported snap file",-1,-3,10,0);
+		llscreen->print_string("Press any key",-1,-2,10,0);
 		wait_key();
 		break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -1457,14 +1421,12 @@ void load_scrfile() {
 	FILE *fichero;
 	unsigned char paleta_tmp[64];
 
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
-	llscreen->print_string("Choose the SCR snapshot file to load",-1,32,13,0);
-
-	filename=select_file(path_snaps,FILETYPE_SCR);
+	filename=select_file("Choose the SCR snapshot file to load",path_snaps,FILETYPE_SCR);
 
 	if(filename==NULL) { // Aborted
-		llscreen->clean_screen();
+		llscreen->clear_screen();
 		return;
 	}
 
@@ -1492,18 +1454,18 @@ void load_scrfile() {
 	}
 
 	free(filename);
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 
 	switch(retorno) {
 	case 0: // all right
 		break;
 	default:
-		llscreen->print_string("Error: Can't load that file",-1,232,10,0);
-		llscreen->print_string("Press any key",-1,248,10,0);
+		llscreen->print_string("Error: Can't load that file",-1,-3,10,0);
+		llscreen->print_string("Press any key",-1,-2,10,0);
 		wait_key();
 	break;
 	}
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 
 
@@ -1605,7 +1567,7 @@ void delete_filelist(struct fichero *filelist) {
 /* allows user to choose a file from PATH. If KIND=0, only snapshots. If KIND=1, only
 	 TAPE files */
 
-char *select_file(char *path,enum LOAD_FILE_TYPES kind) {
+char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 
 	struct fichero *filelist,*fl2;
 	unsigned char fin,read;
@@ -1639,6 +1601,8 @@ char *select_file(char *path,enum LOAD_FILE_TYPES kind) {
 			from=0;
 		}
 
+		llscreen->clear_screen();
+		llscreen->print_string(title,-1,2,15,0);
 		print_files(filelist,from,selected);
 
 		switch(wait_key()) {
@@ -1728,7 +1692,7 @@ void keyboard_menu() {
 	llscreen->paint_picture("fbzx/keymap.bmp");
 	print_copy();
 	wait_key();
-	llscreen->clean_screen();
+	llscreen->clear_screen();
 }
 	
 	
@@ -1782,7 +1746,7 @@ void print_files(struct fichero *filelist,int from,int mark) {
 	ink1=ink2=0;
 
 	fl2=filelist;
-	pos=72;
+	pos=3;
 	for(bucle=0;bucle<numitems;bucle++) {
 		if(bucle>=from) {
 			strcpy(namefile,fl2->nombre);
@@ -1802,18 +1766,20 @@ void print_files(struct fichero *filelist,int from,int mark) {
 				ink2=2;
 			break;
 			}
-			if(bucle==mark)
-				llscreen->print_string(namefile,-1,pos,ink2,15);
-			else
-				llscreen->print_string(namefile,-1,pos,ink1,0);
-			pos+=16;
+			if(bucle==mark) {
+				llscreen->print_string(namefile,10,pos,ink2,15);
+			} else {
+				llscreen->print_string(namefile,10,pos,ink1,0);
+			}
+			pos++;
 		}
-		if((pos+16)>460)
+		if((pos+1)>llscreen->lines_in_screen)
 			break; // reached bottom part of the rectangle
 		fl2=fl2->next;
 	}
-	while((pos+16<460)) {
+
+	while((pos+1)<llscreen->lines_in_screen) {
 		llscreen->print_string(spaces,-1,pos,0,0);
-		pos+=16;
+		pos++;
 	}
 }
