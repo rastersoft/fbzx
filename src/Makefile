@@ -1,5 +1,5 @@
 CC=g++ -c
-CPP=g++ -c
+CPP=g++ -c -g
 LN=g++
 
 CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
@@ -43,7 +43,7 @@ computer.o: computer.cpp tape.hh emulator.hh z80free/Z80free.h computer.hh llscr
 emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh llscreen.hh emulator.hh computer.hh tape.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o emulator.o emulator.cpp
 
-llscreen.o: llscreen.cpp llscreen.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
+llscreen.o: llscreen.cpp font.h llscreen.hh emulator.hh z80free/Z80free.h computer.hh tape.hh
 	$(CPP) $(CPPFLAGS) -o llscreen.o llscreen.cpp
 
 menus.o: menus.cpp llscreen.hh emulator.hh z80free/Z80free.h computer.hh tape.hh menus.hh cargador.hh

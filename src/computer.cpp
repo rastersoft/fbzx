@@ -399,13 +399,8 @@ void show_screen (int tstados) {
 					ordenador.esc_again=0;
 				}
 					
-				if (ordenador.osd_time)
-					llscreen->print_string(ordenador.osd_text, -1,460, 12, 0);
-				else {
-					if (ordenador.zaurus_mini==0)
-						llscreen->print_string("                                      ",-1, 460, 12, 0);
-					else
-						llscreen->print_string("                            ",-1, 460, 12, 0);
+				if (ordenador.osd_time) {
+					llscreen->print_string(ordenador.osd_text, -1,-1, 12, 0);
 				}
 			}
 				
@@ -446,14 +441,20 @@ void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
 		valor = (octet & mask) ? (int) ink : (int) paper;
 		p=(colors+valor);
 		llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel);
-		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)&&(ordenador.dblscan)) {
-			llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
+		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)) {
+			if (ordenador.dblscan) {
+				llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
+			} else {
+				llscreen->paint_one_pixel((unsigned char *)colors,ordenador.pixel+ordenador.next_scanline);
+			}
 		}
 		ordenador.pixel+=ordenador.next_pixel;
 		if ((ordenador.zaurus_mini!=1)&&(ordenador.zaurus_mini!=3)) {
 			llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel);
 			if (ordenador.dblscan) {
 				llscreen->paint_one_pixel((unsigned char *)p,ordenador.pixel+ordenador.next_scanline);
+			} else {
+				llscreen->paint_one_pixel((unsigned char *)colors,ordenador.pixel+ordenador.next_scanline);
 			}
 			ordenador.pixel+=ordenador.next_pixel;
 		}

@@ -38,7 +38,6 @@ private:
 protected:
 	uint32_t counter0;
 	uint32_t counter1;
-	bool zero_first;
 public:
 
 	TapeBlock() {
@@ -46,7 +45,6 @@ public:
 		this->signal = 0;
 		this->counter0 = 0;
 		this->counter1 = 0;
-		this->zero_first = true;
 	}
 
 	virtual ~TapeBlock() {
@@ -99,51 +97,27 @@ public:
 	 */
 	uint32_t play(uint32_t tstates) {
 
-		if (this->zero_first) {
-			if (this->counter0 > 0) {
-				if (this->counter0 >= tstates) {
-					this->counter0 -= tstates;
-					this->signal = 0;
-					return 0;
-				} else {
-					tstates -= this->counter0;
-					this->counter0 = 0;
-				}
+		if (this->counter0 > 0) {
+			if (this->counter0 >= tstates) {
+				this->counter0 -= tstates;
+				this->signal = 0;
+				return 0;
+			} else {
+				tstates -= this->counter0;
+				this->counter0 = 0;
 			}
-			if (this->counter1 > 0) {
-				if (this->counter1 >= tstates) {
-					this->counter1 -= tstates;
-					this->signal = 1;
-					return 0;
-				} else {
-					tstates -= this->counter1;
-					this->counter1 = 0;
-				}
-			}
-			return tstates;
-		} else {
-			if (this->counter1 > 0) {
-				if (this->counter1 >= tstates) {
-					this->counter1 -= tstates;
-					this->signal = 1;
-					return 0;
-				} else {
-					tstates -= this->counter1;
-					this->counter1 = 0;
-				}
-			}
-			if (this->counter0 > 0) {
-				if (this->counter0 >= tstates) {
-					this->counter0 -= tstates;
-					this->signal = 0;
-					return 0;
-				} else {
-					tstates -= this->counter0;
-					this->counter0 = 0;
-				}
-			}
-			return tstates;
 		}
+		if (this->counter1 > 0) {
+			if (this->counter1 >= tstates) {
+				this->counter1 -= tstates;
+				this->signal = 1;
+				return 0;
+			} else {
+				tstates -= this->counter1;
+				this->counter1 = 0;
+			}
+		}
+		return tstates;
 	}
 
 	/**
@@ -325,6 +299,73 @@ public:
 	}
 };
 
+class ToneBlock : public TapeBlock {
+
+	uint16_t pilot;
+	uint16_t lpilot;
+	uint32_t loop;
+
+public:
+
+	ToneBlock(uint16_t pilot, uint16_t lpilot) :TapeBlock() {
+
+		this->pilot = pilot;
+		this->lpilot = lpilot;
+		this->loop = lpilot;
+	}
+
+	void reset() {
+		this->counter0 = 0;
+		this->counter1 = 0;
+		this->loop = lpilot;
+	}
+
+	bool next_bit() {
+
+		bool current_bit;
+
+		if (this->loop > 0) {
+			// guide tone loop
+			this->counter0 = this->pilot;
+			this->counter1 = this->pilot;
+			this->loop--;
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
+
+class PauseBlock : public TapeBlock {
+
+	uint32_t length;
+	Tape *tape;
+
+public:
+
+	PauseBlock(Tape *tape, uint16_t length) :TapeBlock() {
+
+		this->length = length;
+		this->tape = tape;
+	}
+
+	void reset() {
+		this->counter0 = this->length;
+		this->counter1 = 0;
+	}
+
+	bool next_bit() {
+
+		if (this->length == 0) {
+			this->tape->set_pause(true);
+		} else {
+			this->counter0 = this->length;
+			this->counter1 = 0;
+		}
+		return false;
+	}
+};
+
 Tape::Tape() {
 	this->blocks = NULL;
 	this->current_block = NULL;
@@ -466,8 +507,18 @@ bool Tape::load_tzx(char *filename) {
 				return true;
 			}
 		break;
-		case 0x11: // turboblock
+		case 0x11: // turbo block
 			if (this->tzx_turbo_block(file)) {
+				return true;
+			}
+		break;
+		case 0x12: // tone block
+			if (this->tzx_tone_block(file)) {
+				return true;
+			}
+		break;
+		case 0x20: // Pause block
+			if (this->tzx_pause_block(file)) {
 				return true;
 			}
 		break;
@@ -565,6 +616,35 @@ bool Tape::tzx_turbo_block(FILE *file) {
 	return false;
 }
 
+bool Tape::tzx_tone_block(FILE *file) {
+
+	uint16_t pilot;
+	uint16_t lpilot;
+
+	// read pilot pulse duration
+	if (this->read_16bit(file,pilot)) {
+		return true;
+	}
+	// read pilot duration
+	if (this->read_16bit(file,lpilot)) {
+		return true;
+	}
+	this->add_block(new ToneBlock(pilot,lpilot));
+	return false;
+}
+
+bool Tape::tzx_pause_block(FILE *file) {
+
+	uint16_t length;
+
+	// read pilot pulse duration
+	if (this->read_16bit(file,length)) {
+		return true;
+	}
+	this->add_block(new PauseBlock(this,length));
+	return false;
+}
+
 void Tape::play(uint32_t tstates) {
 
 	uint32_t residue = tstates;
@@ -590,6 +670,9 @@ void Tape::play(uint32_t tstates) {
 				this->block_accesed = false;
 			}
 		} else {
+			break;
+		}
+		if (this->paused) {
 			break;
 		}
 	}

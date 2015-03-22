@@ -37,10 +37,9 @@
 // shows the settings menu
 
 void print_copy() {
-	
-	llscreen->print_string("(C) 2003-2012 Raster Software Vigo",-1,439,13,0);
-	llscreen->print_string("(C) 2012 Fabio Olimpieri",-1,457,13,0);
-	
+
+	llscreen->print_string("(C) 2012 Fabio Olimpieri",-1,-1,13,0);
+	llscreen->print_string("(C) 2003-2015 Raster Software Vigo",-1,-2,13,0);
 }
 
 // shows the help menu
@@ -51,48 +50,35 @@ void help_menu() {
 
 	llscreen->clean_screen();
 
-	llscreen->print_string("FBZX (2.10.0)",-1,10,15,0);
-	llscreen->print_string("Available keys",-1,40,14,0);
-	llscreen->print_string("Shift:Caps Shift    Ctrl:Symbol Shift",-1,95,11,0);
+	llscreen->print_string("FBZX (2.12.0)",-1,1,15,0);
+	llscreen->print_string("Available keys",-1,2,14,0);
+	llscreen->print_string("Shift:Caps Shift        Ctrl:Symbol Shift",-1,4,11,0);
 
-	llscreen->print_string("F1:",14,160,12,0);
-	llscreen->print_string("this help",62,160,15,0);
+	llscreen->print_string("F1: \001\017this help",14,6,12,0);
 
-	llscreen->print_string("F2:",336,160,12,0);
-	llscreen->print_string("manage snapshots",382,160,15,0);
+	llscreen->print_string("F2: \001\017manage snapshots",336,6,12,0);
 
-	llscreen->print_string("F3:",14,200,12,0);
-	llscreen->print_string("manage TAP/TZX",62,200,15,0);
+	llscreen->print_string("F3: \001\017manage TAP/TZX",14,8,12,0);
 
-	llscreen->print_string("F4:",336,200,12,0);
-	llscreen->print_string("change settings",382,200,15,0);
+	llscreen->print_string("F4: \001\017change settings",336,8,12,0);
 
-	llscreen->print_string("F5:",14,240,12,0);
-	llscreen->print_string("stop TAPE",62,240,15,0);
+	llscreen->print_string("F5: \001\017stop TAPE",14,10,12,0);
 
-	llscreen->print_string("F6:",336,240,12,0);
-	llscreen->print_string("play TAPE",382,240,15,0);
+	llscreen->print_string("F6: \001\017play TAPE",336,10,12,0);
 
-	llscreen->print_string("F7:",14,280,12,0);
-	llscreen->print_string("manage MICRODRIVE",62,280,15,0);
+	llscreen->print_string("F7: \001\017manage MICRODRIVE",14,12,12,0);
 
-	llscreen->print_string("F8:",336,280,12,0);
-	llscreen->print_string("tools",382,280,15,0);
+	llscreen->print_string("F8: \001\017tools",336,12,12,0);
 
-	llscreen->print_string("F9:",14,320,12,0);
-	llscreen->print_string("Toggle fullscreen",62,320,15,0);
+	llscreen->print_string("F9: \001\017toggle fullscreen",14,14,12,0);
 
-	llscreen->print_string("F10:",336,320,12,0);
-	llscreen->print_string("reset spectrum",398,320,15,0);
+	llscreen->print_string("F10: \001\017reset spectrum",336,14,12,0);
 
-	llscreen->print_string("F11/O:",14,360,12,0);
-	llscreen->print_string("volume low",110,360,15,0);
+	llscreen->print_string("F11/O: \001\017volume low",14,16,12,0);
 
-	llscreen->print_string("F12/P:",336,360,12,0);
-	llscreen->print_string("volume up",430,360,15,0);
+	llscreen->print_string("F12/P: \001\017volume up",336,16,12,0);
 
-	llscreen->print_string("ESC:",184,400,12,0);
-	llscreen->print_string("exit emulator",248,400,15,0);
+	llscreen->print_string("ESC: \001\017exit emulator",184,18,12,0);
 
 	print_copy();
 
@@ -160,7 +146,7 @@ void settings_menu() {
 	do {
 		llscreen->clean_screen();
 
-		llscreen->print_string("Current settings",-1,5,15,0);
+		llscreen->print_string("Current settings",-1,0,15,0);
 		switch(ordenador.mode128k) {
 		case 0:
 			if(ordenador.issue==2)
@@ -182,7 +168,7 @@ void settings_menu() {
 		break;
 		}
   
-		llscreen->print_string(texto,-1,45,14,0);
+		llscreen->print_string(texto,-1,2,14,0);
 
 		switch(ordenador.joystick) {
 		case 0:
@@ -198,87 +184,74 @@ void settings_menu() {
 			sprintf(texto,"Joystick emulation: Sinclair (2)");
 			break;
 		}
-		llscreen->print_string(texto,-1,65,13,0);
+		llscreen->print_string(texto,-1,3,13,0);
 
 		if(ordenador.ay_emul)
 			sprintf(texto,"AY-3-8912 Emulation: enabled");
 		else
 			sprintf(texto,"AY-3-8912 Emulation: disabled");
 
-		llscreen->print_string(texto,-1,85,11,0);
+		llscreen->print_string(texto,-1,4,11,0);
 
 		if(ordenador.mdr_active)
 			sprintf(texto,"Interface I Emulation: enabled");
 		else
 			sprintf(texto,"Interface I Emulation: disabled");
 
-		llscreen->print_string(texto,-1,105,15,0);
+		llscreen->print_string(texto,-1,5,15,0);
 	
 		if(ordenador.dblscan)
 			sprintf(texto,"Double scan: enabled");
 		else
 			sprintf(texto,"Double scan: disabled");
 
-		llscreen->print_string(texto,-1,125,12,0);
+		llscreen->print_string(texto,-1,6,12,0);
 
 		if(ordenador.turbo)
 			sprintf(texto,"TURBO mode: enabled");
 		else
 			sprintf(texto,"TURBO mode: disabled");
-		llscreen->print_string(texto,-1,145,14,0);
+		llscreen->print_string(texto,-1,7,14,0);
 
 		if (ordenador.bw) {
-			llscreen->print_string("TV Set: \001\011B\001\012&\001\014W",-1,165,15,0);
+			llscreen->print_string("TV Set: \001\011B\001\012&\001\014W",-1,8,15,0);
 		} else {
-			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,165,15,0);
+			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,8,15,0);
 		}
 	
-		llscreen->print_string("1:",30,190,12,0);
-		llscreen->print_string("48K issue2",78,190,15,0);
+		llscreen->print_string("1: \001\01748K issue2",30,10,12,0);
 
-		llscreen->print_string("2:",350,190,12,0);
-		llscreen->print_string("48K issue3",398,190,15,0);
+		llscreen->print_string("2: \001\01748K issue3",213,10,12,0);
 
-		llscreen->print_string("3:",30,220,12,0);
-		llscreen->print_string("Sinclair 128K",78,220,15,0);
+		llscreen->print_string("3: \001\017Sinclair 128K",426,10,12,0);
 
-		llscreen->print_string("4:",350,220,12,0);
-		llscreen->print_string("Amstrad +2",398,220,15,0);
+		llscreen->print_string("4: \001\017Amstrad +2",30,12,12,0);
 
-		llscreen->print_string("5:",30,250,12,0);
-		llscreen->print_string("Amstrad +2A/+3",78,250,15,0);
+		llscreen->print_string("5: \001\017Amstrad +2A/+3",213,12,12,0);
 
-		llscreen->print_string("6:",350,250,12,0);
-		llscreen->print_string("Spanish 128K",398,250,15,0);
+		llscreen->print_string("6: \001\017Spanish 128K",426,12,12,0);
 
-		llscreen->print_string("7:",30,280,12,0);
-		llscreen->print_string("Cursor",78,280,15,0);
+		llscreen->print_string("7: \001\017Cursor",30,14,12,0);
 
-		llscreen->print_string("8:",350,280,12,0);
-		llscreen->print_string("Kempston",398,280,15,0);
+		llscreen->print_string("8: \001\017Kempston",213,12,12,0);
 
-		llscreen->print_string("9:",30,310,12,0);
-		llscreen->print_string("Sinclair (1)",78,310,15,0);
+		llscreen->print_string("9: \001\017Sinclair (1)",426,12,12,0);
 
-		llscreen->print_string("0:",350,310,12,0);
-		llscreen->print_string("Sinclair (2)",398,310,15,0);
+		llscreen->print_string("0: \001\017Sinclair (2)",30,14,12,0);
 
-		llscreen->print_string("I:",30,340,12,0);
-		llscreen->print_string("Interface I",78,340,15,0);
+		llscreen->print_string("I: \001\017Interface I",213,14,12,0);
 
-		llscreen->print_string("D:",350,340,12,0);
-		llscreen->print_string("Double Scan",398,340,15,0);
+		llscreen->print_string("A: \001\017AY emulation",426,14,12,0);
 
-		llscreen->print_string("A:",350,370,12,0);
-		llscreen->print_string("AY emulation",398,370,15,0);
-		llscreen->print_string("T:",30,370,12,0);
-		llscreen->print_string("TURBO mode",78,370,15,0);
+		llscreen->print_string("T: \001\017TURBO mode",30,16,12,0);
 
-		llscreen->print_string("V:",30,400,12,0);
-		llscreen->print_string("TV Set mode",78,400,15,0);
+		llscreen->print_string("D: \001\017Double Scan",213,16,12,0);
 
-		llscreen->print_string("ESC:",168,460,12,0);
-		llscreen->print_string("return emulator",232,460,15,0);
+		llscreen->print_string("V: \001\017TV Set mode",426,16,12,0);
+
+		llscreen->print_string("ESC: \001\017return to emulator",-1,22,12,0);
+
+		print_copy();
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE:

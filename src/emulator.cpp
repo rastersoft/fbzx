@@ -382,7 +382,6 @@ int main(int argc,char *argv[]) {
 	bool fullscreen = false;
 	bool dblbuffer = false;
 	bool hwsurface = false;
-	bool text_mini = false;
 	char gamefile[4096];
 	word PC=0;
 
@@ -435,7 +434,6 @@ int main(int argc,char *argv[]) {
 #endif
 			printf("  -mini: show screen at 320x240 in a rotated 640x480 screen\n");
 			printf("  -rotate: rotate screen clockwise\n");
-			printf("  -micro: show screen at 320x240\n");
 			printf("  -fs: start FBZX at fullscreen\n");
 			printf("  -hw: use hardware buffer (best for console framebuffer)\n");
 			printf("  -db: use double buffer\n");
@@ -470,11 +468,7 @@ int main(int argc,char *argv[]) {
 		} else if(0==strcmp(argv[argumento],"-rotate")) {
 			ordenador.zaurus_mini=2;
 			argumento++;
-		} else if (0==strcmp(argv[argumento],"-micro")) {
-			ordenador.zaurus_mini=3;
-			text_mini = true;
-			argumento++;
-		}else if(0==strcmp(argv[argumento],"-fs")) {
+		} else if(0==strcmp(argv[argumento],"-fs")) {
 			fullscreen = true;
 			argumento++;
 		} else if(0==strcmp(argv[argumento],"-hw")) {
@@ -509,14 +503,14 @@ int main(int argc,char *argv[]) {
 	atexit(end_system);
 	switch(ordenador.zaurus_mini) {
 	case 0:
-		llscreen = new LLScreen(640,480,0,0,dblbuffer,hwsurface,text_mini);
+		llscreen = new LLScreen(640,480,0,0,dblbuffer,hwsurface);
 	break;
 	case 1:
 	case 2:
-		llscreen = new LLScreen(480,640,0,0,dblbuffer,hwsurface,text_mini);
+		llscreen = new LLScreen(480,640,0,0,dblbuffer,hwsurface);
 	break;
 	case 3:
-		llscreen = new LLScreen(320,240,0,0,dblbuffer,hwsurface,text_mini);
+		llscreen = new LLScreen(320,240,0,0,dblbuffer,hwsurface);
 	break;
 	}
 	init_sound();
