@@ -199,7 +199,7 @@ void settings_menu() {
 			sprintf(texto,"Interface I Emulation: disabled");
 
 		llscreen->print_string(texto,-1,5,15,0);
-	
+
 		if(ordenador.dblscan)
 			sprintf(texto,"Double scan: enabled");
 		else
@@ -218,7 +218,7 @@ void settings_menu() {
 		} else {
 			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,8,15,0);
 		}
-	
+
 		llscreen->print_string("1: \001\01748K issue2",30,10,12,0);
 
 		llscreen->print_string("2: \001\01748K issue3",213,10,12,0);
@@ -531,7 +531,7 @@ void snapshots_menu() {
 void taps_menu() {
 
 	unsigned char fin;
-	
+
 	fin=1;
 	do {
 		llscreen->clear_screen();
@@ -545,9 +545,9 @@ void taps_menu() {
 		llscreen->print_string("3: \001\017fast/normal speed",14,8,12,0);
 
 		llscreen->print_string("4: \001\017write protection",14,10,12,0);
-		
+
 		llscreen->print_string("5: \001\017create empty TAP file",14,12,12,0);
-				
+
 		llscreen->print_string("ESC: \001\017return to emulator",14,16,12,0);
 
 		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
@@ -559,7 +559,7 @@ void taps_menu() {
 			llscreen->print_string("Fast load enabled",10,-4,14,0);
 		else
 			llscreen->print_string("Fast load disabled",10,-4,14,0);
-		
+
 		if(ordenador.tape_write)
 			llscreen->print_string("Write enabled",390,-4,14,0);
 		else
@@ -579,7 +579,7 @@ void taps_menu() {
 			ordenador.OOTape.set_pause(true);
 			ordenador.OOTape.rewind();
 			sprintf(ordenador.osd_text,"Tape rewinded");
-			ordenador.osd_time=50;			
+			ordenador.osd_time=50;
 		break;
 		case SDLK_3:
 			ordenador.OOTape.set_pause(true);
@@ -673,13 +673,13 @@ void create_tapfile() {
 
 	if(ordenador.tap_file!=NULL)
 		fclose(ordenador.tap_file);
-	
+
 	ordenador.tap_file=fopen(nombre2,"r"); // test if it exists
 	if(ordenador.tap_file==NULL)
 		retorno=0;
 	else
 		retorno=-1;
-	
+
 	if(!retorno) {
 		ordenador.tap_file=fopen(nombre2,"a+"); // create for read and write
 		if(ordenador.tap_file==NULL)
@@ -723,14 +723,14 @@ void microdrive_menu() {
 		llscreen->print_string("2: \001\017create a MDR file",14,5,12,0);
 
 		llscreen->print_string("3: \001\017write protection",14,7,12,0);
-				
+
 		llscreen->print_string("ESC: \001\017return to emulator",14,10,12,0);
 
 		llscreen->print_string("Current MDR file is:",-1,13,12,0);
 		llscreen->print_string(ordenador.mdr_current_mdr,-1,14,12,0);
 
 		print_copy();
-		
+
 		if(!ordenador.mdr_cartridge[137922])
 			llscreen->print_string("Write enabled",-1,-4,14,0);
 		else
@@ -741,7 +741,7 @@ void microdrive_menu() {
 			fin=0;
 		break;
 
-		case SDLK_1:			
+		case SDLK_1:
 			select_mdrfile();
 		break;
 		case SDLK_2:
@@ -753,12 +753,12 @@ void microdrive_menu() {
 			else
 				ordenador.mdr_cartridge[137922]=1;
 			ordenador.mdr_file=fopen(ordenador.mdr_current_mdr,"wb"); // create for write
-			if(ordenador.mdr_file!=NULL) {				
+			if(ordenador.mdr_file!=NULL) {
 				fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
 				fclose(ordenador.mdr_file);
 				ordenador.mdr_file=NULL;
 				ordenador.mdr_modified=0;
-			}			
+			}
 		break;
 		default:
 		break;
@@ -843,7 +843,7 @@ void create_mdrfile() {
 		retorno=0;
 	else
 		retorno=-1;
-	
+
 	if(!retorno) {
 		ordenador.mdr_file=fopen(nombre2,"wb"); // create for write
 		if(ordenador.mdr_file==NULL)
@@ -858,8 +858,8 @@ void create_mdrfile() {
 			ordenador.mdr_modified=0;
 			retorno=0;
 		}
-	}	
-	strcpy(ordenador.mdr_current_mdr,nombre2);	
+	}
+	strcpy(ordenador.mdr_current_mdr,nombre2);
 	switch(retorno) {
 	case 0:
 	break;
@@ -1482,16 +1482,17 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 	struct stat estado;
 	char path[2049],fichero[2049],extension[5],found;
 	int bucle,length;
-	
+
 	strcpy(path,cpath);
 	if('/'!=path[strlen(path)-1])
 		strcat(path,"/"); // add the final / to the path
 
 	listhead=(struct fichero *)malloc(sizeof(struct fichero));
 	strcpy(listhead->nombre,"..");
-	listhead->tipo=2;
-	listhead->next=NULL;
-	listend=listhead;
+	listhead->tipo = 2;
+	listhead->next = NULL;
+	listhead->prev = NULL;
+	listend = listhead;
 
 	directory=opendir(path);
 	if(directory==NULL)
@@ -1502,9 +1503,9 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 		if((NULL!=entry)&&(strcmp(entry->d_name,"."))&&(strcmp(entry->d_name,".."))) {
 			strcpy(fichero,path);
 			strcat(fichero,entry->d_name);
-			stat(fichero,&estado);			
+			stat(fichero,&estado);
 			found=0; // by default is not a valid file...
-			length=strlen(entry->d_name);			
+			length=strlen(entry->d_name);
 			if(length>3) {
 				extension[4]=0;
 				for(bucle=0;bucle<4;bucle++)
@@ -1530,17 +1531,41 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 				break;
 				}
 			} else
-				found=0;			
-			if(((found)||(S_ISDIR(estado.st_mode)))&&('.'!=entry->d_name[0])) { // is a directory. We must add it				
-				listend->next=(struct fichero *)malloc(sizeof(struct fichero));
-				listend=listend->next;
-				listend->next=NULL;
-				strcpy(listend->nombrepath,fichero);
-				strcpy(listend->nombre,entry->d_name);
-				if(S_ISDIR(estado.st_mode))
-					listend->tipo=1; // a directory
-				else
-					listend->tipo=0; // a file
+				found=0;
+
+			if ( (found || (S_ISDIR(estado.st_mode))) && ('.' != entry->d_name[0])) { // is a directory. We must add it
+				struct fichero *new_file = (struct fichero *)malloc(sizeof(struct fichero));
+				struct fichero *floop;
+				strcpy(new_file->nombrepath,fichero);
+				strcpy(new_file->nombre,entry->d_name);
+				if(S_ISDIR(estado.st_mode)) {
+					new_file->tipo=1; // a directory
+				} else {
+					new_file->tipo=0; // a file
+				}
+				for (floop = listhead; floop != NULL; floop = floop->next) {
+					if (floop->tipo == 2) { // parent directory
+						continue;
+					}
+					// if found a file, and the new entry is a folder, add it before the file
+					if (((floop->tipo == 0) && (new_file->tipo == 1)) || ((floop->tipo == new_file->tipo) && (strcmp(floop->nombre,new_file->nombre)>0))){
+						printf("Meto %s antes de %s\n",new_file->nombre,floop->nombre);
+						new_file->prev = floop->prev;
+						new_file->next = floop;
+						floop->prev = new_file;
+						if (new_file->prev != NULL) {
+							new_file->prev->next = new_file;
+						}
+						new_file = NULL;
+						break;
+					}
+				}
+				if (new_file != NULL) { // hasn't been added; append to the end
+					listend->next = new_file;
+					new_file->next = NULL;
+					new_file->prev = listend;
+					listend = new_file;
+				}
 			}
 		}
 	} while(entry!=NULL);
@@ -1688,14 +1713,14 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 }
 
 void keyboard_menu() {
-	
+
 	llscreen->paint_picture("fbzx/keymap.bmp");
 	print_copy();
 	wait_key();
 	llscreen->clear_screen();
 }
-	
-	
+
+
 
 
 
@@ -1732,7 +1757,6 @@ void print_files(struct fichero *filelist,int from,int mark) {
 	struct fichero *fl2;
 	int bucle,numitems,pos;
 	char ink1,ink2;
-	char spaces[39]="                                      ";
 	char namefile[2089];
 
 	fl2=filelist;
@@ -1750,8 +1774,6 @@ void print_files(struct fichero *filelist,int from,int mark) {
 	for(bucle=0;bucle<numitems;bucle++) {
 		if(bucle>=from) {
 			strcpy(namefile,fl2->nombre);
-			strcat(namefile,spaces);
-			namefile[36]=0; // we print up to 36 chars
 			switch(fl2->tipo) {
 			case 0: // file
 				ink1=15;
@@ -1776,10 +1798,5 @@ void print_files(struct fichero *filelist,int from,int mark) {
 		if((pos+1)>llscreen->lines_in_screen)
 			break; // reached bottom part of the rectangle
 		fl2=fl2->next;
-	}
-
-	while((pos+1)<llscreen->lines_in_screen) {
-		llscreen->print_string(spaces,-1,pos,0,0);
-		pos++;
 	}
 }

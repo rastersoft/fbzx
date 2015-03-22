@@ -24,6 +24,7 @@ struct fichero {
 	char nombrepath[2049]; // filename with path
 	int tipo; // file type (0=file, 1=directory, 2=parent directory)
 	struct fichero *next;
+	struct fichero *prev;
 };
 
 #define CURSOR_ELEMENT '_'
