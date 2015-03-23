@@ -17,11 +17,15 @@
  * 
  */
 
+using namespace std;
+#include <string>
+
 #include "llscreen.hh"
 
-struct fichero {
-	char nombre[256]; // filename (for files and directories)
-	char nombrepath[2049]; // filename with path
+class fichero {
+public:
+	string nombre; // filename (for files and directories)
+	string nombrepath; // filename with path
 	int tipo; // file type (0=file, 1=directory, 2=parent directory)
 	struct fichero *next;
 	struct fichero *prev;
@@ -34,10 +38,10 @@ enum LOAD_FILE_TYPES {FILETYPE_Z80, FILETYPE_TAP_TZX, FILETYPE_MDR, FILETYPE_SCR
 void help_menu();
 void load_z80file();
 char *select_file(string,char *,enum LOAD_FILE_TYPES);
-struct fichero *read_directory(char *,enum LOAD_FILE_TYPES);
+class fichero *read_directory(char *,enum LOAD_FILE_TYPES);
 unsigned int wait_key();
-void print_files(struct fichero *,int,int);
-void delete_filelist(struct fichero *);
+void print_files(class fichero *,int,int);
+void delete_filelist(class fichero *);
 void select_tapfile();
 void save_z80file();
 void settings_menu();

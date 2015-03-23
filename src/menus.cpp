@@ -1474,9 +1474,9 @@ void load_scrfile() {
 	 If KIND is 0, it returns only Snapshots, if is 1, it returns only TAPE files, and
 	if is 2, it returns only MDR files */
 
-struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
+class fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 
-	struct fichero *listhead,*listend;
+	class fichero *listhead,*listend;
 	struct dirent *entry;
 	DIR *directory;
 	struct stat estado;
@@ -1487,8 +1487,8 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 	if('/'!=path[strlen(path)-1])
 		strcat(path,"/"); // add the final / to the path
 
-	listhead=(struct fichero *)malloc(sizeof(struct fichero));
-	strcpy(listhead->nombre,"..");
+	listhead = new class fichero();
+	listhead->nombre = "..";
 	listhead->tipo = 2;
 	listhead->next = NULL;
 	listhead->prev = NULL;
@@ -1534,10 +1534,10 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 				found=0;
 
 			if ( (found || (S_ISDIR(estado.st_mode))) && ('.' != entry->d_name[0])) { // is a directory. We must add it
-				struct fichero *new_file = (struct fichero *)malloc(sizeof(struct fichero));
-				struct fichero *floop;
-				strcpy(new_file->nombrepath,fichero);
-				strcpy(new_file->nombre,entry->d_name);
+				class fichero *new_file = new class fichero();
+				class fichero *floop;
+				new_file->nombrepath = fichero;
+				new_file->nombre = entry->d_name;
 				if(S_ISDIR(estado.st_mode)) {
 					new_file->tipo=1; // a directory
 				} else {
@@ -1548,8 +1548,7 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 						continue;
 					}
 					// if found a file, and the new entry is a folder, add it before the file
-					if (((floop->tipo == 0) && (new_file->tipo == 1)) || ((floop->tipo == new_file->tipo) && (strcmp(floop->nombre,new_file->nombre)>0))){
-						printf("Meto %s antes de %s\n",new_file->nombre,floop->nombre);
+					if (((floop->tipo == 0) && (new_file->tipo == 1)) || ((floop->tipo == new_file->tipo) && (floop->nombre>new_file->nombre))){
 						new_file->prev = floop->prev;
 						new_file->next = floop;
 						floop->prev = new_file;
@@ -1575,15 +1574,15 @@ struct fichero *read_directory(char *cpath,enum LOAD_FILE_TYPES kind) {
 
 // deletes a filelist tree, freeing the memory used by it
 
-void delete_filelist(struct fichero *filelist) {
+void delete_filelist(class fichero *filelist) {
 
-	struct fichero *fl1,*fl2;
+	class fichero *fl1,*fl2;
 
 	fl1=fl2=filelist;
 
 	while(fl1!=NULL) {
 		fl2=fl1->next;
-		free(fl1);
+		delete(fl1);
 		fl1=fl2;
 	}
 }
@@ -1594,14 +1593,13 @@ void delete_filelist(struct fichero *filelist) {
 
 char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 
-	struct fichero *filelist,*fl2;
+	class fichero *filelist,*fl2;
 	unsigned char fin,read;
 	char *salida;
 	int bucle,numitems,selected,from,longitud;
 
-	salida=(char *)malloc(2049);
+	salida = (char*)malloc(4096);
 	salida[0]=0;
-
 	fin=1;
 	read=1;
 	selected=0;
@@ -1671,12 +1669,12 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 					fl2=fl2->next;
 			switch(fl2->tipo) {
 			case 0: // select file
-				strcpy(salida,fl2->nombrepath);
+				strcpy(salida,fl2->nombrepath.c_str());
 				delete_filelist(filelist);
 				return(salida); // ends returning the filename
 			break;
 			case 1: // change directory
-				strcpy(path,fl2->nombrepath); // new path_taps is namepath
+				strcpy(path,fl2->nombrepath.c_str()); // new path_taps is namepath
 				delete_filelist(filelist); // frees the memory
 				read=1; // and redisplay all the files
 			break;
@@ -1752,12 +1750,12 @@ unsigned int wait_key() {
 
 // shows the files from the number FROM, and marks the file number MARK
 
-void print_files(struct fichero *filelist,int from,int mark) {
+void print_files(class fichero *filelist,int from,int mark) {
 
-	struct fichero *fl2;
+	class fichero *fl2;
 	int bucle,numitems,pos;
 	char ink1,ink2;
-	char namefile[2089];
+	string namefile;
 
 	fl2=filelist;
 	numitems=0;
@@ -1773,7 +1771,7 @@ void print_files(struct fichero *filelist,int from,int mark) {
 	pos=3;
 	for(bucle=0;bucle<numitems;bucle++) {
 		if(bucle>=from) {
-			strcpy(namefile,fl2->nombre);
+			namefile = fl2->nombre;
 			switch(fl2->tipo) {
 			case 0: // file
 				ink1=15;
