@@ -17,14 +17,12 @@
  * 
  */
 
-#include "computer.hh"
-
-#include "z80free/Z80free.h"
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <sstream>
 
 #include "emulator.hh"
 #include "llscreen.hh"
@@ -33,6 +31,9 @@
 #include "sound.hh"
 #include "spk_ay.hh"
 #include "tape.hh"
+#include "computer.hh"
+#include "z80free/Z80free.h"
+
 
 /* Returns the bus value when reading a port without a periferial */
 
@@ -82,7 +83,7 @@ void computer_init () {
 
 	ordenador.tape_fast_load = true; // fast load by default
 
-	ordenador.osd_text[0] = 0;
+	ordenador.osd_text = "";
 	ordenador.osd_time = 0;
 
 	ordenador.other_ret = 0;
@@ -550,7 +551,7 @@ void read_keyboard (SDL_Event *pevento2) {
 	if ((pevento->type==SDL_KEYUP)&&(temporal_io==SDLK_TAB)) {
 		if (ordenador.tab_extended==0) {
 			ordenador.tab_extended=1;
-			strcpy(ordenador.osd_text,"Function Key mode on");
+			ordenador.osd_text = "Function Key mode on";
 			ordenador.osd_time=100;
 			return;
 		} else {
@@ -612,7 +613,7 @@ void read_keyboard (SDL_Event *pevento2) {
 		case SDLK_ESCAPE:	// to exit from the emulator
 			if (ordenador.esc_again==0) {
 				ordenador.esc_again=1;
-				strcpy(ordenador.osd_text,"ESC again to exit");
+				ordenador.osd_text = "ESC again to exit";
 				ordenador.osd_time=100;
 			} else
 				salir = 0;
@@ -649,17 +650,26 @@ void read_keyboard (SDL_Event *pevento2) {
 		break;
 
 		case SDLK_F11:	// lower volume
-			if (ordenador.volume > 3)
+			if (ordenador.volume > 3) {
 				set_volume (ordenador.volume - 4);
-			sprintf (ordenador.osd_text, " Volume: %d ",ordenador.volume / 4);
-			ordenador.osd_time = 50;
+			}
+			{
+				std::ostringstream stringStream;
+				stringStream << " Volume: " << ordenador.volume/4 << " ";
+				ordenador.osd_text = stringStream.str();
+				ordenador.osd_time = 50;
+			}
 		break;
 			
 		case SDLK_F12:	// upper volume
 			set_volume (ordenador.volume + 4);
-			sprintf (ordenador.osd_text, " Volume: %d ",ordenador.volume / 4);
-			ordenador.osd_time = 50;
-			break;
+			{
+				std::ostringstream stringStream;
+				stringStream << " Volume: " << ordenador.volume/4 << " ";
+				ordenador.osd_text = stringStream.str();
+				ordenador.osd_time = 50;
+			}
+		break;
 		}
 
 	// reorder joystick if screen is rotated

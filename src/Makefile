@@ -37,7 +37,7 @@ Z80free_codesFDCB.o: z80free/Z80free_codesFDCB.c z80free/Z80free.h
 cargador.o: cargador.cpp emulator.hh z80free/Z80free.h computer.hh llscreen.hh tape.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o cargador.o cargador.cpp
 
-computer.o: computer.cpp tape.hh emulator.hh z80free/Z80free.h computer.hh llscreen.hh spk_ay.hh sound.hh microdrive.hh menus.hh
+computer.o: computer.cpp z80free/Z80free.h computer.hh llscreen.hh emulator.hh tape.hh spk_ay.hh sound.hh microdrive.hh menus.hh
 	$(CPP) $(CPPFLAGS) -o computer.o computer.cpp
 
 emulator.o: emulator.cpp sound.hh microdrive.hh z80free/Z80free.h menus.hh llscreen.hh emulator.hh computer.hh tape.hh cargador.hh

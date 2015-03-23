@@ -130,7 +130,7 @@ void microdrive_out(word Port,byte Value) {
 			if(ordenador.mdr_modified) { // if the cartridge has been modified, we store it in hard disk
 				ordenador.mdr_file=fopen(ordenador.mdr_current_mdr,"wb"); // create for write				
 				if(ordenador.mdr_file==NULL) {
-					sprintf(ordenador.osd_text,"Can't store the cartridge");
+					ordenador.osd_text = "Can't store the cartridge";
 					ordenador.osd_time=150;
 				} else {
 					fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge

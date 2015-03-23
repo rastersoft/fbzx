@@ -579,7 +579,7 @@ void taps_menu() {
 			fin=0;
 			ordenador.OOTape.set_pause(true);
 			ordenador.OOTape.rewind();
-			sprintf(ordenador.osd_text,"Tape rewinded");
+			ordenador.osd_text = "Tape rewinded";
 			ordenador.osd_time=50;
 		break;
 		case SDLK_3:
@@ -1412,7 +1412,7 @@ void load_scrfile() {
 		return;
 	}
 
-	ordenador.osd_text[0]=0;
+	ordenador.osd_text = "";
 	fichero=fopen(filename,"rb");
 	retorno=0;
 	if (!fichero) {

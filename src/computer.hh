@@ -153,7 +153,7 @@ struct computer {
 
 	// OSD global variables
 
-	char osd_text[200];
+	string osd_text;
 	unsigned int osd_time;
 
 	// pagination global variables

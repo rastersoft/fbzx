@@ -573,7 +573,7 @@ int main(int argc,char *argv[]) {
 	llscreen->clear_screen();
 
 	if (sound_aborted==1) {
-		strcpy(ordenador.osd_text,"Running without sound (read the FAQ)");
+		ordenador.osd_text = "Running without sound (read the FAQ)";
 		ordenador.osd_time=100;
 	}
 
@@ -582,7 +582,7 @@ int main(int argc,char *argv[]) {
 	load_main_game(gamefile);
 	printf("Modo: %d\n",ordenador.mode128k);
 
-	sprintf(ordenador.osd_text,"Press F1 for help");
+	ordenador.osd_text = "Press F1 for help";
 	ordenador.osd_time=200;
 
 	printf("BPP: %d\n",llscreen->bpp);
@@ -606,7 +606,7 @@ int main(int argc,char *argv[]) {
 			if(ordenador.current_tap != "") {
 				do_fast_load();
 			} else {
-				sprintf(ordenador.osd_text,"No TAP/TZX file selected");
+				ordenador.osd_text = "No TAP/TZX file selected";
 				ordenador.osd_time=50;
 			}
 		}
@@ -679,13 +679,13 @@ void do_fast_load() {
 			procesador.Rm.br.F &= (~F_C);	// Load error
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
-			sprintf (ordenador.osd_text, "No tape selected");
+			ordenador.osd_text = "No tape selected";
 			ordenador.osd_time = 100;
 			return;
 		break;
 		case FASTLOAD_NO_BLOCK:
 			ordenador.other_ret = 0;	// next instruction must NOT be RET
-			sprintf (ordenador.osd_text, "Can't do fast load. Press F6 to play");
+			ordenador.osd_text = "Can't do fast load. Press F6 to play";
 			ordenador.osd_time = 100;
 			return;
 		break;
@@ -693,7 +693,7 @@ void do_fast_load() {
 			procesador.Rm.br.F &= (~F_C);	// Load error
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
-			sprintf (ordenador.osd_text, "End of tape. Rewind it.");
+			ordenador.osd_text = "End of tape. Rewind it.";
 			ordenador.osd_time = 100;
 			return;
 		case FASTLOAD_OK:
