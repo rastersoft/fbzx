@@ -61,10 +61,8 @@ class Tape {
 	void delete_blocks();
 	bool load_tap(string);
 	bool load_tzx(string);
-	bool tzx_standard_block(FILE *);
-	bool tzx_turbo_block(FILE *);
-	bool tzx_tone_block(FILE *);
-	bool tzx_pause_block(FILE *file);
+	bool tzx_generic_8_block(FILE *file);
+	bool tzx_generic_16_block(FILE *file);
 	bool read_8bit(FILE *, uint8_t &);
 	bool read_16bit(FILE *, uint16_t &);
 	bool read_24bit(FILE *, uint32_t &);
