@@ -149,6 +149,7 @@ public:
 
 	virtual class TapeBlock *next_block() {
 		if (this->counter != 0) {
+			this->counter--;
 			return (this->loop->next_block());
 		} else {
 			return this->next;
