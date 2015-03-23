@@ -24,6 +24,8 @@
  *      Author: raster
  */
 
+using namespace std;
+#include <string>
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -57,8 +59,8 @@ class Tape {
 
 	void add_block(class TapeBlock *);
 	void delete_blocks();
-	bool load_tap(char *);
-	bool load_tzx(char *);
+	bool load_tap(string);
+	bool load_tzx(string);
 	bool tzx_standard_block(FILE *);
 	bool tzx_turbo_block(FILE *);
 	bool tzx_tone_block(FILE *);
@@ -79,7 +81,7 @@ public:
 	 * @param filename The full path to the file
 	 * @return TRUE if there was an error; FALSE if the file was loaded fine
 	 */
-	bool load_file(char *filename);
+	bool load_file(string);
 	/**
 	 * Pauses or releases the tape emulation
 	 * @param pause TRUE to pause the tape, FALSE to release it

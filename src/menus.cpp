@@ -24,9 +24,10 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
-#include "z80free/Z80free.h"
+#include <iostream>
 #include <SDL/SDL.h>
 
+#include "z80free/Z80free.h"
 #include "cargador.hh"
 #include "computer.hh"
 #include "emulator.hh"
@@ -551,7 +552,7 @@ void taps_menu() {
 		llscreen->print_string("ESC: \001\017return to emulator",14,16,12,0);
 
 		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
-		llscreen->print_string(ordenador.current_tap,-1,320,20,0);
+		llscreen->print_string(ordenador.current_tap,-1,20,15,0);
 
 		print_copy();
 
@@ -583,10 +584,10 @@ void taps_menu() {
 		break;
 		case SDLK_3:
 			ordenador.OOTape.set_pause(true);
-			ordenador.tape_fast_load = 1-ordenador.tape_fast_load;
+			ordenador.tape_fast_load = ordenador.tape_fast_load ? false : true;
 		break;
 		case SDLK_4:
-			ordenador.tape_write=1-ordenador.tape_write;
+			ordenador.tape_write = ordenador.tape_write ? false : true;
 		break;
 		case SDLK_5:
 			create_tapfile();
@@ -617,43 +618,25 @@ void select_tapfile() {
 		return;
 	}
 
-	if(ordenador.tap_file!=NULL) {
-		fclose(ordenador.tap_file);
-	}
-
-	ordenador.tap_file=fopen(filename,"r+"); // read and write
-	ordenador.tape_write = 0; // by default, can't record
-	if(ordenador.tap_file==NULL)
-		retorno=-1;
-	else
-		retorno=0;
-
-	llscreen->clear_screen();
-
-	strcpy(ordenador.current_tap,filename);
-
+	ordenador.tape_write = false; // by default, can't record
+	ordenador.current_tap = filename;
 	free(filename);
 
-	switch(retorno) {
-	case 0: // all right
-	break;
-	case -1:
+	if (ordenador.OOTape.load_file(ordenador.current_tap)) {
 		llscreen->print_string("Error: Can't load that file",-1,-4,10,0);
 		llscreen->print_string("Press any key",-1,-3,10,0);
-		ordenador.current_tap[0]=0;
+		ordenador.current_tap = "";
 		wait_key();
-	break;
 	}
 
-	ordenador.OOTape.load_file(ordenador.current_tap);
 	llscreen->clear_screen();
 }
 
 void create_tapfile() {
 
-
 	int retorno;
 	char nombre2[1024];
+	struct stat tmpstat;
 
 	llscreen->clear_screen();
 
@@ -671,35 +654,34 @@ void create_tapfile() {
 	if(retorno==2) // abort
 		return;
 
-	if(ordenador.tap_file!=NULL)
-		fclose(ordenador.tap_file);
-
-	ordenador.tap_file=fopen(nombre2,"r"); // test if it exists
-	if(ordenador.tap_file==NULL)
-		retorno=0;
-	else
-		retorno=-1;
-
-	if(!retorno) {
-		ordenador.tap_file=fopen(nombre2,"a+"); // create for read and write
-		if(ordenador.tap_file==NULL)
-			retorno=-2;
-		else
-			retorno=0;
+	if (-1 == stat(nombre2,&tmpstat)) {
+		// File not exists. Good.
+		FILE *tmp = fopen(nombre2,"a+"); // create for read and write
+		if(tmp == NULL) {
+			retorno = -2;
+		} else {
+			fclose(tmp);
+			retorno = 0;
+		}
+	} else {
+		retorno = -1;
 	}
-	ordenador.tape_write=1; // allow to write
-	strcpy(ordenador.current_tap,nombre2);
+
 	switch(retorno) {
 	case 0:
+		ordenador.tape_write = true; // allow to write
+		ordenador.current_tap = nombre2;
 	break;
 	case -1:
 		llscreen->print_string("File already exists",-1,5,10,0);
-		ordenador.current_tap[0]=0;
+		ordenador.current_tap = "";
+		ordenador.tape_write = false;
 		wait_key();
 	break;
 	case -2:
 		llscreen->print_string("Can't create file",-1,5,10,0);
-		ordenador.current_tap[0]=0;
+		ordenador.current_tap = "";
+		ordenador.tape_write = false;
 		wait_key();
 	break;
 	}

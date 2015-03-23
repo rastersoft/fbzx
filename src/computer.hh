@@ -33,6 +33,7 @@ extern char salir;
 
 enum tapmodes {TAP_GUIDE, TAP_DATA, TAP_PAUSE, TAP_TRASH, TAP_STOP, TAP_PAUSE2, TZX_PURE_TONE,
 	TZX_SEQ_PULSES, TAP_FINAL_BIT, TAP_PAUSE3};
+
 enum taptypes {TAP_TAP, TAP_TZX};
 
 struct computer {
@@ -130,10 +131,10 @@ struct computer {
 
 	// tape global variables
 
-	FILE *tap_file;
-	unsigned char tape_fast_load; // 0 normal load; 1 fast load
-	char current_tap[2049];
-	unsigned char tape_write; // 0 can't write; 1 can write
+	string current_tap;
+	bool tape_write; // FALSE can't write; TRUE can write
+	bool tape_fast_load; // FALSE normal load; TRUE fast load
+	Tape OOTape; // Tape object
 
 	// Microdrive global variables
 	FILE *mdr_file;                  // Current microdrive file
@@ -171,8 +172,6 @@ struct computer {
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
 	unsigned char turbo;
-
-	Tape OOTape;
 };
 
 void computer_init();

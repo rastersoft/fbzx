@@ -80,8 +80,7 @@ void computer_init () {
 	ordenador.mode128k = 0;
 	ordenador.joystick = 0;
 
-	ordenador.tape_fast_load = 1;	// fast load by default
-	ordenador.tap_file = NULL;
+	ordenador.tape_fast_load = true; // fast load by default
 
 	ordenador.osd_text[0] = 0;
 	ordenador.osd_time = 0;

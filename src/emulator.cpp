@@ -219,8 +219,6 @@ void end_system() {
 	
 	delete(llscreen);
 
-	if(ordenador.tap_file!=NULL)
-		fclose(ordenador.tap_file);
 }
 
 void load_main_game(char *nombre) {
@@ -239,7 +237,7 @@ void load_main_game(char *nombre) {
 	}
 	
 	if ((0==strcasecmp(".tap",puntero))||(0==strcasecmp(".tzx",puntero))) {
-		strcpy(ordenador.current_tap,nombre);
+		ordenador.current_tap = nombre;
 		ordenador.OOTape.load_file(nombre);
 		return;
 	}
@@ -532,7 +530,7 @@ int main(int argc,char *argv[]) {
 		strcat(path_snaps,"/");
 	strcpy(path_taps,path_snaps);
 	strcpy(path_mdrs,path_snaps);
-	ordenador.current_tap[0]=0;
+	ordenador.current_tap = "";
 
 	// assign random values to the memory before start execution
 
@@ -542,7 +540,6 @@ int main(int argc,char *argv[]) {
 		ordenador.memoria[bucle]=(unsigned char) rand();
 
 	printf("Memory resetted\n");
-	ordenador.tap_file=NULL;
 	printf("Modo: %d\n",ordenador.mode128k);
 	
 	// we filter all the events, except keyboard events
@@ -605,11 +602,11 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load==1) && (ordenador.page48k == 1)) {
-			if(ordenador.tap_file!=NULL) {
+		if((!ordenador.mdr_paged) && (PC==0x0556) && (ordenador.tape_fast_load) && (ordenador.page48k == 1)) {
+			if(ordenador.current_tap != "") {
 				do_fast_load();
 			} else {
-				sprintf(ordenador.osd_text,"No TAP file selected");
+				sprintf(ordenador.osd_text,"No TAP/TZX file selected");
 				ordenador.osd_time=50;
 			}
 		}

@@ -394,12 +394,13 @@ void Tape::delete_blocks() {
 	this->block_accesed = false;
 }
 
-bool Tape::load_file(char *filename) {
+bool Tape::load_file(string filename) {
+
 	char char_id[10];
 	this->delete_blocks();
 
 	this->paused = true;
-	FILE *file = fopen(filename,"rb");
+	FILE *file = fopen(filename.c_str(),"rb");
 	if (file == NULL) {
 		return true; // error while opening the file
 	}
@@ -454,21 +455,21 @@ bool Tape::read_24bit(FILE *file, uint32_t &value) {
 	return false;
 }
 
-bool Tape::load_tap(char *filename) {
+bool Tape::load_tap(string filename) {
 
 	FILE *file;
 	uint8_t data[65536];
 	uint16_t size;
 	size_t retval;
 
-	file = fopen(filename,"rb");
+	file = fopen(filename.c_str(),"rb");
 	if (file == NULL) {
 		return true; // error while opening the file
 	}
 	do {
 		// read block size
 		if (this->read_16bit(file,size)) {
-			return true;
+			return false;
 		}
 		retval = fread (data, size, 1, file);
 		if (retval != 1) {
@@ -476,21 +477,21 @@ bool Tape::load_tap(char *filename) {
 			return (true); // end-of-file and error
 		}
 		this->add_block(new FullBlock(data,size,1000));
-	} while(true);
+	} while(!feof(file));
 
 	fclose(file);
 	this->current_block = this->blocks;
 	return false;
 }
 
-bool Tape::load_tzx(char *filename) {
+bool Tape::load_tzx(string filename) {
 
 	FILE *file;
 	uint8_t block_type;
 	uint8_t tmpdata[10];
 	size_t retval;
 
-	file = fopen(filename,"rb");
+	file = fopen(filename.c_str(),"rb");
 	if (file == NULL) {
 		return true; // error while opening the file
 	}
