@@ -242,11 +242,7 @@ class FullBlock : public TapeBlock {
 		case TURBOBLOCK_DATA:
 			this->pointer = 0;
 			this->bit = 0x80;
-			if (this->data_size == 1) {
-				this->bit_counter = this->bits_at_end;
-			} else {
-				this->bit_counter = 8;
-			}
+			this->bit_counter = (this->data_size == 1) ? this->bits_at_end : 8;
 		break;
 		case TURBOBLOCK_PAUSE:
 		break;
@@ -405,7 +401,7 @@ public:
 		memcpy(this->data,data,size);
 		this->pointer = 0;
 		this->bit = 0x80;
-		this->bit_counter = 8;
+		this->bit_counter = (this->data_size == 1) ? this->bits_at_end : 8;
 	}
 
 	void reset() {
@@ -413,7 +409,8 @@ public:
 		this->counter1 = 0;
 		this->bit = 0x80;
 		this->pointer = 0;
-		this->bit_counter = 8;
+		this->bit_counter = (this->data_size == 1) ? this->bits_at_end : 8;
+		this->next_bit();
 	}
 
 	bool next_bit() {
@@ -472,14 +469,13 @@ public:
 		this->counter0 = 0;
 		this->counter1 = 0;
 		this->loop = lpilot/2;
+		this->next_bit();
 		if (lpilot%2) {
 			printf("odd number of pulses in Pure Tone Block\n");
 		}
 	}
 
 	bool next_bit() {
-
-		bool current_bit;
 
 		if (this->loop > 0) {
 			// guide tone loop
@@ -515,6 +511,7 @@ public:
 		this->counter0 = 0;
 		this->counter1 = 0;
 		this->loop = this->npulses/2;
+		this->next_bit();
 		if (this->npulses%2) {
 			printf("Odd number of pulses in Pulses Block\n");
 		}
@@ -522,7 +519,7 @@ public:
 
 	bool next_bit() {
 
-		if (this->loop > 0) {
+		if (this->loop != 0) {
 			// guide tone loop
 			this->counter0 = this->pulses[this->counter++];
 			this->counter1 = this->pulses[this->counter++];
