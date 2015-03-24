@@ -446,7 +446,7 @@ public:
 			this->counter0 = this->one;
 			this->counter1 = this->one;
 		}
-		this->bit /=2;
+		this->bit /= 2;
 		this->bit_counter--;
 		return true;
 	}
@@ -507,13 +507,13 @@ public:
 		this->npulses = npulses;
 		this->loop = npulses;
 		this->counter = 0;
-		memcpy(this->pulses,pulses,npulses);
+		memcpy(this->pulses,pulses,npulses*2);
 	}
 
 	void reset() {
+		this->counter = 0;
 		this->counter0 = 0;
 		this->counter1 = 0;
-		this->counter = 0;
 		this->loop = this->npulses/2;
 		if (this->npulses%2) {
 			printf("Odd number of pulses in Pulses Block\n");
@@ -521,8 +521,6 @@ public:
 	}
 
 	bool next_bit() {
-
-		bool current_bit;
 
 		if (this->loop > 0) {
 			// guide tone loop
@@ -822,7 +820,7 @@ bool Tape::load_tzx(string filename) {
 		break;
 		case 0x22: // group end
 		break;
-		case 0x24:
+		case 0x24: // Loop Start
 		{
 			uint16_t repetitions;
 			// read repetitions
@@ -832,7 +830,7 @@ bool Tape::load_tzx(string filename) {
 			this->add_block(new LoopBlock(repetitions));
 		}
 		break;
-		case 0x25:
+		case 0x25: // Loop End
 		{
 			this->add_block(new EndLoopBlock());
 		}
@@ -1017,7 +1015,6 @@ enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag
 		this->current_block->reset();
 	}
 
-	printf("Cargo bloque de longitud %d\n",length);
 	if (block_flag != flag) {
 		return FASTLOAD_NO_FLAG;
 	}
