@@ -67,6 +67,7 @@ class Tape : public Signals {
 	bool read_8bit(FILE *, uint8_t &);
 	bool read_16bit(FILE *, uint16_t &);
 	bool read_24bit(FILE *, uint32_t &);
+	bool read_string(FILE *file, string &value);
 public:
 	Tape();
 	~Tape();
@@ -109,6 +110,9 @@ public:
 	 * @return FASTLOAD_OK if everything went fine; FASTLOAD_NO_BLOCK if the next block can't be fast-loaded; FASTLOAD_NO_FLAG if the flag is not valid; FASTLOAD_END_TAPE if the tape reached end and must be rewind
 	 */
 	enum FastLoadReturn fast_read(uint8_t *data,uint16_t &length,uint8_t flag);
+
+	void send_pause_signal();
+	void send_pause_signal48k();
 };
 
 #endif /* SRC_TAPE_HPP_ */

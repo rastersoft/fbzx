@@ -552,11 +552,57 @@ public:
 	bool next_bit() {
 
 		if (this->length == 0) {
-			this->tape->set_pause(true);
-		} else {
-			this->counter0 = this->length;
-			this->counter1 = 0;
+			this->tape->send_pause_signal();
 		}
+		return false;
+	}
+};
+
+class Pause48Block : public TapeBlock {
+
+	Tape *tape;
+
+public:
+
+	Pause48Block(Tape *tape) :TapeBlock() {
+
+		this->tape = tape;
+	}
+
+	bool next_bit() {
+
+		this->tape->send_pause_signal48k();
+		return false;
+	}
+};
+
+class GroupStartBlock : public TapeBlock {
+
+	string name;
+
+public:
+
+	GroupStartBlock(string name) : TapeBlock() {
+		this->name = name;
+	}
+
+	string get_name() {
+		return this->name;
+	}
+
+	bool next_bit() {
+		return false;
+	}
+};
+
+class GroupEndBlock : public TapeBlock {
+
+public:
+
+	GroupEndBlock() {
+	}
+
+	bool next_bit() {
 		return false;
 	}
 };
@@ -647,6 +693,25 @@ bool Tape::read_24bit(FILE *file, uint32_t &value) {
 		return true;
 	}
 	value = ((uint32_t) data[0]) + 256 * ((uint32_t) data[1]) + 65536 * ((uint32_t) data[2]);
+	return false;
+}
+
+bool Tape::read_string(FILE *file, string &value) {
+
+	uint8_t length;
+	uint8_t data[256];
+	size_t retval;
+
+	if (this->read_8bit(file,length)) {
+		return true;
+	}
+	retval = fread (data, length, 1, file);
+	if (retval < 1) {
+		fclose(file); // end-of-file
+		return true;
+	}
+	data[length] = 0;
+	value = data;
 	return false;
 }
 
@@ -795,43 +860,6 @@ bool Tape::load_tzx(string filename) {
 				this->add_block(new ToneBlock(pilot,lpilot));
 		}
 		break;
-		case 0x20: // Pause block
-		{
-			uint16_t length;
-			// read pilot pulse duration
-			if (this->read_16bit(file,length)) {
-				return true;
-			}
-			this->add_block(new PauseBlock(this,length));
-		}
-		break;
-		case 0x32: // Archive Info block
-			if (this->tzx_generic_16_block(file)) {
-				return true;
-			}
-		break;
-		case 0x21: // group start
-			if (this->tzx_generic_8_block(file)) {
-				return true;
-			}
-		break;
-		case 0x22: // group end
-		break;
-		case 0x24: // Loop Start
-		{
-			uint16_t repetitions;
-			// read repetitions
-			if (this->read_16bit(file,repetitions)) {
-				return true;
-			}
-			this->add_block(new LoopBlock(repetitions));
-		}
-		break;
-		case 0x25: // Loop End
-		{
-			this->add_block(new EndLoopBlock());
-		}
-		break;
 		case 0x13:
 		{
 			uint8_t npulses;
@@ -885,6 +913,48 @@ bool Tape::load_tzx(string filename) {
 			}
 			this->add_block(new PureDataBlock(pulse_0, pulse_1, final_bits, pause, npulses, data));
 		}
+		break;
+		case 0x20: // Pause block
+		{
+			uint16_t length;
+			// read pilot pulse duration
+			if (this->read_16bit(file,length)) {
+				return true;
+			}
+			this->add_block(new PauseBlock(this,length));
+		}
+		break;
+		case 0x21: // group start
+		{
+			string name;
+			if (this->read_string(file,name)) {
+				return true;
+			}
+			this->add_block(new GroupStartBlock(name));
+		}
+		break;
+		case 0x22: // group end
+			this->add_block(new GroupEndBlock());
+		break;
+		case 0x24: // Loop Start
+		{
+			uint16_t repetitions;
+			// read repetitions
+			if (this->read_16bit(file,repetitions)) {
+				return true;
+			}
+			this->add_block(new LoopBlock(repetitions));
+		}
+		break;
+		case 0x25: // Loop End
+		{
+			this->add_block(new EndLoopBlock());
+		}
+		break;
+		case 0x32: // Archive Info block
+			if (this->tzx_generic_16_block(file)) {
+				return true;
+			}
 		break;
 		default:
 			printf("Block unknown: %X\n",block_type);
@@ -1020,4 +1090,12 @@ enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag
 	}
 
 	return FASTLOAD_OK;
+}
+
+void Tape::send_pause_signal() {
+	this->send_signal("pause_tape");
+}
+
+void Tape::send_pause_signal48k() {
+	this->send_signal("pause_tape_48k");
 }
