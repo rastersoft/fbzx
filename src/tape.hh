@@ -31,6 +31,7 @@ using namespace std;
 
 #include "computer.hh"
 #include "emulator.hh"
+#include "signals.hh"
 
 #ifndef SRC_TAPE_HPP_
 #define SRC_TAPE_HPP_
@@ -50,7 +51,7 @@ typedef void (TapeSignal::*signal_pause) (bool);
 
 enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_NO_TAPE, FASTLOAD_NO_FLAG, FASTLOAD_END_TAPE};
 
-class Tape {
+class Tape : public Signals {
 
 	class TapeBlock *blocks;
 	class TapeBlock *current_block;

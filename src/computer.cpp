@@ -34,6 +34,33 @@
 #include "computer.hh"
 #include "z80free/Z80free.h"
 
+computer::computer() {
+	this->OOTape.register_signal("pause_tape",this);
+	this->OOTape.register_signal("pause_tape_48k",this);
+	this->OOTape.register_signal("tape_paused",this);
+}
+
+computer::~computer() {
+}
+
+bool computer::callback_receiver(string signal_received, class Signals *object) {
+
+	if (signal_received == "pause_tape") {
+		this->OOTape.set_pause(true);
+		return true;
+	}
+	if (signal_received == "pause_tape_48k") {
+		if ((this->mode128k == 0) || ((ordenador.mport1 & 0x20) != 0)) {
+			this->OOTape.set_pause(true);
+		}
+		return true;
+	}
+	if (signal_received == "tape_paused") {
+		this->osd_text = "Tape paused";
+		this->osd_time = 100;
+	}
+	return true;
+}
 
 /* Returns the bus value when reading a port without a periferial */
 

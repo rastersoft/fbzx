@@ -980,6 +980,9 @@ void Tape::rewind() {
 
 void Tape::set_pause(bool pause) {
 	this->paused = pause;
+	if (pause) {
+		this->send_signal("tape_paused");
+	}
 }
 
 bool Tape::get_pause() {

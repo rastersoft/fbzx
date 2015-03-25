@@ -26,6 +26,7 @@
 #include "tape.hh"
 #include "z80free/Z80free.h"
 #include "llscreen.hh"
+#include "signals.hh"
 
 // #define MUT
 
@@ -36,8 +37,8 @@ enum tapmodes {TAP_GUIDE, TAP_DATA, TAP_PAUSE, TAP_TRASH, TAP_STOP, TAP_PAUSE2, 
 
 enum taptypes {TAP_TAP, TAP_TZX};
 
-struct computer {
-
+class computer : public Signals {
+public:
 	unsigned int temporal_io;
 
 	// screen private global variables
@@ -172,6 +173,10 @@ struct computer {
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
 	unsigned char turbo;
+
+	computer();
+	~computer();
+	bool callback_receiver(string, class Signals *);
 };
 
 void computer_init();
