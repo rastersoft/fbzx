@@ -34,6 +34,68 @@ class TapeBlock {
 
 private:
 	uint8_t signal;
+
+protected:
+	bool read_8bit(FILE *file, uint8_t &value) {
+		uint8_t data;
+		size_t retval;
+
+		retval = fread (&data, 1, 1, file);
+		if (retval < 1) {
+			fclose(file); // end-of-file
+			return true;
+		}
+		value = data;
+		return false;
+	}
+
+	bool read_16bit(FILE *file, uint16_t &value) {
+
+		uint8_t data[2];
+		size_t retval;
+
+		retval = fread (data, 2, 1, file);
+		if (retval < 1) {
+			fclose(file); // end-of-file
+			return true;
+		}
+		value = ((uint16_t) data[0]) + 256 * ((uint16_t) data[1]);
+		return false;
+	}
+
+	bool read_24bit(FILE *file, uint32_t &value) {
+
+		uint8_t data[3];
+		size_t retval;
+
+		retval = fread (data, 3, 1, file);
+		if (retval < 1) {
+			fclose(file); // end-of-file
+			return true;
+		}
+		value = ((uint32_t) data[0]) + 256 * ((uint32_t) data[1]) + 65536 * ((uint32_t) data[2]);
+		return false;
+	}
+
+	bool read_string(FILE *file, string &value) {
+
+		uint8_t length;
+		char data[256];
+		size_t retval;
+
+		if (this->read_8bit(file,length)) {
+			return true;
+		}
+		retval = fread (data, length, 1, file);
+		if (retval < 1) {
+			fclose(file); // end-of-file
+			return true;
+		}
+		data[length] = 0;
+		value = data;
+		return false;
+	}
+
 protected:
 	class TapeBlock *next;
 	uint32_t counter0;
@@ -52,6 +114,10 @@ public:
 		if (this->next != NULL) {
 			delete (this->next);
 		}
+	}
+
+	virtual bool load_block(FILE *) {
+		return false;
 	}
 
 	virtual bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
@@ -168,9 +234,14 @@ private:
 	class EndLoopBlock *endblock;
 public:
 
-	LoopBlock(uint16_t reps) {
-		this->loop = reps;
+	bool load_block(FILE *file) {
+
+		// read repetitions
+		if (this->read_16bit(file,this->loop)) {
+			return true;
+		}
 		this->endblock = NULL;
+		return false;
 	}
 	/**
 	 * Adds a new block to the end of the list
@@ -213,6 +284,7 @@ public:
 
 class FullBlock : public TapeBlock {
 
+protected:
 	uint8_t *data;
 	uint32_t data_size;
 	uint16_t pilot;
@@ -230,6 +302,7 @@ class FullBlock : public TapeBlock {
 	bool allow_fast_load;
 
 	int pointer;
+
 	enum TURBOBLOCK_states {TURBOBLOCK_GUIDE, TURBOBLOCK_DATA, TURBOBLOCK_PAUSE} current_state;
 
 	void set_state(enum TURBOBLOCK_states new_state) {
@@ -250,56 +323,6 @@ class FullBlock : public TapeBlock {
 	}
 
 public:
-
-	FullBlock(uint8_t *data,uint32_t size, uint16_t pause) :TapeBlock() {
-
-		this->allow_fast_load = true;
-		this->data = new uint8_t[size];
-		this->data_size = size;
-		this->pilot = 2168;
-		this->sync0 = 667;
-		this->sync1 = 735;
-		this->zero = 855;
-		this->one = 1710;
-		if (!(0x80 & data[0])) {
-			this->lpilot = 8063; // 5 seconds (aprox)
-		} else {
-			this->lpilot = 3223; // 2 seconds (aprox)
-		}
-		this->bits_at_end = 8;
-		this->pause = (uint32_t)pause;
-
-		memcpy(this->data,data,size);
-		this->current_state = TURBOBLOCK_GUIDE;
-		this->loop = this->lpilot;
-		this->pointer = 0;
-		this->bit = 0x80;
-		this->bit_counter = 8;
-		this->set_state(TURBOBLOCK_GUIDE);
-	}
-
-	FullBlock(uint8_t *data,uint32_t size, uint16_t pilot, uint16_t sync0, uint16_t sync1, uint16_t zero, uint16_t one, uint16_t lpilot, uint8_t bits_at_end, uint16_t pause) :TapeBlock() {
-
-		this->allow_fast_load = false;
-		this->data = new uint8_t[size];
-		this->data_size = size;
-		this->pilot = pilot;
-		this->sync0 = sync0;
-		this->sync1 = sync1;
-		this->zero = zero;
-		this->one = one;
-		this->lpilot = lpilot;
-		this->bits_at_end = bits_at_end;
-		this->pause = (uint32_t)pause;
-
-		memcpy(this->data,data,size);
-		this->current_state = TURBOBLOCK_GUIDE;
-		this->loop = lpilot;
-		this->pointer = 0;
-		this->bit = 0x80;
-		this->bit_counter = 8;
-		this->set_state(TURBOBLOCK_GUIDE);
-	}
 
 	void reset() {
 		this->counter0 = 0;
@@ -373,6 +396,162 @@ public:
 	}
 };
 
+class TAPBlock : public FullBlock {
+
+public:
+	bool load_block(FILE *file) {
+
+		uint16_t size;
+		size_t retval;
+
+		if (this->read_16bit(file,size)) {
+			return true;
+		}
+		this->data = new uint8_t[size];
+		retval = fread (this->data, size, 1, file);
+		if (retval != 1) {
+			fclose(file);
+			return (true); // end-of-file and error
+		}
+
+		this->allow_fast_load = true;
+		this->data_size = size;
+		this->pilot = 2168;
+		this->sync0 = 667;
+		this->sync1 = 735;
+		this->zero = 855;
+		this->one = 1710;
+		if (!(0x80 & this->data[0])) {
+			this->lpilot = 8063; // 5 seconds (aprox)
+		} else {
+			this->lpilot = 3223; // 2 seconds (aprox)
+		}
+		this->bits_at_end = 8;
+		this->pause = 1000;
+
+		this->loop = this->lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
+
+		return false;
+	}
+};
+
+class TZXBlock : public FullBlock {
+
+public:
+	bool load_block(FILE *file) {
+
+		uint16_t size;
+		uint16_t pause;
+		size_t retval;
+
+		// read pause duration
+		if (this->read_16bit(file,pause)) {
+			return true;
+		}
+		// read block size
+		if (this->read_16bit(file,size)) {
+			return true;
+		}
+		this->data = new uint8_t[size];
+		retval = fread (this->data, size, 1, file);
+		if (retval != 1) {
+			fclose(file);
+			return (true); // end-of-file and error
+		}
+		this->allow_fast_load = false;
+		this->data_size = size;
+		this->pilot = 2168;
+		this->sync0 = 667;
+		this->sync1 = 735;
+		this->zero = 855;
+		this->one = 1710;
+		if (!(0x80 & this->data[0])) {
+			this->lpilot = 8063; // 5 seconds (aprox)
+		} else {
+			this->lpilot = 3223; // 2 seconds (aprox)
+		}
+		this->bits_at_end = 8;
+		this->pause = (uint32_t)pause;
+
+		this->current_state = TURBOBLOCK_GUIDE;
+		this->loop = lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
+		return false;
+	}
+};
+
+class TurboBlock : public FullBlock {
+
+public:
+	bool load_block(FILE *file) {
+
+		size_t retval;
+		uint16_t pause;
+
+		// read pilot pulse duration
+		if (this->read_16bit(file,this->pilot)) {
+			return true;
+		}
+		// read sync duration
+		if (this->read_16bit(file,this->sync0)) {
+			return true;
+		}
+		if (this->read_16bit(file,this->sync1)) {
+			return true;
+		}
+		// read bit duration
+		if (this->read_16bit(file,this->zero)) {
+			return true;
+		}
+		if (this->read_16bit(file,this->one)) {
+			return true;
+		}
+		// read pilot duration
+		if (this->read_16bit(file,this->lpilot)) {
+			return true;
+		}
+		// read number of bits at end
+		if (this->read_8bit(file,this->bits_at_end)) {
+			return true;
+		}
+		// read pause duration
+		if (this->read_16bit(file,pause)) {
+			return true;
+		}
+		this->pause = (uint32_t)pause;
+		// read block size
+		if (this->read_24bit(file,this->data_size)) {
+			return true;
+		}
+
+
+		this->allow_fast_load = false;
+		this->data = new uint8_t[this->data_size];
+
+		this->data = new uint8_t[this->data_size];
+		retval = fread (this->data, this->data_size, 1, file);
+		if (retval != 1) {
+			fclose(file);
+			return (true); // end-of-file and error
+		}
+
+		this->current_state = TURBOBLOCK_GUIDE;
+		this->loop = lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
+		return false;
+	}
+};
+
 class PureDataBlock : public TapeBlock {
 
 	uint8_t *data;
@@ -389,20 +568,43 @@ class PureDataBlock : public TapeBlock {
 
 public:
 
-	PureDataBlock(uint16_t zero, uint16_t one, uint8_t bits_at_end, uint16_t pause, uint32_t size, uint8_t *data) :TapeBlock() {
+	bool load_block (FILE *file) {
 
-		this->data = new uint8_t[size];
-		this->data_size = size;
-		this->zero = zero;
-		this->one = one;
-		this->bits_at_end = bits_at_end;
-		this->pause = (uint32_t)pause;
-
-		memcpy(this->data,data,size);
+		int loop;
+		uint16_t lpause;
+		// read pulse lengths
+		if (this->read_16bit(file,this->zero)) {
+			return true;
+		}
+		if (this->read_16bit(file,this->one)) {
+			return true;
+		}
+		// read final bit number
+		if (this->read_8bit(file,this->bits_at_end)) {
+			return true;
+		}
+		// read pause
+		if (this->read_16bit(file,lpause)) {
+			return true;
+		}
+		this->pause = lpause;
+		// read repetitions
+		if (this->read_24bit(file,this->data_size)) {
+			return true;
+		}
+		this->data = new uint8_t[this->data_size];
+		for(loop=0;loop<this->data_size;loop++) {
+			if (this->read_8bit(file,this->data[loop])) {
+				return true;
+			}
+		}
 		this->pointer = 0;
 		this->bit = 0x80;
 		this->bit_counter = (this->data_size == 1) ? this->bits_at_end : 8;
+
+		return false;
 	}
+
 
 	void reset() {
 		this->counter0 = 0;
@@ -458,12 +660,20 @@ class ToneBlock : public TapeBlock {
 
 public:
 
-	ToneBlock(uint16_t pilot, uint16_t lpilot) :TapeBlock() {
+	bool load_block(FILE *file) {
 
-		this->pilot = pilot;
-		this->lpilot = lpilot;
-		this->loop = lpilot;
+		// read pilot pulse duration
+		if (this->read_16bit(file,this->pilot)) {
+			return true;
+		}
+		// read pilot duration
+		if (this->read_16bit(file,this->lpilot)) {
+			return true;
+		}
+		this->loop = this->lpilot;
+		return false;
 	}
+
 
 	void reset() {
 		this->counter0 = 0;
@@ -498,14 +708,23 @@ class PulsesBlock : public TapeBlock {
 
 public:
 
-	PulsesBlock(uint8_t npulses, uint16_t *pulses) :TapeBlock() {
+	bool load_block(FILE *file) {
 
-		this->npulses = npulses;
-		this->loop = npulses;
+		uint8_t loop;
+		uint16_t pulses[255];
+		// read repetitions
+		if (this->read_8bit(file,this->npulses)) {
+			return true;
+		}
+		for(loop=0;loop<this->npulses;loop++) {
+			if (this->read_16bit(file,this->pulses[loop])) {
+				return true;
+			}
+		}
 		this->counter = 0;
-		memcpy(this->pulses,pulses,npulses*2);
+		this->loop = this->npulses/2;
+		return false;
 	}
-
 	void reset() {
 		this->counter = 0;
 		this->counter0 = 0;
@@ -533,15 +752,24 @@ public:
 
 class PauseBlock : public TapeBlock {
 
-	uint32_t length;
+	uint16_t length;
 	Tape *tape;
 
 public:
 
-	PauseBlock(Tape *tape, uint16_t length) :TapeBlock() {
-
-		this->length = length;
+	PauseBlock(Tape *tape) :TapeBlock() {
+		this->length = 0;
 		this->tape = tape;
+	}
+
+	bool read_block(FILE *file) {
+
+		uint16_t length;
+		// read pilot pulse duration
+		if (this->read_16bit(file,this->length)) {
+			return true;
+		}
+		return false;
 	}
 
 	void reset() {
@@ -582,8 +810,12 @@ class GroupStartBlock : public TapeBlock {
 
 public:
 
-	GroupStartBlock(string name) : TapeBlock() {
-		this->name = name;
+	bool load_block(FILE *file) {
+
+		if (this->read_string(file,this->name)) {
+			return true;
+		}
+		return false;
 	}
 
 	string get_name() {
@@ -600,6 +832,33 @@ class GroupEndBlock : public TapeBlock {
 public:
 
 	GroupEndBlock() {
+	}
+
+	bool next_bit() {
+		return false;
+	}
+};
+
+class InfoBlock : public TapeBlock {
+
+	string full_title;
+	string house;
+	string author;
+	string year;
+	string language;
+
+public:
+
+	bool load_block(FILE *file) {
+		uint16_t size;
+		uint8_t data[65536];
+
+		if (this->read_16bit(file,size)) {
+			return true;
+		}
+		printf("Leo %d\n",size);
+		fread(data,size,1,file);
+		return false;
 	}
 
 	bool next_bit() {
@@ -654,92 +913,24 @@ bool Tape::load_file(string filename) {
 	}
 }
 
-bool Tape::read_8bit(FILE *file, uint8_t &value) {
-
-	uint8_t data;
-	size_t retval;
-
-	retval = fread (&data, 1, 1, file);
-	if (retval < 1) {
-		fclose(file); // end-of-file
-		return true;
-	}
-	value = data;
-	return false;
-}
-
-bool Tape::read_16bit(FILE *file, uint16_t &value) {
-
-	uint8_t data[2];
-	size_t retval;
-
-	retval = fread (data, 2, 1, file);
-	if (retval < 1) {
-		fclose(file); // end-of-file
-		return true;
-	}
-	value = ((uint16_t) data[0]) + 256 * ((uint16_t) data[1]);
-	return false;
-}
-
-bool Tape::read_24bit(FILE *file, uint32_t &value) {
-
-	uint8_t data[3];
-	size_t retval;
-
-	retval = fread (data, 3, 1, file);
-	if (retval < 1) {
-		fclose(file); // end-of-file
-		return true;
-	}
-	value = ((uint32_t) data[0]) + 256 * ((uint32_t) data[1]) + 65536 * ((uint32_t) data[2]);
-	return false;
-}
-
-bool Tape::read_string(FILE *file, string &value) {
-
-	uint8_t length;
-	char data[256];
-	size_t retval;
-
-	if (this->read_8bit(file,length)) {
-		return true;
-	}
-	retval = fread (data, length, 1, file);
-	if (retval < 1) {
-		fclose(file); // end-of-file
-		return true;
-	}
-	data[length] = 0;
-	value = data;
-	return false;
-}
-
 bool Tape::load_tap(string filename) {
 
 	FILE *file;
-	uint8_t data[65536];
-	uint16_t size;
-	size_t retval;
+	class TAPBlock *block;
 
 	file = fopen(filename.c_str(),"rb");
 	if (file == NULL) {
 		return true; // error while opening the file
 	}
 	do {
-		// read block size
-		if (this->read_16bit(file,size)) {
-			return false;
+		block = new TAPBlock();
+		if (block->load_block(file) == false) {
+			this->add_block(block);
+		} else {
+			break;
 		}
-		retval = fread (data, size, 1, file);
-		if (retval != 1) {
-			fclose(file);
-			return (true); // end-of-file and error
-		}
-		this->add_block(new FullBlock(data,size,1000));
-	} while(!feof(file));
+	} while(true);
 
-	fclose(file);
 	this->current_block = this->blocks;
 	return false;
 }
@@ -750,6 +941,7 @@ bool Tape::load_tzx(string filename) {
 	uint8_t block_type;
 	uint8_t tmpdata[10];
 	size_t retval;
+	class TapeBlock *block;
 
 	file = fopen(filename.c_str(),"rb");
 	if (file == NULL) {
@@ -764,237 +956,51 @@ bool Tape::load_tzx(string filename) {
 		}
 		switch(block_type) {
 		case 0x10: // standard block
-		{
-			uint8_t data[65536];
-			uint16_t size;
-			uint16_t pause;
-			size_t retval;
-
-			// read pause duration
-			if (this->read_16bit(file,pause)) {
-				return true;
-			}
-			// read block size
-			if (this->read_16bit(file,size)) {
-				return true;
-			}
-			retval = fread (data, size, 1, file);
-			if (retval != 1) {
-				fclose(file);
-				return (true); // end-of-file and error
-			}
-			this->add_block(new FullBlock(data,size,pause));
-		}
+			block = new TZXBlock();
 		break;
 		case 0x11: // turbo block
-		{
-			uint8_t *data;
-			uint32_t size;
-			uint16_t pause;
-			uint16_t pilot;
-			uint16_t sync0;
-			uint16_t sync1;
-			uint16_t zero;
-			uint16_t one;
-			uint16_t lpilot;
-			uint8_t bits_at_end;
-			size_t retval;
-
-			// read pilot pulse duration
-			if (this->read_16bit(file,pilot)) {
-				return true;
-			}
-			// read sync duration
-			if (this->read_16bit(file,sync0)) {
-				return true;
-			}
-			if (this->read_16bit(file,sync1)) {
-				return true;
-			}
-			// read bit duration
-			if (this->read_16bit(file,zero)) {
-				return true;
-			}
-			if (this->read_16bit(file,one)) {
-				return true;
-			}
-			// read pilot duration
-			if (this->read_16bit(file,lpilot)) {
-				return true;
-			}
-			// read number of bits at end
-			if (this->read_8bit(file,bits_at_end)) {
-				return true;
-			}
-			// read pause duration
-			if (this->read_16bit(file,pause)) {
-				return true;
-			}
-			// read block size
-			if (this->read_24bit(file,size)) {
-				return true;
-			}
-			data = new uint8_t[size];
-			retval = fread (data, size, 1, file);
-			if (retval != 1) {
-				fclose(file);
-				return (true); // end-of-file and error
-			}
-			this->add_block(new FullBlock(data,size,pilot,sync0,sync1,zero,one,lpilot,bits_at_end,pause));
-		}
-
+			block = new TurboBlock();
 		break;
 		case 0x12: // tone block
-		{
-			uint16_t pilot;
-			uint16_t lpilot;
-
-			// read pilot pulse duration
-			if (this->read_16bit(file,pilot)) {
-				return true;
-			}
-			// read pilot duration
-			if (this->read_16bit(file,lpilot)) {
-				return true;
-			}
-				this->add_block(new ToneBlock(pilot,lpilot));
-		}
+			block = new ToneBlock();
 		break;
 		case 0x13:
-		{
-			uint8_t npulses;
-			uint8_t loop;
-			uint16_t pulses[255];
-			// read repetitions
-			if (this->read_8bit(file,npulses)) {
-				return true;
-			}
-			for(loop=0;loop<npulses;loop++) {
-				if (this->read_16bit(file,pulses[loop])) {
-					return true;
-				}
-			}
-			this->add_block(new PulsesBlock(npulses,pulses));
-		}
+			block = new PulsesBlock();
 		break;
 		case 0x14:
-		{
-			uint32_t npulses;
-			uint32_t loop;
-			uint8_t *data;
-			uint16_t pulse_0;
-			uint16_t pulse_1;
-			uint8_t final_bits;
-			uint16_t pause;
-			// read pulse lengths
-			if (this->read_16bit(file,pulse_0)) {
-				return true;
-			}
-			if (this->read_16bit(file,pulse_1)) {
-				return true;
-			}
-			// read final bit number
-			if (this->read_8bit(file,final_bits)) {
-				return true;
-			}
-			// read pause
-			if (this->read_16bit(file,pause)) {
-				return true;
-			}
-			// read repetitions
-			if (this->read_24bit(file,npulses)) {
-				return true;
-			}
-			data = new uint8_t[npulses];
-			for(loop=0;loop<npulses;loop++) {
-				if (this->read_8bit(file,data[loop])) {
-					return true;
-				}
-			}
-			this->add_block(new PureDataBlock(pulse_0, pulse_1, final_bits, pause, npulses, data));
-		}
+			block = new PureDataBlock();
 		break;
 		case 0x20: // Pause block
-		{
-			uint16_t length;
-			// read pilot pulse duration
-			if (this->read_16bit(file,length)) {
-				return true;
-			}
-			this->add_block(new PauseBlock(this,length));
-		}
+			block = new PauseBlock(this);
 		break;
 		case 0x21: // group start
-		{
-			string name;
-			if (this->read_string(file,name)) {
-				return true;
-			}
-			this->add_block(new GroupStartBlock(name));
-		}
+			block = new GroupStartBlock();
 		break;
 		case 0x22: // group end
-			this->add_block(new GroupEndBlock());
+			block = new GroupEndBlock();
 		break;
 		case 0x24: // Loop Start
-		{
-			uint16_t repetitions;
-			// read repetitions
-			if (this->read_16bit(file,repetitions)) {
-				return true;
-			}
-			this->add_block(new LoopBlock(repetitions));
-		}
+			block = new LoopBlock();
 		break;
 		case 0x25: // Loop End
-		{
-			this->add_block(new EndLoopBlock());
-		}
+			block = new EndLoopBlock();
 		break;
 		case 0x32: // Archive Info block
-			if (this->tzx_generic_16_block(file)) {
-				return true;
-			}
+			block = new InfoBlock();
 		break;
 		default:
 			printf("Block unknown: %X\n",block_type);
 			return true;
 		break;
 		}
+		if (block->load_block(file)) {
+			return true;
+		}
+		this->add_block(block);
 	}
 
 	fclose(file);
 	this->current_block = this->blocks;
-	return false;
-}
-
-bool Tape::tzx_generic_8_block(FILE *file) {
-
-	uint8_t length;
-	uint8_t data[256];
-
-	// read block length
-	if (this->read_8bit(file,length)) {
-		return true;
-	}
-	if (1!=fread(data,length,1,file)) {
-		return true;
-	}
-	return false;
-}
-
-bool Tape::tzx_generic_16_block(FILE *file) {
-
-	uint16_t length;
-	uint8_t data[65536];
-
-	// read block length
-	if (this->read_16bit(file,length)) {
-		return true;
-	}
-	if (1!=fread(data,length,1,file)) {
-		return true;
-	}
 	return false;
 }
 

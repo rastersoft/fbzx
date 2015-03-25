@@ -234,21 +234,21 @@ void settings_menu() {
 
 		llscreen->print_string("7: \001\017Cursor",30,14,12,0);
 
-		llscreen->print_string("8: \001\017Kempston",213,12,12,0);
+		llscreen->print_string("8: \001\017Kempston",213,14,12,0);
 
-		llscreen->print_string("9: \001\017Sinclair (1)",426,12,12,0);
+		llscreen->print_string("9: \001\017Sinclair (1)",426,14,12,0);
 
-		llscreen->print_string("0: \001\017Sinclair (2)",30,14,12,0);
+		llscreen->print_string("0: \001\017Sinclair (2)",30,16,12,0);
 
-		llscreen->print_string("I: \001\017Interface I",213,14,12,0);
+		llscreen->print_string("I: \001\017Interface I",213,16,12,0);
 
-		llscreen->print_string("A: \001\017AY emulation",426,14,12,0);
+		llscreen->print_string("A: \001\017AY emulation",426,16,12,0);
 
-		llscreen->print_string("T: \001\017TURBO mode",30,16,12,0);
+		llscreen->print_string("T: \001\017TURBO mode",30,18,12,0);
 
-		llscreen->print_string("D: \001\017Double Scan",213,16,12,0);
+		llscreen->print_string("D: \001\017Double Scan",213,18,12,0);
 
-		llscreen->print_string("V: \001\017TV Set mode",426,16,12,0);
+		llscreen->print_string("V: \001\017TV Set mode",426,18,12,0);
 
 		llscreen->print_string("ESC: \001\017return to emulator",-1,22,12,0);
 
