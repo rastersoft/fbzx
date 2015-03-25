@@ -699,7 +699,7 @@ bool Tape::read_24bit(FILE *file, uint32_t &value) {
 bool Tape::read_string(FILE *file, string &value) {
 
 	uint8_t length;
-	uint8_t data[256];
+	char data[256];
 	size_t retval;
 
 	if (this->read_8bit(file,length)) {
