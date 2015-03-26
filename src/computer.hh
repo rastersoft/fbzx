@@ -152,11 +152,6 @@ public:
 	byte mdr_old_STATUS; // to detect an edge in COM CLK
 	unsigned char mdr_modified; // if a sector is stored, this change to know that it must be stored in the file
 
-	// OSD global variables
-
-	string osd_text;
-	unsigned int osd_time;
-
 	// pagination global variables
 
 	unsigned char mport1,mport2; // ports for memory management (128K and +3)

@@ -19,6 +19,7 @@
 
 #include "computer.hh"
 #include "z80free/Z80free.h"
+#include "osd.hh"
 
 #ifndef emulator_h
 #define emulator_h
@@ -28,7 +29,8 @@
 extern char debug_var;
 
 extern Z80FREE procesador;
-extern struct computer ordenador;
+extern class computer ordenador;
+extern class OSD osd;
 extern unsigned char *sound[NUM_SNDBUF];
 extern char path_snaps[2049];
 extern char path_taps[2049];

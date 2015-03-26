@@ -20,6 +20,7 @@
 #include <string.h>
 #include "llscreen.hh"
 #include "font.h"
+#include "osd.hh"
 
 LLScreen *llscreen = NULL;
 
@@ -428,8 +429,7 @@ void LLScreen::paint_picture(string filename) {
 	this->clear_screen();
 	fichero=myfopen((char *)filename.c_str(),"r");
 	if (fichero==NULL) {
-		ordenador.osd_text = "Keymap picture not found";
-		ordenador.osd_time=100;
+		osd.set_message("Keymap picture not found",2000);
 		return;
 	}
 	if (ordenador.zaurus_mini==0) {

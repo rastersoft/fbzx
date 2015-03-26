@@ -56,8 +56,7 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 		return true;
 	}
 	if (signal_received == "tape_paused") {
-		this->osd_text = "Tape paused";
-		this->osd_time = 100;
+		osd.set_message("Tape paused",2000);
 	}
 	return true;
 }
@@ -109,9 +108,6 @@ void computer_init () {
 	ordenador.joystick = 0;
 
 	ordenador.tape_fast_load = true; // fast load by default
-
-	ordenador.osd_text = "";
-	ordenador.osd_time = 0;
 
 	ordenador.other_ret = 0;
 
@@ -419,16 +415,14 @@ void show_screen (int tstados) {
 		
 		if ((ordenador.currline > ordenador.pixalto)&&(ordenador.currpix>=64)) {
 			ordenador.currpix=64;
-			if (ordenador.osd_time) {
-				ordenador.osd_time--;
-				if (ordenador.osd_time==0) {
-					ordenador.tab_extended=0;
-					ordenador.esc_again=0;
-				}
-					
-				if (ordenador.osd_time) {
-					llscreen->print_string(ordenador.osd_text, -1,-1, 12, 0);
-				}
+			if (osd.get_time() != 0) {
+				uint8_t lines;
+				string text;
+				text = osd.get_text(lines);
+				llscreen->print_string(text, -1,-lines, 12, 0);
+			} else {
+				ordenador.tab_extended=0;
+				ordenador.esc_again=0;
 			}
 				
 			llscreen->do_flip();
@@ -578,12 +572,11 @@ void read_keyboard (SDL_Event *pevento2) {
 	if ((pevento->type==SDL_KEYUP)&&(temporal_io==SDLK_TAB)) {
 		if (ordenador.tab_extended==0) {
 			ordenador.tab_extended=1;
-			ordenador.osd_text = "Function Key mode on";
-			ordenador.osd_time=100;
+			osd.set_message("Function Key mode on",2000);
 			return;
 		} else {
 			ordenador.tab_extended=0;
-			ordenador.osd_time=0;
+			osd.clear_message();
 			return;
 		}
 	}
@@ -593,7 +586,9 @@ void read_keyboard (SDL_Event *pevento2) {
 	
 	if ((pevento->type==SDL_KEYUP)&&(ordenador.tab_extended==1)) {
 		ordenador.tab_extended=0;
-		ordenador.osd_time=0;
+
+		osd.clear_message();
+
 		switch(temporal_io) {
 		case SDLK_1:
 			temporal_io=SDLK_F1;
@@ -640,8 +635,7 @@ void read_keyboard (SDL_Event *pevento2) {
 		case SDLK_ESCAPE:	// to exit from the emulator
 			if (ordenador.esc_again==0) {
 				ordenador.esc_again=1;
-				ordenador.osd_text = "ESC again to exit";
-				ordenador.osd_time=100;
+				osd.set_message("ESC again to exit",2000);
 			} else
 				salir = 0;
 			return;
@@ -683,8 +677,7 @@ void read_keyboard (SDL_Event *pevento2) {
 			{
 				std::ostringstream stringStream;
 				stringStream << " Volume: " << ordenador.volume/4 << " ";
-				ordenador.osd_text = stringStream.str();
-				ordenador.osd_time = 50;
+				osd.set_message(stringStream.str(),1000);
 			}
 		break;
 			
@@ -693,8 +686,7 @@ void read_keyboard (SDL_Event *pevento2) {
 			{
 				std::ostringstream stringStream;
 				stringStream << " Volume: " << ordenador.volume/4 << " ";
-				ordenador.osd_text = stringStream.str();
-				ordenador.osd_time = 50;
+				osd.set_message(stringStream.str(),1000);
 			}
 		break;
 		}

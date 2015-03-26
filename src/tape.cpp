@@ -1085,6 +1085,7 @@ void Tape::rewind() {
 		this->current_block->reset();
 	}
 	this->block_accesed = false;
+	osd.set_message("Tape rewinded",1000);
 }
 
 void Tape::set_pause(bool pause) {
