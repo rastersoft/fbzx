@@ -402,7 +402,7 @@ public:
 
 	~TAPBlock() {
 		if (this->data != NULL) {
-			delete(this->data);
+			delete[](this->data);
 		}
 	}
 	bool load_block(FILE *file) {
@@ -451,7 +451,7 @@ public:
 
 	~TZXBlock() {
 		if (this->data != NULL) {
-			delete(this->data);
+			delete[](this->data);
 		}
 	}
 	bool load_block(FILE *file) {
@@ -504,7 +504,7 @@ class TurboBlock : public FullBlock {
 public:
 	~TurboBlock() {
 		if (this->data != NULL) {
-			delete(this->data);
+			delete[](this->data);
 		}
 	}
 
@@ -586,7 +586,7 @@ public:
 
 	~PureDataBlock() {
 		if (this->data != NULL) {
-			delete(this->data);
+			delete[](this->data);
 		}
 	}
 	bool load_block (FILE *file) {
@@ -874,7 +874,7 @@ public:
 	}
 	~InfoBlock() {
 		if (this->data != NULL) {
-			delete (this->data);
+			delete[](this->data);
 		}
 	}
 

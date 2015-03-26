@@ -1598,7 +1598,7 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 
 			fl2=filelist;
 			numitems=0;
-			while(fl2!=NULL) { // counts the number of items
+			while(fl2 != NULL) { // counts the number of items
 				fl2=fl2->next;
 				numitems++;
 			}
@@ -1613,6 +1613,7 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
 			fin=0;
+			delete_filelist(filelist);
 		break;
 		case SDLK_UP:
 			if(selected>0) {
@@ -1661,6 +1662,7 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 				read=1; // and redisplay all the files
 			break;
 			case 2: // upper directory
+				delete_filelist(filelist); // frees the memory
 				longitud=strlen(path);
 				if(longitud<2) // there's no upper directory
 					break;
@@ -1687,7 +1689,6 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 		}
 	} while(fin);
 
-	delete_filelist(filelist);
 	return(NULL);
 
 }
