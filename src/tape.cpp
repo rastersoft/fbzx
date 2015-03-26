@@ -285,7 +285,7 @@ public:
 class FullBlock : public TapeBlock {
 
 protected:
-	uint8_t *data;
+	uint8_t *data = NULL;
 	uint32_t data_size;
 	uint16_t pilot;
 	uint16_t sync0;
@@ -399,6 +399,12 @@ public:
 class TAPBlock : public FullBlock {
 
 public:
+
+	~TAPBlock() {
+		if (this->data != NULL) {
+			delete(this->data);
+		}
+	}
 	bool load_block(FILE *file) {
 
 		uint16_t size;
@@ -442,6 +448,12 @@ public:
 class TZXBlock : public FullBlock {
 
 public:
+
+	~TZXBlock() {
+		if (this->data != NULL) {
+			delete(this->data);
+		}
+	}
 	bool load_block(FILE *file) {
 
 		uint16_t size;
@@ -490,6 +502,12 @@ public:
 class TurboBlock : public FullBlock {
 
 public:
+	~TurboBlock() {
+		if (this->data != NULL) {
+			delete(this->data);
+		}
+	}
+
 	bool load_block(FILE *file) {
 
 		size_t retval;
@@ -531,9 +549,7 @@ public:
 			return true;
 		}
 
-
 		this->allow_fast_load = false;
-		this->data = new uint8_t[this->data_size];
 
 		this->data = new uint8_t[this->data_size];
 		retval = fread (this->data, this->data_size, 1, file);
@@ -554,7 +570,7 @@ public:
 
 class PureDataBlock : public TapeBlock {
 
-	uint8_t *data;
+	uint8_t *data = NULL;
 	uint32_t data_size;
 	uint16_t zero;
 	uint16_t one;
@@ -568,6 +584,11 @@ class PureDataBlock : public TapeBlock {
 
 public:
 
+	~PureDataBlock() {
+		if (this->data != NULL) {
+			delete(this->data);
+		}
+	}
 	bool load_block (FILE *file) {
 
 		int loop;
@@ -841,23 +862,34 @@ public:
 
 class InfoBlock : public TapeBlock {
 
-	string full_title;
-	string house;
-	string author;
-	string year;
-	string language;
+
+	uint8_t *data;
+	uint16_t size;
 
 public:
 
-	bool load_block(FILE *file) {
-		uint16_t size;
-		uint8_t data[65536];
+	InfoBlock() {
+		this->data = NULL;
+		this->size = 0;
+	}
+	~InfoBlock() {
+		if (this->data != NULL) {
+			delete (this->data);
+		}
+	}
 
-		if (this->read_16bit(file,size)) {
+	bool load_block(FILE *file) {
+
+		size_t retval;
+
+		if (this->read_16bit(file,this->size)) {
 			return true;
 		}
-		printf("Leo %d\n",size);
-		fread(data,size,1,file);
+		this->data = new uint8_t[this->size];
+		retval = fread(this->data,this->size,1,file);
+		if (retval != 1) {
+			return true;
+		}
 		return false;
 	}
 
@@ -927,6 +959,7 @@ bool Tape::load_tap(string filename) {
 		if (block->load_block(file) == false) {
 			this->add_block(block);
 		} else {
+			delete(block);
 			break;
 		}
 	} while(true);
