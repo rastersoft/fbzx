@@ -27,10 +27,13 @@
 #include "z80free/Z80free.h"
 #include "llscreen.hh"
 #include "signals.hh"
+#include "screen.hh"
 
 // #define MUT
 
 extern char salir;
+
+extern class computer *ordenador;
 
 enum tapmodes {TAP_GUIDE, TAP_DATA, TAP_PAUSE, TAP_TRASH, TAP_STOP, TAP_PAUSE2, TZX_PURE_TONE,
 	TZX_SEQ_PULSES, TAP_FINAL_BIT, TAP_PAUSE3};
@@ -41,38 +44,12 @@ class computer : public Signals {
 public:
 	unsigned int temporal_io;
 
-	// screen private global variables
-	unsigned int translate[6144],translate2[6144];
 	unsigned char zaurus_mini;
-	unsigned char dblscan;
-	unsigned char bw;
+	bool dblscan;
+	bool bw;
 
-	int contador_flash;
-
-	unsigned int *p_translt,*p_translt2;
-	unsigned char *pixel; // current address
-	unsigned char *base_pixel;
-	char border,flash;
-	int currline,currpix;
-
-	int tstados_counter; // counts tstates leaved to the next call
-	int init_line; // cuantity to add to the base address to start to paint
-	int next_line; // cuantity to add when we reach the end of line to go to next line
-	int next_scanline; // cuantity to add to pass to the next scanline
-	int first_line; // first line to start to paint
-	int last_line; // last line to paint
-	int first_pixel; // first pixel of a line to paint
-	int last_pixel; // last pixel of a line to paint
-	int next_pixel; // next pixel
-	int pixancho,pixalto; // maximum pixel value for width and height
-	int jump_pixel;
-	unsigned char screen_snow; // 0-> no emulate snow; 1-> emulate snow
-	unsigned char contended_zone; // 0-> no contention; 1-> contention possible
+	bool contended_zone; // 0-> no contention; 1-> contention possible
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
-
-	char ulaplus; // 0 = inactive; 1 = active
-	unsigned char ulaplus_reg; // contains the last selected register in the ULAPlus
-	unsigned char ulaplus_palete[64]; // contains the current palete
 
 	// keyboard private global variables
 
@@ -91,21 +68,8 @@ public:
 	unsigned char updown,leftright;
 
 	// sound global variables
-
-	int tst_sample; // number of tstates per sample
-	int freq; // frequency for reproduction
-	int format; // 0: 8 bits, 1: 16 bits LSB, 2: 16 bits MSB
-	signed char sign; // 0: unsigned; 1: signed
-	int channels; // number of channels
-	int buffer_len; // sound buffer length (in samples)
-	int increment; // cuantity to add to jump to the next sample
-	unsigned char volume; // volume
-	unsigned char sample1[4]; // buffer with precalculated sample 1 (for buzzer)
-	unsigned char sample1b[4]; // buffer with prec. sample 1 (for AY-3-8912)
-	unsigned char sample0[4]; // buffer with precalculated sample 0
 	unsigned char sound_bit;
 	unsigned int tstados_counter_sound;
-	unsigned char *current_buffer;
 	unsigned char num_buff;
 	unsigned int sound_cuantity; // counter for the buffer
 	unsigned char ay_registers[16]; // registers for the AY emulation
@@ -135,7 +99,6 @@ public:
 	string current_tap;
 	bool tape_write; // FALSE can't write; TRUE can write
 	bool tape_fast_load; // FALSE normal load; TRUE fast load
-	Tape OOTape; // Tape object
 
 	// Microdrive global variables
 	FILE *mdr_file;                  // Current microdrive file
@@ -164,7 +127,6 @@ public:
 	unsigned char memoria[196608]; // memory (12 pages of 16K each one). 4 for ROM, and 8 for RAM
 	unsigned char shadowrom[8192]; // space for Interface I's ROMs
 	unsigned char interr;
-	unsigned char mustlock;
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
 	unsigned char turbo;
@@ -174,17 +136,10 @@ public:
 	bool callback_receiver(string, class Signals *);
 };
 
-void computer_init();
-void register_screen();
-void show_screen(int);
-void paint_pixels(unsigned char, unsigned char, unsigned char);
 void read_keyboard(SDL_Event *pevento2);
 void fill_audio(void *udata,Uint8 *,int);
-void set_volume(unsigned char);
-void play_sound(unsigned int);
 void emulate(int);
 void ResetComputer();
 byte bus_empty();
-void set_memory_pointers();
 
 #endif

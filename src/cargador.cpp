@@ -86,13 +86,13 @@ int save_z80(char *filename) {
 
   fprintf(fichero,"%c%c%c%c%c%c",procesador.Rm.br.A,procesador.Rm.br.F,procesador.Rm.br.C,procesador.Rm.br.B,procesador.Rm.br.L,procesador.Rm.br.H); // AF, BC and HL
 
-  if(ordenador.mode128k==0) // 48K
+  if(ordenador->mode128k==0) // 48K
     fprintf(fichero,"%c%c",(byte)(procesador.PC&0x0FF),(byte)((procesador.PC>>8)&0xFF)); // PC
   else
     fprintf(fichero,"%c%c",0,0); // 128K
 
   fprintf(fichero,"%c%c",procesador.Rm.br.P,procesador.Rm.br.S); // SP
-  fprintf(fichero,"%c%c%c",procesador.I,procesador.R,(((procesador.R2>>7)&0x01)|((ordenador.border<<1)&0x0E))); // I, R and border color
+  fprintf(fichero,"%c%c%c",procesador.I,procesador.R,(((procesador.R2>>7)&0x01)|((screen->border<<1)&0x0E))); // I, R and border color
 
   fprintf(fichero,"%c%c%c%c%c%c%c%c%c%c%c%c%c%c",procesador.Rm.br.E,procesador.Rm.br.D,procesador.Ra.br.C,procesador.Ra.br.B,procesador.Ra.br.E,procesador.Ra.br.D,procesador.Ra.br.L,procesador.Ra.br.H,procesador.Ra.br.A,procesador.Ra.br.F,procesador.Rm.br.IYl,procesador.Rm.br.IYh,procesador.Rm.br.IXl,procesador.Rm.br.IXh);
 
@@ -107,9 +107,9 @@ int save_z80(char *filename) {
     value=0;
   fprintf(fichero,"%c",value);
   value=procesador.IM;
-  if(ordenador.issue==2)
+  if(ordenador->issue==2)
     value|=4;
-  switch (ordenador.joystick) {
+  switch (ordenador->joystick) {
   case 1:
   	value|=64;
   	break;
@@ -122,9 +122,9 @@ int save_z80(char *filename) {
   }
   fprintf(fichero,"%c",value);
 
-  if(ordenador.mode128k==0) { // 48K
-    fwrite((ordenador.memoria+147456),16384,1,fichero); // video memory
-    fwrite((ordenador.memoria+98304),32768,1,fichero); // memory pages 2 & 3
+  if(ordenador->mode128k==0) { // 48K
+    fwrite((ordenador->memoria+147456),16384,1,fichero); // video memory
+    fwrite((ordenador->memoria+98304),32768,1,fichero); // memory pages 2 & 3
     fclose(fichero);
     return 0;
   }
@@ -134,21 +134,21 @@ int save_z80(char *filename) {
   fprintf(fichero,"%c%c",23,0); // Z80 file v2.01
   fprintf(fichero,"%c%c",(byte)(procesador.PC&0x0FF),(byte)((procesador.PC>>8)&0x0FF)); // PC
   fprintf(fichero,"%c",3); // hardware mode=3
-  fprintf(fichero,"%c",ordenador.mport1); // content of 0x7FFD latch
+  fprintf(fichero,"%c",ordenador->mport1); // content of 0x7FFD latch
   fprintf(fichero,"%c%c",0,0); // no If1, no emulation of any kind
-  fprintf(fichero,"%c",ordenador.ay_latch); // last selected AY register
+  fprintf(fichero,"%c",ordenador->ay_latch); // last selected AY register
   for(bucle=0;bucle<16;bucle++)
-    fprintf(fichero,"%c",ordenador.ay_registers[bucle]); // AY registers
+    fprintf(fichero,"%c",ordenador->ay_registers[bucle]); // AY registers
   for(bucle=0;bucle<8;bucle++) {
     fprintf(fichero,"%c%c",0xFF,0xFF); // length=0xFFFF (uncompressed)
     fprintf(fichero,"%c",bucle+3); // page number
-    fwrite(ordenador.memoria+(16384*bucle)+65536,16384,1,fichero); // store page
+    fwrite(ordenador->memoria+(16384*bucle)+65536,16384,1,fichero); // store page
   }
   fclose(fichero);
   return 0;
 }
 
-int load_z80(char *filename) {
+int load_z80(const char *filename) {
 
 	struct z80snapshot *snap;
 	unsigned char tempo[30],tempo2[56],type,compressed,page,byte_read[3];
@@ -427,7 +427,7 @@ int load_z80(char *filename) {
 	return 0; // all right
 }
 
-int load_sna(char *filename) {
+int load_sna(const char *filename) {
 
 	unsigned char *tempo;
 	unsigned char *tempo2;
@@ -571,14 +571,14 @@ void load_snap(struct z80snapshot *snap) {
   switch(snap->type) {
   case 0: // 48k
   	printf("Mode 48K\n");
-    ordenador.mode128k=0; // 48K mode
-    ordenador.issue=snap->issue;
+    ordenador->mode128k=0; // 48K mode
+    ordenador->issue=snap->issue;
     ResetComputer();
     break;
   case 1: // 128k
   	printf("Mode 128K\n");
-    ordenador.mode128k=2; // +2 mode
-    ordenador.issue=3;
+    ordenador->mode128k=2; // +2 mode
+    ordenador->issue=3;
     ResetComputer();
     printf("Pager: %X\n",snap->pager);
     Z80free_Out(0x7FFD,snap->pager);
@@ -587,7 +587,7 @@ void load_snap(struct z80snapshot *snap) {
     break;
   }
   
-  ordenador.joystick=snap->joystick;
+  ordenador->joystick=snap->joystick;
 
   procesador.Rm.br.A=snap->A;
   procesador.Rm.br.F=snap->F;
@@ -635,29 +635,29 @@ void load_snap(struct z80snapshot *snap) {
   case 0: // 48K
 
     for(bucle=0;bucle<16384;bucle++) {
-      ordenador.memoria[bucle+147456]=snap->page[0][bucle];
-      ordenador.memoria[bucle+98304]=snap->page[1][bucle];
-      ordenador.memoria[bucle+114688]=snap->page[2][bucle];
+      ordenador->memoria[bucle+147456]=snap->page[0][bucle];
+      ordenador->memoria[bucle+98304]=snap->page[1][bucle];
+      ordenador->memoria[bucle+114688]=snap->page[2][bucle];
     }
     
-    ordenador.ay_emul=0;
+    ordenador->ay_emul=0;
     break;
   case 1: // 128K
 
     for(bucle=0;bucle<16384;bucle++) {
-      ordenador.memoria[bucle+65536]=snap->page[0][bucle];
-      ordenador.memoria[bucle+81920]=snap->page[1][bucle];
-      ordenador.memoria[bucle+98304]=snap->page[2][bucle];
-      ordenador.memoria[bucle+114688]=snap->page[3][bucle];
-      ordenador.memoria[bucle+131072]=snap->page[4][bucle];
-      ordenador.memoria[bucle+147456]=snap->page[5][bucle];
-      ordenador.memoria[bucle+163840]=snap->page[6][bucle];
-      ordenador.memoria[bucle+180224]=snap->page[7][bucle];
+      ordenador->memoria[bucle+65536]=snap->page[0][bucle];
+      ordenador->memoria[bucle+81920]=snap->page[1][bucle];
+      ordenador->memoria[bucle+98304]=snap->page[2][bucle];
+      ordenador->memoria[bucle+114688]=snap->page[3][bucle];
+      ordenador->memoria[bucle+131072]=snap->page[4][bucle];
+      ordenador->memoria[bucle+147456]=snap->page[5][bucle];
+      ordenador->memoria[bucle+163840]=snap->page[6][bucle];
+      ordenador->memoria[bucle+180224]=snap->page[7][bucle];
     }
-    ordenador.ay_emul=1;
+    ordenador->ay_emul=1;
     for(bucle=0;bucle<16;bucle++)
-      ordenador.ay_registers[bucle]=snap->ay_regs[bucle];
-    ordenador.ay_latch=snap->ay_latch;
+      ordenador->ay_registers[bucle]=snap->ay_regs[bucle];
+    ordenador->ay_latch=snap->ay_latch;
     break;
   default:
     break;

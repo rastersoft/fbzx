@@ -20,14 +20,12 @@
 #ifndef __LLSCREEN_H_
 #define __LLSCREEN_H_
 
+using namespace std;
+
 #include <inttypes.h>
 #include <string>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
-
-#include "emulator.hh"
-
-using namespace std;
 
 extern struct Charset charset;
 
@@ -37,11 +35,14 @@ class LLScreen {
 
 	uint8_t *memory;
 	uint32_t width;
+	uint8_t ulaplus_palete[64]; // contains the current palete
+	uint32_t colors[80];
 
 	uint8_t printchar(uint8_t character, int16_t x, int16_t y, uint8_t color, uint8_t back);
 public:
 	bool joystick;
 	bool mustlock;
+	bool rotate;
 	uint32_t bpp;
 	SDL_Surface *llscreen;
 	uint32_t cheight;
@@ -49,11 +50,13 @@ public:
 
 	LLScreen(int16_t resx, int16_t resy, uint8_t depth, bool fullscreen, bool dblbuffer, bool hwsurface);
 	~LLScreen();
+	FILE *myfopen(char *filename,char *mode);
 	void print_string(string message, int16_t x, int16_t y, uint8_t ink, uint8_t paper);
 	void set_paletes(bool);
-	void paint_one_pixel(unsigned char *colour,unsigned char *address);
+	void paint_one_pixel(uint8_t value,unsigned char *address);
 	void fullscreen_switch();
-	void set_palete_entry(uint8_t entry, byte Value);
+	void set_palete_entry(uint8_t entry, uint8_t Value, bool bw);
+	uint8_t get_palete_entry(uint8_t entry);
 	void clear_screen();
 	void paint_picture(string filename);
 	void do_flip();

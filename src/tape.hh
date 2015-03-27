@@ -24,6 +24,8 @@
  *      Author: raster
  */
 
+extern class Tape *OOTape; // Tape object
+
 using namespace std;
 #include <string>
 #include <inttypes.h>

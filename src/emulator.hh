@@ -17,9 +17,9 @@
  * 
  */
 
-#include "computer.hh"
 #include "z80free/Z80free.h"
 #include "osd.hh"
+#include "screen.hh"
 
 #ifndef emulator_h
 #define emulator_h
@@ -29,18 +29,13 @@
 extern char debug_var;
 
 extern Z80FREE procesador;
-extern class computer ordenador;
-extern class OSD osd;
-extern unsigned char *sound[NUM_SNDBUF];
 extern char path_snaps[2049];
 extern char path_taps[2049];
 extern char path_mdrs[2049];
-extern unsigned int colors[80];
 extern unsigned int jump_frames,curr_frames;
 
 void load_rom(char);
-void load_main_game(char *nombre);
-FILE *myfopen(char *filename,char *mode);
+void load_main_game(const char *nombre);
 void do_fast_load();
 
 #endif

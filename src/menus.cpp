@@ -34,6 +34,7 @@
 #include "tape.hh"
 #include "menus.hh"
 #include "llscreen.hh"
+#include "sound.hh"
 
 // shows the settings menu
 
@@ -148,9 +149,9 @@ void settings_menu() {
 		llscreen->clear_screen();
 
 		llscreen->print_string("Current settings",-1,0,15,0);
-		switch(ordenador.mode128k) {
+		switch(ordenador->mode128k) {
 		case 0:
-			if(ordenador.issue==2)
+			if(ordenador->issue==2)
 				sprintf(texto,"Mode: 48K issue2");
 			else
 				sprintf(texto,"Mode: 48K issue3");
@@ -171,7 +172,7 @@ void settings_menu() {
   
 		llscreen->print_string(texto,-1,2,14,0);
 
-		switch(ordenador.joystick) {
+		switch(ordenador->joystick) {
 		case 0:
 			sprintf(texto,"Joystick emulation: Cursor");
 			break;
@@ -187,34 +188,34 @@ void settings_menu() {
 		}
 		llscreen->print_string(texto,-1,3,13,0);
 
-		if(ordenador.ay_emul)
+		if(ordenador->ay_emul)
 			sprintf(texto,"AY-3-8912 Emulation: enabled");
 		else
 			sprintf(texto,"AY-3-8912 Emulation: disabled");
 
 		llscreen->print_string(texto,-1,4,11,0);
 
-		if(ordenador.mdr_active)
+		if(ordenador->mdr_active)
 			sprintf(texto,"Interface I Emulation: enabled");
 		else
 			sprintf(texto,"Interface I Emulation: disabled");
 
 		llscreen->print_string(texto,-1,5,15,0);
 
-		if(ordenador.dblscan)
+		if(ordenador->dblscan)
 			sprintf(texto,"Double scan: enabled");
 		else
 			sprintf(texto,"Double scan: disabled");
 
 		llscreen->print_string(texto,-1,6,12,0);
 
-		if(ordenador.turbo)
+		if(ordenador->turbo)
 			sprintf(texto,"TURBO mode: enabled");
 		else
 			sprintf(texto,"TURBO mode: disabled");
 		llscreen->print_string(texto,-1,7,14,0);
 
-		if (ordenador.bw) {
+		if (ordenador->bw) {
 			llscreen->print_string("TV Set: \001\011B\001\012&\001\014W",-1,8,15,0);
 		} else {
 			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,8,15,0);
@@ -260,77 +261,77 @@ void settings_menu() {
 			fin=0;
 		break;
 		case SDLK_1:
-			ordenador.issue=2;
-			ordenador.mode128k=0;
-			ordenador.ay_emul=0;
+			ordenador->issue=2;
+			ordenador->mode128k=0;
+			ordenador->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_2:
-			ordenador.issue=3;
-			ordenador.mode128k=0;
-			ordenador.ay_emul=0;
+			ordenador->issue=3;
+			ordenador->mode128k=0;
+			ordenador->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_3:
-			ordenador.issue=3;
-			ordenador.mode128k=1;
-			ordenador.ay_emul=1;
+			ordenador->issue=3;
+			ordenador->mode128k=1;
+			ordenador->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_4:
-			ordenador.issue=3;
-			ordenador.mode128k=2;
-			ordenador.ay_emul=1;
+			ordenador->issue=3;
+			ordenador->mode128k=2;
+			ordenador->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_5:
-			ordenador.issue=3;
-			ordenador.mode128k=3;
-			ordenador.ay_emul=1;
-			ordenador.mdr_active=0;
+			ordenador->issue=3;
+			ordenador->mode128k=3;
+			ordenador->ay_emul=1;
+			ordenador->mdr_active=0;
 			ResetComputer();
 		break;
 		case SDLK_6:
-			ordenador.issue=3;
-			ordenador.mode128k=4;
-			ordenador.ay_emul=1;
+			ordenador->issue=3;
+			ordenador->mode128k=4;
+			ordenador->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_7:
-			ordenador.joystick=0;
+			ordenador->joystick=0;
 		break;
 		case SDLK_8:
-			ordenador.joystick=1;
+			ordenador->joystick=1;
 		break;
 		case SDLK_9:
-			ordenador.joystick=2;
+			ordenador->joystick=2;
 		break;
 		case SDLK_0:
-			ordenador.joystick=3;
+			ordenador->joystick=3;
 		break;
 		case SDLK_i:
-			if(ordenador.mode128k!=3) {
-				ordenador.mdr_active=1-ordenador.mdr_active;
+			if(ordenador->mode128k!=3) {
+				ordenador->mdr_active=1-ordenador->mdr_active;
 				ResetComputer();
 			}
 		break;
 		case SDLK_d:
-			ordenador.dblscan=1-ordenador.dblscan;
+			ordenador->dblscan = !ordenador->dblscan;
 		break;
 		case SDLK_a:
-			ordenador.ay_emul=1-ordenador.ay_emul;
+			ordenador->ay_emul=1-ordenador->ay_emul;
 		break;
 		case SDLK_v:
-			ordenador.bw=1-ordenador.bw;
-			llscreen->set_paletes(ordenador.bw);
+			ordenador->bw = !ordenador->bw;
+			llscreen->set_paletes(ordenador->bw);
 		break;
 		case SDLK_t:
-			if(ordenador.turbo){
-				ordenador.tst_sample=3500000/ordenador.freq;
-				ordenador.turbo = 0;
+			if(ordenador->turbo){
+				llsound->tst_sample = 3500000 / llsound->freq;
+				ordenador->turbo = 0;
 			} else {
-				ordenador.tst_sample=100000000/ordenador.freq;
-				ordenador.turbo = 1;
+				llsound->tst_sample = 100000000 / llsound->freq;
+				ordenador->turbo = 1;
 			}
 		}
 	} while(fin);
@@ -360,26 +361,26 @@ void do_poke() {
 			return;
 		}
 
-		if ((address<16384) && ((ordenador.mode128k != 3) || (1 != (ordenador.mport2 & 0x01)))) {
+		if ((address<16384) && ((ordenador->mode128k != 3) || (1 != (ordenador->mport2 & 0x01)))) {
 			llscreen->print_string("That address is ROM memory.",-1,1,15,0);
 			continue;
 		}
 
 		switch (address & 0x0C000) {
 		case 0x0000:
-			old_value= (*(ordenador.block0 + address));
+			old_value= (*(ordenador->block0 + address));
 		break;
 
 		case 0x4000:
-			old_value= (*(ordenador.block1 + address));
+			old_value= (*(ordenador->block1 + address));
 		break;
 
 		case 0x8000:
-			old_value= (*(ordenador.block2 + address));
+			old_value= (*(ordenador->block2 + address));
 		break;
 
 		case 0xC000:
-			old_value= (*(ordenador.block3 + address));
+			old_value= (*(ordenador->block3 + address));
 		break;
 		default:
 			old_value=0;
@@ -401,19 +402,19 @@ void do_poke() {
 
 		switch (address & 0x0C000) {
 		case 0x0000:
-			(*(ordenador.block0 + address))=new_value;
+			(*(ordenador->block0 + address))=new_value;
 		break;
 
 		case 0x4000:
-			(*(ordenador.block1 + address))=new_value;
+			(*(ordenador->block1 + address))=new_value;
 		break;
 
 		case 0x8000:
-			(*(ordenador.block2 + address))=new_value;
+			(*(ordenador->block2 + address))=new_value;
 		break;
 
 		case 0xC000:
-			(*(ordenador.block3 + address))=new_value;
+			(*(ordenador->block3 + address))=new_value;
 		break;
 		default:
 		break;
@@ -482,7 +483,7 @@ void snapshots_menu() {
 
 	llscreen->print_string("1: \001\017load a Z80/SNA snapshot",14,4,12,0);
 
-	if(ordenador.mode128k!=3) { // not in +3 mode
+	if(ordenador->mode128k!=3) { // not in +3 mode
 		llscreen->print_string("2: \001\017make a Z80 snapshot",14,6,12,0);
 	} else {
 		llscreen->print_string("Can't make snapshots in +3 mode",14,6,15,0);
@@ -508,7 +509,7 @@ void snapshots_menu() {
 		break;
 		case SDLK_2:
 			fin=0;
-			if(ordenador.mode128k!=3) // not in +3 mode
+			if(ordenador->mode128k!=3) // not in +3 mode
 				save_z80file();
 		break;
 		case SDLK_3:
@@ -552,16 +553,16 @@ void taps_menu() {
 		llscreen->print_string("ESC: \001\017return to emulator",14,16,12,0);
 
 		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
-		llscreen->print_string(ordenador.current_tap,-1,20,15,0);
+		llscreen->print_string(ordenador->current_tap,-1,20,15,0);
 
 		print_copy();
 
-		if(ordenador.tape_fast_load)
+		if(ordenador->tape_fast_load)
 			llscreen->print_string("Fast load enabled",10,-4,14,0);
 		else
 			llscreen->print_string("Fast load disabled",10,-4,14,0);
 
-		if(ordenador.tape_write)
+		if(ordenador->tape_write)
 			llscreen->print_string("Write enabled",390,-4,14,0);
 		else
 			llscreen->print_string("Write disabled",390,-4,14,0);
@@ -571,21 +572,21 @@ void taps_menu() {
 			fin=0;
 		break;
 		case SDLK_1:
-			ordenador.OOTape.set_pause(true);
+			OOTape->set_pause(true);
 			select_tapfile();
-			ordenador.OOTape.rewind();
+			OOTape->rewind();
 		break;
 		case SDLK_2:
 			fin=0;
-			ordenador.OOTape.set_pause(true);
-			ordenador.OOTape.rewind();
+			OOTape->set_pause(true);
+			OOTape->rewind();
 		break;
 		case SDLK_3:
-			ordenador.OOTape.set_pause(true);
-			ordenador.tape_fast_load = ordenador.tape_fast_load ? false : true;
+			OOTape->set_pause(true);
+			ordenador->tape_fast_load = ordenador->tape_fast_load ? false : true;
 		break;
 		case SDLK_4:
-			ordenador.tape_write = ordenador.tape_write ? false : true;
+			ordenador->tape_write = ordenador->tape_write ? false : true;
 		break;
 		case SDLK_5:
 			create_tapfile();
@@ -616,14 +617,14 @@ void select_tapfile() {
 		return;
 	}
 
-	ordenador.tape_write = false; // by default, can't record
-	ordenador.current_tap = filename;
+	ordenador->tape_write = false; // by default, can't record
+	ordenador->current_tap = filename;
 	free(filename);
 
-	if (ordenador.OOTape.load_file(ordenador.current_tap)) {
+	if (OOTape->load_file(ordenador->current_tap)) {
 		llscreen->print_string("Error: Can't load that file",-1,-4,10,0);
 		llscreen->print_string("Press any key",-1,-3,10,0);
-		ordenador.current_tap = "";
+		ordenador->current_tap = "";
 		wait_key();
 	}
 
@@ -667,19 +668,19 @@ void create_tapfile() {
 
 	switch(retorno) {
 	case 0:
-		ordenador.tape_write = true; // allow to write
-		ordenador.current_tap = nombre2;
+		ordenador->tape_write = true; // allow to write
+		ordenador->current_tap = nombre2;
 	break;
 	case -1:
 		llscreen->print_string("File already exists",-1,5,10,0);
-		ordenador.current_tap = "";
-		ordenador.tape_write = false;
+		ordenador->current_tap = "";
+		ordenador->tape_write = false;
 		wait_key();
 	break;
 	case -2:
 		llscreen->print_string("Can't create file",-1,5,10,0);
-		ordenador.current_tap = "";
-		ordenador.tape_write = false;
+		ordenador->current_tap = "";
+		ordenador->tape_write = false;
 		wait_key();
 	break;
 	}
@@ -707,11 +708,11 @@ void microdrive_menu() {
 		llscreen->print_string("ESC: \001\017return to emulator",14,10,12,0);
 
 		llscreen->print_string("Current MDR file is:",-1,13,12,0);
-		llscreen->print_string(ordenador.mdr_current_mdr,-1,14,12,0);
+		llscreen->print_string(ordenador->mdr_current_mdr,-1,14,12,0);
 
 		print_copy();
 
-		if(!ordenador.mdr_cartridge[137922])
+		if(!ordenador->mdr_cartridge[137922])
 			llscreen->print_string("Write enabled",-1,-4,14,0);
 		else
 			llscreen->print_string("Write disabled",-1,-4,14,0);
@@ -728,16 +729,16 @@ void microdrive_menu() {
 			create_mdrfile();
 		break;
 		case SDLK_3:
-			if(ordenador.mdr_cartridge[137922])
-				ordenador.mdr_cartridge[137922]=0;
+			if(ordenador->mdr_cartridge[137922])
+				ordenador->mdr_cartridge[137922]=0;
 			else
-				ordenador.mdr_cartridge[137922]=1;
-			ordenador.mdr_file=fopen(ordenador.mdr_current_mdr,"wb"); // create for write
-			if(ordenador.mdr_file!=NULL) {
-				fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
-				fclose(ordenador.mdr_file);
-				ordenador.mdr_file=NULL;
-				ordenador.mdr_modified=0;
+				ordenador->mdr_cartridge[137922]=1;
+			ordenador->mdr_file=fopen(ordenador->mdr_current_mdr,"wb"); // create for write
+			if(ordenador->mdr_file!=NULL) {
+				fwrite(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // save cartridge
+				fclose(ordenador->mdr_file);
+				ordenador->mdr_file=NULL;
+				ordenador->mdr_modified=0;
 			}
 		break;
 		default:
@@ -766,20 +767,20 @@ void select_mdrfile() {
 		return;
 	}
 
-	ordenador.mdr_file=fopen(filename,"rb"); // read
-	if(ordenador.mdr_file==NULL)
+	ordenador->mdr_file=fopen(filename,"rb"); // read
+	if(ordenador->mdr_file==NULL)
 		retorno=-1;
 	else {
 		retorno=0;
-		fread(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // read the cartridge in memory
-		ordenador.mdr_modified=0; // not modified
-		fclose(ordenador.mdr_file);
-		ordenador.mdr_tapehead=0;
+		fread(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // read the cartridge in memory
+		ordenador->mdr_modified=0; // not modified
+		fclose(ordenador->mdr_file);
+		ordenador->mdr_tapehead=0;
 	}
 
 	llscreen->clear_screen();
 
-	strcpy(ordenador.mdr_current_mdr,filename);
+	strcpy(ordenador->mdr_current_mdr,filename);
 
 	free(filename);
 
@@ -789,7 +790,7 @@ void select_mdrfile() {
 	case -1:
 		llscreen->print_string("Error: Can't load that file",-1,-3,10,0);
 		llscreen->print_string("Press any key",-1,-2,10,0);
-		ordenador.mdr_current_mdr[0]=0;
+		ordenador->mdr_current_mdr[0]=0;
 		wait_key();
 		break;
 	}
@@ -818,39 +819,39 @@ void create_mdrfile() {
 	if(retorno==2) // abort
 		return;
 
-	ordenador.mdr_file=fopen(nombre2,"r"); // test if it exists
-	if(ordenador.mdr_file==NULL)
+	ordenador->mdr_file=fopen(nombre2,"r"); // test if it exists
+	if(ordenador->mdr_file==NULL)
 		retorno=0;
 	else
 		retorno=-1;
 
 	if(!retorno) {
-		ordenador.mdr_file=fopen(nombre2,"wb"); // create for write
-		if(ordenador.mdr_file==NULL)
+		ordenador->mdr_file=fopen(nombre2,"wb"); // create for write
+		if(ordenador->mdr_file==NULL)
 			retorno=-2;
 		else {
 			for(bucle=0;bucle<137921;bucle++)
-				ordenador.mdr_cartridge[bucle]=0xFF; // erase cartridge
-			ordenador.mdr_cartridge[137922]=0;
-			fwrite(ordenador.mdr_cartridge,137923,1,ordenador.mdr_file); // save cartridge
-			fclose(ordenador.mdr_file);
-			ordenador.mdr_file=NULL;
-			ordenador.mdr_modified=0;
+				ordenador->mdr_cartridge[bucle]=0xFF; // erase cartridge
+			ordenador->mdr_cartridge[137922]=0;
+			fwrite(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // save cartridge
+			fclose(ordenador->mdr_file);
+			ordenador->mdr_file=NULL;
+			ordenador->mdr_modified=0;
 			retorno=0;
 		}
 	}
-	strcpy(ordenador.mdr_current_mdr,nombre2);
+	strcpy(ordenador->mdr_current_mdr,nombre2);
 	switch(retorno) {
 	case 0:
 	break;
 	case -1:
 		llscreen->print_string("File already exists",-1,9,10,0);
-		ordenador.mdr_current_mdr[0]=0;
+		ordenador->mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	case -2:
 		llscreen->print_string("Can't create file",-1,9,10,0);
-		ordenador.mdr_current_mdr[0]=0;
+		ordenador->mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	}
@@ -893,9 +894,13 @@ void create_scrfile() {
 		if(fichero==NULL)
 			retorno=-2;
 		else {
-			fwrite(ordenador.block1+0x04000,6912,1,fichero); // save screen
-			if (ordenador.ulaplus!=0) {
-				fwrite(ordenador.ulaplus_palete,64,1,fichero); // save ULAPlus palete
+			fwrite(ordenador->block1+0x04000,6912,1,fichero); // save screen
+			if (screen->ulaplus) {
+				for(int c=0;c<64;c++) {
+					uint8_t value;
+					value = llscreen->get_palete_entry(c);
+					fwrite(&value,1,1,fichero); // save ULAPlus palete
+				}
 			}
 			fclose(fichero);
 			retorno=0;
@@ -1410,7 +1415,7 @@ void load_scrfile() {
 		return;
 	}
 
-	osd.clear_message();
+	osd->clear_message();
 	fichero=fopen(filename,"rb");
 	retorno=0;
 	if (!fichero) {
@@ -1418,17 +1423,19 @@ void load_scrfile() {
 	} else {
 		for(loop=0;loop<6912;loop++) {
 			if (1==fread(&value,1,1,fichero)) {
-				*(ordenador.block1 + 0x04000 + loop) = value;
+				*(ordenador->block1 + 0x04000 + loop) = value;
 			} else {
 				retorno=-1;
 				break;
 			}
 		}
 		if (1==fread(paleta_tmp,64,1,fichero)) {
-			memcpy(ordenador.ulaplus_palete,paleta_tmp,64);
-			ordenador.ulaplus=1;
+			for (int c=0;c<64;c++) {
+				llscreen->set_palete_entry(c,paleta_tmp[c],ordenador->bw);
+			}
+			screen->ulaplus = true;
 		} else {
-			ordenador.ulaplus=0;
+			screen->ulaplus = false;
 		}
 		fclose(fichero);
 	}

@@ -7,6 +7,8 @@
 
 #include "osd.hh"
 
+class OSD *osd;
+
 OSD::OSD() {
 	this->time = 0;
 	this->lines = 0;

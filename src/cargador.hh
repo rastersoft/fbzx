@@ -37,7 +37,7 @@ struct z80snapshot {
 };
 
 int save_z80(char *);
-int load_z80(char *);
-int load_sna(char *);
+int load_z80(const char *);
+int load_sna(const char *);
 void load_snap(struct z80snapshot *);
 void uncompress_z80(FILE *,int,unsigned char *);

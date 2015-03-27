@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include "emulator.hh"
 #include "sound.hh"
+#include "computer.hh"
 
 /* emulates the AY-3-8912 during TSTADOS tstates */
 
@@ -45,11 +46,11 @@ void play_ay (int tstados) {
     0x92, 0xAF, 0xD9, 0xFF
   };
   
-	if (!ordenador.ay_emul)
+	if (!ordenador->ay_emul)
 		return;
 
-	ordenador.tst_ay += tstados;
-	ordenador.tst_ay2 += tstados;
+	ordenador->tst_ay += tstados;
+	ordenador->tst_ay2 += tstados;
 	
 	// A note about the period of tones, noise and envelope: careful studies of the chip
     // output prove that it counts up from 0 until the counter becomes
@@ -64,18 +65,18 @@ void play_ay (int tstados) {
 	//Envelope
 	//Envelope frequency is 1/(256*envelop_period) of AY-3-8912 frequency
 	
-	if (ordenador.tst_ay2 > 127) {
-		ordenador.tst_ay2 -= 128;
+	if (ordenador->tst_ay2 > 127) {
+		ordenador->tst_ay2 -= 128;
 		
-		env_period=2*(((unsigned int) ordenador.ay_registers[11]) + 256 * ((unsigned int) (ordenador.ay_registers[12])));
+		env_period=2*(((unsigned int) ordenador->ay_registers[11]) + 256 * ((unsigned int) (ordenador->ay_registers[12])));
 		if (!env_period) env_period = 1;
 		
-			if (ordenador.aych_envel<env_period) // to check
-				ordenador.aych_envel++;
+			if (ordenador->aych_envel<env_period) // to check
+				ordenador->aych_envel++;
 			else {
-				ordenador.aych_envel = 0;
-				if (ordenador.ay_envel_way & 0x02)	// start cycle?
-					switch ((ordenador.
+				ordenador->aych_envel = 0;
+				if (ordenador->ay_envel_way & 0x02)	// start cycle?
+					switch ((ordenador->
 						 ay_registers[13]) & 0x0F)
 					{
 					case 0:
@@ -86,16 +87,16 @@ void play_ay (int tstados) {
 					case 9:
 					case 10:
 					case 11:
-						ordenador.ay_envel_way = 4;	// cycle started and decrementing
-						ordenador.ay_envel_value = 16;
+						ordenador->ay_envel_way = 4;	// cycle started and decrementing
+						ordenador->ay_envel_value = 16;
 						break;
 					default:
-						ordenador.ay_envel_way = 5;	// cycle started and incrementing
-						ordenador.ay_envel_value = -1;
+						ordenador->ay_envel_way = 5;	// cycle started and incrementing
+						ordenador->ay_envel_value = -1;
 					}
-				if (ordenador.ay_envel_way & 0x04) // cycle started?
+				if (ordenador->ay_envel_way & 0x04) // cycle started?
 				{	
-					switch ((ordenador.
+					switch ((ordenador->
 						 ay_registers[13]) & 0x0F)
 					{
 					case 0:
@@ -103,10 +104,10 @@ void play_ay (int tstados) {
 					case 2:
 					case 3:
 					case 9:
-						ordenador.ay_envel_value--;
-						if (ordenador.
+						ordenador->ay_envel_value--;
+						if (ordenador->
 						    ay_envel_value == 0)
-							ordenador.ay_envel_way = 0;	// end
+							ordenador->ay_envel_way = 0;	// end
 						break;
 
 					case 4:
@@ -114,57 +115,57 @@ void play_ay (int tstados) {
 					case 6:
 					case 7:
 					case 15:
-						ordenador.ay_envel_value++;
-						if (ordenador.
+						ordenador->ay_envel_value++;
+						if (ordenador->
 						    ay_envel_value == 16)
 						{
-							ordenador.
+							ordenador->
 								ay_envel_value
 								= 0;
-							ordenador.ay_envel_way = 0;	// end
+							ordenador->ay_envel_way = 0;	// end
 						}
 						break;
 
 					case 8:
-						ordenador.ay_envel_value--;
-						if (ordenador.ay_envel_value == -1)
-							ordenador.ay_envel_value = 15;	// repeat
+						ordenador->ay_envel_value--;
+						if (ordenador->ay_envel_value == -1)
+							ordenador->ay_envel_value = 15;	// repeat
 						break;
 
 					case 10:
 					case 14:
-						if (ordenador.ay_envel_way & 0x01) //incrementing?
-							ordenador.ay_envel_value++;
+						if (ordenador->ay_envel_way & 0x01) //incrementing?
+							ordenador->ay_envel_value++;
 						else
-							ordenador.ay_envel_value--;
-						if (ordenador.ay_envel_value == 16) {
-							ordenador.ay_envel_value = 15;
-							ordenador.ay_envel_way =4;
+							ordenador->ay_envel_value--;
+						if (ordenador->ay_envel_value == 16) {
+							ordenador->ay_envel_value = 15;
+							ordenador->ay_envel_way =4;
 						}
-						if (ordenador.ay_envel_value == -1) {
-							ordenador.ay_envel_value = 0;
-							ordenador.ay_envel_way = 5;
+						if (ordenador->ay_envel_value == -1) {
+							ordenador->ay_envel_value = 0;
+							ordenador->ay_envel_way = 5;
 						}
 						break;
 
 					case 11:
-						ordenador.ay_envel_value--;
-						if (ordenador.ay_envel_value == -1) {
-							ordenador.ay_envel_value = 15;
-							ordenador.ay_envel_way = 0;	// end
+						ordenador->ay_envel_value--;
+						if (ordenador->ay_envel_value == -1) {
+							ordenador->ay_envel_value = 15;
+							ordenador->ay_envel_way = 0;	// end
 						}
 						break;
 
 					case 12:
-						ordenador.ay_envel_value++;
-						if (ordenador.ay_envel_value == 16)
-							ordenador.ay_envel_value = 0;
+						ordenador->ay_envel_value++;
+						if (ordenador->ay_envel_value == 16)
+							ordenador->ay_envel_value = 0;
 						break;
 
 					case 13:
-						ordenador.ay_envel_value++;
-						if (ordenador.ay_envel_value == 15)
-							ordenador.ay_envel_way = 0;	// end
+						ordenador->ay_envel_value++;
+						if (ordenador->ay_envel_value == 15)
+							ordenador->ay_envel_way = 0;	// end
 						break;
 					}
 				}
@@ -176,58 +177,58 @@ void play_ay (int tstados) {
 	//Tone frequency is 1/(16*tone_period) of AY-3-8912 frequency
 	//Noise frequency is 1/(16*noise_period) of AY-3-8912 frequency
 	
-	while (ordenador.tst_ay > 15)
+	while (ordenador->tst_ay > 15)
 	{
-		ordenador.tst_ay -= 16;
+		ordenador->tst_ay -= 16;
 		
-		tone_period_a= ((unsigned int) ordenador.ay_registers[0]) + 256 * ((unsigned int) ((ordenador.ay_registers[1]) & 0x0F));
-		tone_period_b= ((unsigned int) ordenador.ay_registers[2]) + 256 * ((unsigned int) ((ordenador.ay_registers[3]) & 0x0F));
-		tone_period_c= ((unsigned int) ordenador.ay_registers[4]) + 256 * ((unsigned int) ((ordenador.ay_registers[5]) & 0x0F));
-		noise_period= ((unsigned int) ordenador.ay_registers[6]) & 0x1F;
+		tone_period_a= ((unsigned int) ordenador->ay_registers[0]) + 256 * ((unsigned int) ((ordenador->ay_registers[1]) & 0x0F));
+		tone_period_b= ((unsigned int) ordenador->ay_registers[2]) + 256 * ((unsigned int) ((ordenador->ay_registers[3]) & 0x0F));
+		tone_period_c= ((unsigned int) ordenador->ay_registers[4]) + 256 * ((unsigned int) ((ordenador->ay_registers[5]) & 0x0F));
+		noise_period= ((unsigned int) ordenador->ay_registers[6]) & 0x1F;
 		
 		if (!noise_period) noise_period = 1;
 	
-		if (tone_period_a*ordenador.freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
-			ordenador.aych_a =1;
+		if (tone_period_a * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+			ordenador->aych_a =1;
 		else
 		{
-			if (ordenador.aych_a<tone_period_a)
-				ordenador.aych_a++;
+			if (ordenador->aych_a<tone_period_a)
+				ordenador->aych_a++;
 			else
 			{
-				ordenador.ayval_a = !ordenador.ayval_a;
-				ordenador.aych_a =0;		
+				ordenador->ayval_a = !ordenador->ayval_a;
+				ordenador->aych_a =0;
 			}
 		}
 
-		if (tone_period_b*ordenador.freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
-			ordenador.aych_b =1;
+		if (tone_period_b * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+			ordenador->aych_b =1;
 		else
 		{
-			if (ordenador.aych_b<tone_period_b)
-				ordenador.aych_b++;
+			if (ordenador->aych_b<tone_period_b)
+				ordenador->aych_b++;
 			else
 			{
-				ordenador.ayval_b = !ordenador.ayval_b;
-				ordenador.aych_b =0;			
+				ordenador->ayval_b = !ordenador->ayval_b;
+				ordenador->aych_b =0;
 			}
 		}
 		
-		if (tone_period_c*ordenador.freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
-			ordenador.aych_c =1;
+		if (tone_period_c * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+			ordenador->aych_c =1;
 		else
 		{
-		if (ordenador.aych_c<tone_period_c)
-			ordenador.aych_c++;
+		if (ordenador->aych_c<tone_period_c)
+			ordenador->aych_c++;
 		else
 		{
-			ordenador.ayval_c = !ordenador.ayval_c;
-			ordenador.aych_c =0;			
+			ordenador->ayval_c = !ordenador->ayval_c;
+			ordenador->aych_c =0;
 		}
 		}
 	
-		if (ordenador.aych_n<noise_period)
-			ordenador.aych_n++;
+		if (ordenador->aych_n<noise_period)
+			ordenador->aych_n++;
 		else
 		{
 			
@@ -237,7 +238,7 @@ void play_ay (int tstados) {
 			//input is bit 0 xor bit 2.
 			
 			/*
-			if( ( noise & 1 ) ^ ( ( noise & 2 ) ? 1 : 0 ) ) ordenador.ayval_n = !ordenador.ayval_n;
+			if( ( noise & 1 ) ^ ( ( noise & 2 ) ? 1 : 0 ) ) ordenador->ayval_n = !ordenador->ayval_n;
 	
 			noise |= ( ( noise & 1 ) ^ ( ( noise & 4 ) ? 1 : 0 ) ) ? 0x20000 : 0;
 			noise >>= 1;
@@ -254,39 +255,39 @@ void play_ay (int tstados) {
 			/* register, what now is bit3 will become bit0, and will */
 			/* invert, if necessary, bit14, which previously was bit17. */
 			
-			if ((noise+1)&2) ordenador.ayval_n = !ordenador.ayval_n; //xor bit 1 and 2
+			if ((noise+1)&2) ordenador->ayval_n = !ordenador->ayval_n; //xor bit 1 and 2
 			
 			if( noise & 1 ) {          
 			noise ^= 0x24000 ;
 			}
 			noise >>= 1 ; 
 			
-			ordenador.aych_n =0;
+			ordenador->aych_n =0;
 		}	
 
 		// Volume
 		//Each channel max 51
 		
-		if (ordenador.ay_registers[8] & 0x10)
-			ordenador.vol_a =
-				(unsigned char) (levels[ordenador.ay_envel_value]*(unsigned int) ordenador.volume/80);
+		if (ordenador->ay_registers[8] & 0x10)
+			ordenador->vol_a =
+				(unsigned char) (levels[ordenador->ay_envel_value]*(unsigned int) llsound->volume/80);
 		else
-			ordenador.vol_a =
-				(unsigned char) (levels[ordenador.ay_registers[8] &0x0F]*(unsigned int) ordenador.volume/80);
+			ordenador->vol_a =
+				(unsigned char) (levels[ordenador->ay_registers[8] &0x0F]*(unsigned int) llsound->volume/80);
 
-		if (ordenador.ay_registers[10] & 0x10)
-			ordenador.vol_c =
-				(unsigned char) (levels[ordenador.ay_envel_value] *(unsigned int) ordenador.volume/80);
+		if (ordenador->ay_registers[10] & 0x10)
+			ordenador->vol_c =
+				(unsigned char) (levels[ordenador->ay_envel_value] *(unsigned int) llsound->volume/80);
 		else
-			ordenador.vol_c =
-				(unsigned char) (levels[ordenador.ay_registers[10] & 0x0F] *(unsigned int) ordenador.volume/80);		
+			ordenador->vol_c =
+				(unsigned char) (levels[ordenador->ay_registers[10] & 0x0F] *(unsigned int) llsound->volume/80);
 
-		if (ordenador.ay_registers[9] & 0x10)
-			ordenador.vol_b =
-				(unsigned char) (levels[ordenador.ay_envel_value] *(unsigned int) ordenador.volume/80);
+		if (ordenador->ay_registers[9] & 0x10)
+			ordenador->vol_b =
+				(unsigned char) (levels[ordenador->ay_envel_value] *(unsigned int) llsound->volume/80);
 		else
-			ordenador.vol_b =
-				(unsigned char)(levels[ordenador.ay_registers[9] &0x0F] *(unsigned int) ordenador.volume/80);
+			ordenador->vol_b =
+				(unsigned char)(levels[ordenador->ay_registers[9] &0x0F] *(unsigned int) llsound->volume/80);
 					
 
 	}
@@ -300,22 +301,21 @@ void play_sound (int tstados) {
 
 	int bucle;
 	int value;
-	unsigned char sample_v;
+	uint8_t sample_v;
 
-	ordenador.tstados_counter_sound += tstados;
+	ordenador->tstados_counter_sound += tstados;
 
-	while (ordenador.tstados_counter_sound >= ordenador.tst_sample)	{
+	while (ordenador->tstados_counter_sound >= llsound->tst_sample)	{
 
-		ordenador.tstados_counter_sound -= ordenador.tst_sample;
-		if (sound_type!=SOUND_NO)
-			for (bucle = 0; bucle < ordenador.increment; bucle++) {
-				sample_v = ordenador.sample1b[bucle];
-				if (ordenador.sound_bit && sample_v)
+		ordenador->tstados_counter_sound -= llsound->tst_sample;
+		if (llsound->sound_type!=SOUND_NO) {
+			for (bucle = 0; bucle < llsound->increment; bucle++) {
+				if (ordenador->sound_bit)
 					//Sound bit volume max 96
-					ordenador.sound_current_value=ordenador.volume*6;
+					ordenador->sound_current_value = llsound->volume * 6;
 				else
-					ordenador.sound_current_value=0;
-				value = ordenador.sound_current_value;
+					ordenador->sound_current_value=0;
+				value = ordenador->sound_current_value;
 				
 				//Mixer
 				
@@ -332,27 +332,34 @@ void play_sound (int tstados) {
 				// into the ON state (see above); and it has no effect if the volume is 0.
 				// If the volume is 0, increase the counter, but don't touch the output.
 				
-				if (ordenador.ay_emul) {	// if emulation is ON, emulate it
-				//ordenador.ayval_n = 1;
-					if (sample_v &&((ordenador.ayval_a || (ordenador.ay_registers[7] & 0x01))&&(ordenador.ayval_n || (ordenador.ay_registers[7] & 0x08))))
-						value += (int) ordenador.vol_a;
-					if (sample_v &&((ordenador.ayval_b || (ordenador.ay_registers[7] & 0x02))&&(ordenador.ayval_n || (ordenador.ay_registers[7] & 0x10))))
-						value += (int) ordenador.vol_b;
-					if (sample_v &&((ordenador.ayval_c || (ordenador.ay_registers[7] & 0x04))&&(ordenador.ayval_n || (ordenador.ay_registers[7] & 0x20))))
-						value += (int) ordenador.vol_c;
+				if (ordenador->ay_emul) {	// if emulation is ON, emulate it
+				//ordenador->ayval_n = 1;
+					if (((ordenador->ayval_a || (ordenador->ay_registers[7] & 0x01))&&(ordenador->ayval_n || (ordenador->ay_registers[7] & 0x08))))
+						value += (int) ordenador->vol_a;
+					if (((ordenador->ayval_b || (ordenador->ay_registers[7] & 0x02))&&(ordenador->ayval_n || (ordenador->ay_registers[7] & 0x10))))
+						value += (int) ordenador->vol_b;
+					if (((ordenador->ayval_c || (ordenador->ay_registers[7] & 0x04))&&(ordenador->ayval_n || (ordenador->ay_registers[7] & 0x20))))
+						value += (int) ordenador->vol_c;
 
 				}
 				if (value > 255)
 					value = 255;
-				sample_v = (unsigned char)(value - (unsigned int)ordenador.sign);
-				*ordenador.current_buffer =	sample_v;	
-				ordenador.current_buffer++;
+				sample_v = (unsigned char)(value - (unsigned int)llsound->sign);
+				if (llsound->current_buffer < llsound->sound) {
+					printf("Puntero por debajo: %d menor que %d\n",llsound->current_buffer,llsound->sound);
+				}
+				if (llsound->current_buffer >= (llsound->sound + llsound->buffer_len * llsound->increment + 8)) {
+					printf("Puntero por encima: %d mayor que %d\n",llsound->current_buffer,llsound->sound);
+				}
+				*(llsound->current_buffer) = sample_v;
+				llsound->current_buffer++;
 			}
-		ordenador.sound_cuantity++;
+		}
+		ordenador->sound_cuantity++;
 
-		if (ordenador.sound_cuantity == ordenador.buffer_len) {		// buffer filled
-			sound_play();
-			ordenador.sound_cuantity = 0;
+		if (ordenador->sound_cuantity == llsound->buffer_len) {		// buffer filled
+			llsound->play();
+			ordenador->sound_cuantity = 0;
 		}
 	}
 }

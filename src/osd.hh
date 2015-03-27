@@ -12,6 +12,8 @@ using namespace std;
 #include <string>
 #include <stdint.h>
 
+extern class OSD *osd;
+
 class OSD {
 
 	string text;

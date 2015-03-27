@@ -30,6 +30,8 @@
 #include <stdio.h>
 #include <string.h>
 
+class Tape *OOTape; // Tape object
+
 class TapeBlock {
 
 private:
@@ -1085,14 +1087,12 @@ void Tape::rewind() {
 		this->current_block->reset();
 	}
 	this->block_accesed = false;
-	osd.set_message("Tape rewinded",1000);
+	osd->set_message("Tape rewinded",1000);
 }
 
 void Tape::set_pause(bool pause) {
 	this->paused = pause;
-	if (pause) {
-		this->send_signal("tape_paused");
-	}
+	osd->set_message("Tape paused",2000);
 }
 
 bool Tape::get_pause() {

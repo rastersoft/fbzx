@@ -19,20 +19,60 @@
 
 #ifndef SOUND_H
 #define SOUND_H
+#include <inttypes.h>
+#include <SDL/SDL.h>
+
+#if 0
+#define D_SOUND_PULSE
+#define D_SOUND_ALSA
+#define D_SOUND_OSS
+#endif
 
 enum e_soundtype {SOUND_NO, SOUND_OSS, SOUND_ALSA, SOUND_PULSEAUDIO, SOUND_AUTOMATIC};
 
-extern enum e_soundtype sound_type;
+extern class LLSound *llsound;
 
-int sound_init();
-void sound_play();
-void sound_close();
+class LLSound {
+
+	uint8_t format; // 0: 8 bits, 1: 16 bits LSB, 2: 16 bits MSB
+	uint8_t channels; // number of channels
+
+#ifdef D_SOUND_OSS
+	int init_oss();
+#endif
+#ifdef D_SOUND_ALSA
+	int init_alsa();
+#endif
+#ifdef D_SOUND_PULSE
+	int init_pulse();
+#endif
+	void remove_dc(unsigned char *sound_buffer,int size);
+	int init_sound();
+	void show_volume();
+
+public:
+	LLSound(enum e_soundtype);
+	~LLSound();
+	void play();
+	void increase_volume();
+	void decrease_volume();
+	void set_volume(uint8_t);
+
+	uint32_t freq; // frequency for reproduction
+	uint32_t tst_sample; // number of tstates per sample
+	int8_t sign; // 0: unsigned; 1: signed
+	bool sound_aborted;
+	unsigned char *sound;
+	unsigned char *current_buffer;
+	uint32_t buffer_len; // sound buffer length (in samples)
+	uint32_t increment; // cuantity to add to jump to the next sample
+	uint8_t volume; // volume
+
+	enum e_soundtype sound_type;
+
+};
 
 extern volatile unsigned char *sdl_sound_buffer;
-
-int sound_init_oss();
-int sound_init_alsa();
-int sound_init_pulse();
 
 void sdlcallback(void *userdata, Uint8 *stream, int len);
 

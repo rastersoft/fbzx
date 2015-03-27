@@ -18,6 +18,7 @@
  */
 
 #include <string.h>
+
 #include "llscreen.hh"
 #include "font.h"
 #include "osd.hh"
@@ -28,6 +29,7 @@ LLScreen::LLScreen(int16_t resx,int16_t resy,uint8_t depth,bool fullscreen,bool 
 
 	int retorno,bucle,valores;
 
+	this->rotate = false;
 	this->cheight = (charset.max_top > charset.height_maxtop) ? charset.max_top : charset.height_maxtop;
 	this->lines_in_screen = 480 / this->cheight;
 
@@ -86,11 +88,51 @@ LLScreen::LLScreen(int16_t resx,int16_t resy,uint8_t depth,bool fullscreen,bool 
 	} else
 		this->mustlock = false;
 
+	// we filter all the events, except keyboard events
+
+	SDL_EventState(SDL_ACTIVEEVENT,SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEMOTION,SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONDOWN,SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEBUTTONUP,SDL_IGNORE);
+	SDL_EventState(SDL_JOYAXISMOTION,SDL_ENABLE);
+	SDL_EventState(SDL_JOYBALLMOTION,SDL_ENABLE);
+	SDL_EventState(SDL_JOYHATMOTION,SDL_ENABLE);
+	SDL_EventState(SDL_JOYBUTTONDOWN,SDL_ENABLE);
+	SDL_EventState(SDL_JOYBUTTONUP,SDL_ENABLE);
+	SDL_EventState(SDL_QUIT,SDL_ENABLE);
+	SDL_EventState(SDL_SYSWMEVENT,SDL_IGNORE);
+	SDL_EventState(SDL_VIDEORESIZE,SDL_IGNORE);
+	SDL_EventState(SDL_USEREVENT,SDL_IGNORE);
+
+	SDL_ShowCursor(SDL_DISABLE);
+
 	printf("Locking screen\n");
 }
 
+FILE *LLScreen::myfopen(char *filename,char *mode) {
+
+	char tmp[4096];
+	FILE *fichero;
+
+	fichero=fopen(filename,mode);
+	if (fichero!=NULL) {
+		return (fichero);
+	}
+	sprintf(tmp,"/usr/share/%s",filename);
+	fichero=fopen(tmp,mode);
+	if (fichero!=NULL) {
+		return (fichero);
+	}
+	sprintf(tmp,"/usr/local/share/%s",filename);
+	fichero=fopen(tmp,mode);
+	if (fichero!=NULL) {
+		return (fichero);
+	}
+	return (NULL);
+}
+
 LLScreen::~LLScreen(){
-	if(ordenador.mustlock) {
+	if(this->mustlock) {
 		SDL_UnlockSurface(this->llscreen);
 	}
 	SDL_Quit();
@@ -107,8 +149,9 @@ void LLScreen::do_flip() {
 	}
 }
 
-void LLScreen::paint_one_pixel(unsigned char *colour,unsigned char *address) {
+void LLScreen::paint_one_pixel(uint8_t value,unsigned char *address) {
 
+	unsigned char *colour = (unsigned char *)(this->colors+value);
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	switch(this->bpp) {
 	case 1:
@@ -125,7 +168,7 @@ void LLScreen::paint_one_pixel(unsigned char *colour,unsigned char *address) {
 	break;
 	}
 #else // BIG_ENDIAN
-	switch(ordenador.bpp) {
+	switch(this->bpp) {
 		case 1:
 			*address=*(colour+3);
 		break;
@@ -142,16 +185,18 @@ void LLScreen::paint_one_pixel(unsigned char *colour,unsigned char *address) {
 #endif
 }
 
-void LLScreen::set_palete_entry(uint8_t entry, byte Value) {
+void LLScreen::set_palete_entry(uint8_t entry, uint8_t Value, bool bw) {
 
 
 	SDL_Color color;
+
+	this->ulaplus_palete[entry]=Value;
 
 	color.r = ((Value<<3)&0xE0)+((Value)&0x1C)+((Value>>3)&0x03);
 	color.g = (Value&0xE0)+((Value>>3)&0x1C)+((Value>>6)&0x03);
 	color.b = ((Value<<6)&0xC0)+((Value<<4)&0x30)+((Value<<2)&0x0C)+((Value)&0x03);
 
-	if (ordenador.bw!=0) {
+	if (bw) {
 		int final;
 		final=(((int)color.r)*3+((int)color.g)*6+((int)color.b))/10;
 		color.r=color.g=color.b=(unsigned char)final;
@@ -163,6 +208,10 @@ void LLScreen::set_palete_entry(uint8_t entry, byte Value) {
 	if (this->bpp != 1) {
 		colors[entry+16]=SDL_MapRGB(this->llscreen->format,color.r,color.g,color.b);
 	}
+}
+
+uint8_t LLScreen::get_palete_entry(uint8_t entry) {
+	return (this->ulaplus_palete[entry]);
 }
 
 void LLScreen::fullscreen_switch() {
@@ -356,7 +405,7 @@ void LLScreen::set_paletes(bool bw) {
 		}
 	}
 	for(c=0;c<64;c++) {
-		set_palete_entry((unsigned char)c,ordenador.ulaplus_palete[c]);
+		set_palete_entry((unsigned char)c,this->ulaplus_palete[c],bw);
 	}
 
 }
@@ -407,9 +456,9 @@ uint8_t LLScreen::printchar(uint8_t carac, int16_t x, int16_t y, uint8_t color, 
 		}
 		for (bucle2=0;bucle2 < width2;bucle2++) {
 			if ((bucle2 < width) && (bucle1>=(charset.max_top-top-charset.min_top-1) && (bucle1 < (charset.max_top-top+height-charset.min_top-1))&& ((*(counter++))>127))) {
-				paint_one_pixel ((unsigned char*)(colors + (int) (color)), lugar2);
+				paint_one_pixel (color, lugar2);
 			} else {
-				paint_one_pixel ((unsigned char*)(colors + (int) (back)), lugar2);
+				paint_one_pixel (back, lugar2);
 			}
 			lugar2+=this->bpp;
 		}
@@ -429,14 +478,14 @@ void LLScreen::paint_picture(string filename) {
 	this->clear_screen();
 	fichero=myfopen((char *)filename.c_str(),"r");
 	if (fichero==NULL) {
-		osd.set_message("Keymap picture not found",2000);
+		osd->set_message("Keymap picture not found",2000);
 		return;
 	}
-	if (ordenador.zaurus_mini==0) {
+	if (!this->rotate) {
 		for (bucle1=0;bucle1<344;bucle1++)
 			for(bucle2=0;bucle2<640;bucle2++) {
 				fscanf(fichero,"%c",&valor);
-				paint_one_pixel((unsigned char *)(colors+valor),buffer);
+				paint_one_pixel(valor,buffer);
 				buffer += this->bpp;
 			}
 	} else {
@@ -445,7 +494,7 @@ void LLScreen::paint_picture(string filename) {
 			buffer2 = buffer;
 			for(bucle2 = 0;bucle2 < 640;bucle2++) {
 				fscanf(fichero,"%c",&valor);
-				paint_one_pixel((unsigned char *)(colors+valor),buffer);
+				paint_one_pixel(valor,buffer);
 				buffer += (480 * this->bpp);
 			}
 			buffer = buffer2 - this->bpp;
