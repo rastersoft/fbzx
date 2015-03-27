@@ -444,7 +444,7 @@ int main(int argc,char *argv[]) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
 			}
-			emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
+			ordenador->emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
 		} while(procesador.Status!=Z80XX);
 			
 		PC=procesador.PC;
@@ -492,7 +492,7 @@ int main(int argc,char *argv[]) {
 
 		if(ordenador->interr==1) {
 			read_keyboard (NULL);	// read the physical keyboard
-			Z80free_INT(&procesador,bus_empty());
+			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->interr=0;
 		}
 	}

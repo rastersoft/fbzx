@@ -134,12 +134,13 @@ public:
 	computer();
 	~computer();
 	bool callback_receiver(string, class Signals *);
+	byte bus_empty();
+	void emulate(int);
+	void do_contention();
 };
 
 void read_keyboard(SDL_Event *pevento2);
 void fill_audio(void *udata,Uint8 *,int);
-void emulate(int);
 void ResetComputer();
-byte bus_empty();
 
 #endif

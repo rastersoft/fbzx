@@ -118,10 +118,10 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 
 /* Returns the bus value when reading a port without a periferial */
 
-byte bus_empty () {
+byte computer::bus_empty () {
 
 	if (ordenador->mode128k != 3)
-		return (ordenador->bus_value);
+		return (screen->bus_value);
 	else
 		return (255);	// +2A and +3 returns always 255
 }
@@ -129,7 +129,7 @@ byte bus_empty () {
 /* calls all the routines that emulates the computer, runing them for 'tstados'
    tstates */
 
-void emulate (int tstados) {
+void computer::emulate (int tstados) {
 
 	screen->show_screen (tstados);
 	play_ay (tstados);
@@ -139,13 +139,33 @@ void emulate (int tstados) {
 
 	if (!OOTape->get_pause()) {
 		if (OOTape->read_signal() != 0) {
-			ordenador->sound_bit = 1;
+			this->sound_bit = 1;
 		} else {
-			ordenador->sound_bit = 0;	// if not paused, asign SOUND_BIT the value of tape
+			this->sound_bit = 0; // if not paused, asign SOUND_BIT the value of tape
 		}
 	}
 }
 
+// check if there's contention and waits the right number of tstates
+
+void computer::do_contention() {
+
+	if (!this->contended_zone)
+		return;
+
+	if (this->cicles_counter<14335) {
+		return;
+	}
+
+	int ccicles=(this->cicles_counter-14335)%8;
+
+	if (ccicles>5) {
+		return;
+	}
+
+	this->emulate(6-ccicles);
+
+}
 
 // Read the keyboard and stores the flags
 
@@ -735,27 +755,6 @@ void ResetComputer () {
 	microdrive_reset();
 }
 
-// check if there's contention and waits the right number of tstates
-
-void do_contention() {
-	
-	if (!ordenador->contended_zone)
-		return;
-	
-	if (ordenador->cicles_counter<14335) {
-		return;
-	}
-
-	int ccicles=(ordenador->cicles_counter-14335)%8;
-
-	if (ccicles>5) {
-		return;
-	}
-	
-	emulate(6-ccicles);
-
-}
-
 void Z80free_Wr (register word Addr, register byte Value) {
 
 	switch (Addr & 0xC000) {
@@ -767,7 +766,7 @@ void Z80free_Wr (register word Addr, register byte Value) {
 	break;
 
 	case 0x4000:
-		do_contention();
+		ordenador->do_contention();
 		*(ordenador->block1 + Addr) = (unsigned char) Value;
 	break;
 	
@@ -800,7 +799,7 @@ byte Z80free_Rd (register word Addr) {
 		break;
 
 		case 0x4000:
-			do_contention();
+			ordenador->do_contention();
 			return ((byte) (*(ordenador->block1 + Addr)));
 		break;
 
@@ -828,17 +827,17 @@ void Z80free_Out (register word Port, register byte Value) {
 	register word maskport;
 	
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		do_contention();
+		ordenador->do_contention();
 	}
 
 	// ULAPlus
 	if (Port == 0xBF3B) {
-		do_contention();
+		ordenador->do_contention();
 		screen->set_ulaplus_register(Value);
 		return;
 	}
 	if (Port == 0xFF3B) {
-		do_contention();
+		ordenador->do_contention();
 		screen->set_ulaplus_value(Value);
 	}
 
@@ -896,13 +895,13 @@ byte Z80free_In (register word Port) {
 	byte pines;
 
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		do_contention();
+		ordenador->do_contention();
 	}
 
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
-		do_contention();
+		ordenador->do_contention();
 		return (screen->read_ulaplus_value());
 	}
 
@@ -962,7 +961,7 @@ byte Z80free_In (register word Port) {
 	if(((Port &0x0018)!=0x0018)&&(ordenador->mdr_active))
 		return(microdrive_in(Port));
 	
-	pines=bus_empty();
+	pines=ordenador->bus_empty();
 
 	return (pines);
 }

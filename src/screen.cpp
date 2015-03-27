@@ -187,7 +187,7 @@ to execute last instruction */
 
 void Screen::show_screen (int tstados) {
 
-	static unsigned char temporal, ink, paper, fflash, tmp2;
+	static uint8_t temporal, ink, paper, fflash, tmp2;
 
 	if((procesador.I>=0x40)&&(procesador.I<=0x7F)) {
 		this->screen_snow = true;
@@ -225,7 +225,7 @@ void Screen::show_screen (int tstados) {
 				this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
 			}
 
-			ordenador->bus_value = 255;
+			this->bus_value = 255;
 
 		} else {
 
@@ -234,7 +234,7 @@ void Screen::show_screen (int tstados) {
 			ordenador->contended_zone = true; // can have contention
 
 			temporal = ordenador->memoria[(*this->p_translt2) + ordenador->video_offset];	// attributes
-			ordenador->bus_value = temporal;
+			this->bus_value = temporal;
 			ink = temporal & 0x07;	// ink colour
 			paper = (temporal >> 3) & 0x07;	// paper colour
 			if (this->ulaplus) {

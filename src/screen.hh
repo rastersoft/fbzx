@@ -48,6 +48,7 @@ class Screen {
 public:
 	uint8_t border;
 	bool ulaplus; // ULAPlus inactive or active
+	uint8_t bus_value;
 
 	Screen();
 	void set_memory_pointers ();
