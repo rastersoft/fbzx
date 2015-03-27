@@ -35,6 +35,7 @@
 #include "menus.hh"
 #include "llscreen.hh"
 #include "llsound.hh"
+#include "keyboard.hh"
 
 // shows the settings menu
 
@@ -172,7 +173,7 @@ void settings_menu() {
   
 		llscreen->print_string(texto,-1,2,14,0);
 
-		switch(ordenador->joystick) {
+		switch(keyboard->joystick) {
 		case 0:
 			sprintf(texto,"Joystick emulation: Cursor");
 			break;
@@ -298,16 +299,16 @@ void settings_menu() {
 			ResetComputer();
 		break;
 		case SDLK_7:
-			ordenador->joystick=0;
+			keyboard->joystick=0;
 		break;
 		case SDLK_8:
-			ordenador->joystick=1;
+			keyboard->joystick=1;
 		break;
 		case SDLK_9:
-			ordenador->joystick=2;
+			keyboard->joystick=2;
 		break;
 		case SDLK_0:
-			ordenador->joystick=3;
+			keyboard->joystick=3;
 		break;
 		case SDLK_i:
 			if(ordenador->mode128k!=3) {

@@ -31,6 +31,7 @@
 #include "spk_ay.hh"
 #include "tape.hh"
 #include "computer.hh"
+#include "keyboard.hh"
 
 #include "llsound.hh"
 #include "z80free/Z80free.h"
@@ -49,19 +50,10 @@ computer::computer() {
 	this->port254 = 0;
 	this->issue = 3;
 	this->mode128k = 0;
-	this->joystick = 0;
 
 	this->tape_fast_load = true; // fast load by default
 
 	this->other_ret = 0;
-
-	this->s8 = this->s9 = this->s10 = this->s11 =
-	this->s12 = this->s13 = this->s14 =
-	this->s15 = 0xFF;
-	this->tab_extended=0;
-	this->esc_again=0;
-
-	this->js = 0x00;
 
 	for (bucle = 0; bucle < 16; bucle++)
 		this->ay_registers[bucle] = 0;
@@ -84,7 +76,6 @@ computer::computer() {
 	this->ayval_n = 0;
 	this->ay_envel_value = 0;
 	this->ay_envel_way = 0;
-	this->readed = 0;
 
 	this->contended_zone = false;
 	this->cicles_counter=0;
@@ -167,534 +158,6 @@ void computer::do_contention() {
 
 }
 
-// Read the keyboard and stores the flags
-
-void read_keyboard (SDL_Event *pevento2) {
-
-	unsigned int temporal_io;
-	SDL_Event evento,evento2,*pevento;
-	Sint16 valor;
-	Uint8 eje;
-
-	if (pevento2==NULL) {
-		pevento=&evento;
-		if (!SDL_PollEvent (&evento))
-			return;
-	} else {
-		pevento=pevento2;
-	}
-
-	if (pevento->type==SDL_QUIT) {
-		salir = 0;
-		return;
-	}
-
-	if (pevento->type==SDL_JOYBUTTONDOWN) {
-		pevento->type=SDL_KEYDOWN;
-		pevento->key.keysym.sym=SDLK_MENU; // emulate pressing the MENU key
-	}
-	
-	if (pevento->type==SDL_JOYBUTTONUP) {
-		pevento->type=SDL_KEYUP;
-		pevento->key.keysym.sym=SDLK_MENU; // emulate depressing the MENU key
-	}
-	
-	if (pevento->type==SDL_JOYAXISMOTION) {
-		eje=pevento->jaxis.axis;
-		valor=pevento->jaxis.value;
-
-		evento2.type=SDL_KEYUP;
-		if ((valor<16384)&&(valor>-16384)) { // JoyStick centered
-			pevento->type=SDL_KEYUP;
-			if (eje==1) {
-				evento2.key.keysym.sym=SDLK_DOWN;
-				pevento->key.keysym.sym=SDLK_UP; // pull up both keys
-				read_keyboard(&evento2);
-			}
-			if (eje==0) {
-				evento2.key.keysym.sym=SDLK_LEFT;
-				pevento->key.keysym.sym=SDLK_RIGHT;
-				read_keyboard(&evento2);
-			}
-		} else { // JoyStick moved
-			if (eje==0) {
-				if (valor>=0) {
-					evento2.key.keysym.sym=SDLK_LEFT; // pull up LEFT
-					read_keyboard(&evento2);
-					pevento->key.keysym.sym=SDLK_RIGHT; // and press RIGHT
-				} else {
-					evento2.key.keysym.sym=SDLK_RIGHT; // pull up RIGHT
-					read_keyboard(&evento2);
-					pevento->key.keysym.sym=SDLK_LEFT; // and press LEFT
-				}
-			}
-			if (eje==1) {
-				if (valor<0) {
-					evento2.key.keysym.sym=SDLK_DOWN; // pull up DOWN
-					pevento->key.keysym.sym=SDLK_UP; // and press UP
-					read_keyboard(&evento2);
-				} else {
-					evento2.key.keysym.sym=SDLK_UP; // pull up UP
-					pevento->key.keysym.sym=SDLK_DOWN; // and press DOWN
-					read_keyboard(&evento2);
-				}
-			}
-			pevento->type=SDL_KEYDOWN;
-		}
-	}
-
-	if ((pevento->type != SDL_KEYDOWN) && (pevento->type != SDL_KEYUP))
-		return;
-
-	ordenador->k8 = ordenador->k9 = ordenador->k10 = ordenador->k11 =
-		ordenador->k12 = ordenador->k13 = ordenador->k14 =
-		ordenador->k15 = 0;
-		ordenador->jk = 0;
-
-	temporal_io = (unsigned int) pevento->key.keysym.sym;
-
-	if ((pevento->type==SDL_KEYUP)&&(temporal_io==SDLK_TAB)) {
-		if (ordenador->tab_extended==0) {
-			ordenador->tab_extended=1;
-			osd->set_message("Function Key mode on",2000);
-			return;
-		} else {
-			ordenador->tab_extended=0;
-			osd->clear_message();
-			return;
-		}
-	}
-	
-	if ((pevento->type==SDL_KEYDOWN)&&(ordenador->tab_extended==1))
-		return;
-	
-	if ((pevento->type==SDL_KEYUP)&&(ordenador->tab_extended==1)) {
-		ordenador->tab_extended=0;
-
-		osd->clear_message();
-
-		switch(temporal_io) {
-		case SDLK_1:
-			temporal_io=SDLK_F1;
-		break;
-		case SDLK_2:
-			temporal_io=SDLK_F2;
-		break;
-		case SDLK_3:
-			temporal_io=SDLK_F3;
-		break;
-		case SDLK_4:
-			temporal_io=SDLK_F4;
-		break;
-		case SDLK_5:
-			temporal_io=SDLK_F5;
-		break;
-		case SDLK_6:
-			temporal_io=SDLK_F6;
-		break;
-		case SDLK_7:
-			temporal_io=SDLK_F7;
-		break;
-		case SDLK_8:
-			temporal_io=SDLK_F8;
-		break;
-		case SDLK_9:
-			temporal_io=SDLK_F9;
-		break;
-		case SDLK_0:
-			temporal_io=SDLK_F10;
-		break;
-		case SDLK_o:
-			temporal_io=SDLK_F11;
-		break;
-		case SDLK_p:
-			temporal_io=SDLK_F12;
-		break;
-		}
-	}
-	
-
-	if (pevento->type == SDL_KEYUP)
-		switch (temporal_io) {
-		case SDLK_ESCAPE:	// to exit from the emulator
-			if (ordenador->esc_again==0) {
-				ordenador->esc_again=1;
-				osd->set_message("ESC again to exit",2000);
-			} else
-				salir = 0;
-			return;
-			break;
-		case SDLK_F1:
-			help_menu ();	// shows the help menu
-			break;
-
-		case SDLK_F2:
-		case SDLK_F3:
-		case SDLK_F4:
-		case SDLK_F7:
-		case SDLK_F8:
-			launch_menu(temporal_io);
-			break;
-
-		case SDLK_F5:   // STOP tape
-			OOTape->set_pause(true);
-			break;
-
-		case SDLK_F6:	// PLAY tape
-			OOTape->set_pause(false);
-			break;		
-
-		case SDLK_F9:
-			llscreen->fullscreen_switch();
-			break;
-
-		case SDLK_F10:	// Reset emulator
-			ResetComputer ();
-			OOTape->set_pause(true);
-			OOTape->rewind();
-		break;
-
-		case SDLK_F11:	// lower volume
-			llsound->decrease_volume();
-		break;
-			
-		case SDLK_F12:	// upper volume
-			llsound->increase_volume();
-		break;
-		}
-
-	// reorder joystick if screen is rotated
-		
-	if(ordenador->zaurus_mini==2) {
-		switch(temporal_io) {
-		case SDLK_UP:
-			temporal_io=SDLK_LEFT;
-		break;
-		case SDLK_LEFT:
-			temporal_io=SDLK_DOWN;
-		break;
-		case SDLK_DOWN:
-			temporal_io=SDLK_RIGHT;
-		break;
-		case SDLK_RIGHT:
-			temporal_io=SDLK_UP;
-		break;
-		}
-	}
-		
-		
-	// test for joystick
-		
-	switch (temporal_io) {
-	case SDLK_UP:
-		switch (ordenador->joystick) {
-		case 0:	// cursor
-			temporal_io = SDLK_7;
-		break;
-		
-		case 1:
-			ordenador->jk = 8;
-		break;
-		
-		case 2:	// sinclair 1
-			temporal_io = SDLK_4;
-		break;
-		
-		case 3:	// sinclair 2
-			temporal_io = SDLK_9;
-		break;
-		}
-	break;
-	
-	case SDLK_DOWN:
-		switch (ordenador->joystick) {
-		case 0:	// cursor
-			temporal_io = SDLK_6;
-		break;
-		
-		case 1:
-			ordenador->jk = 4;
-		break;
-		
-		case 2:	// sinclair 1
-			temporal_io = SDLK_3;
-		break;
-		
-		case 3:	// sinclair 2
-			temporal_io = SDLK_8;
-		break;		
-		}
-	break;
-		
-	case SDLK_RIGHT:
-		switch (ordenador->joystick) {
-		case 0:	// cursor
-			temporal_io = SDLK_8;
-		break;
-		
-		case 1:
-			ordenador->jk = 1;
-		break;
-		
-		case 2:	// sinclair 1
-			temporal_io = SDLK_1;
-		break;
-				
-		case 3:	// sinclair 2
-			temporal_io = SDLK_6;
-		break;
-		
-		}
-	break;
-	
-	case SDLK_LEFT:
-		switch (ordenador->joystick) {
-		case 0:	// cursor
-			temporal_io = SDLK_5;
-		break;
-		
-		case 1:
-			ordenador->jk = 2;
-		break;
-		
-		case 2:	// sinclair 1
-			temporal_io = SDLK_2;
-		break;
-		
-		case 3:	// sinclair 2
-			temporal_io = SDLK_7;
-		break;		
-		}
-	break;
-	
-	case SDLK_RALT:
-	case SDLK_RMETA:
-	case SDLK_LMETA:
-	case SDLK_RSUPER:
-	case SDLK_LSUPER:
-	case SDLK_MENU:
-		switch (ordenador->joystick) {
-		case 0:	// cursor
-			temporal_io = SDLK_0;
-		break;
-		
-		case 1:
-			ordenador->jk = 16;
-		break;
-		
-		case 2:	// sinclair 1
-			temporal_io = SDLK_5;
-		break;
-		
-		case 3:	// sinclair 2
-			temporal_io = SDLK_0;
-		break;		
-		}
-	break;
-	}
-
-	switch (temporal_io) {
-
-	case SDLK_SPACE:
-		ordenador->k15 = 1;
-	break;
-	
-	case SDLK_RCTRL:
-	case SDLK_LCTRL:
-		ordenador->k15 = 2;
-	break;
-	
-	case SDLK_m:
-		ordenador->k15 = 4;
-	break;
-	
-	case SDLK_n:
-		ordenador->k15 = 8;
-	break;
-	
-	case SDLK_b:
-		ordenador->k15 = 16;
-	break;
-	
-	case SDLK_RETURN:
-		ordenador->k14 = 1;
-	break;
-	
-	case SDLK_l:
-		ordenador->k14 = 2;
-	break;
-	
-	case SDLK_k:
-		ordenador->k14 = 4;
-	break;
-	
-	case SDLK_j:
-		ordenador->k14 = 8;
-	break;
-	
-	case SDLK_h:
-		ordenador->k14 = 16;
-	break;
-	
-	case SDLK_p:
-		ordenador->k13 = 1;
-	break;
-	
-	case SDLK_o:
-		ordenador->k13 = 2;
-	break;
-	
-	case SDLK_i:
-		ordenador->k13 = 4;
-	break;
-	
-	case SDLK_u:
-		ordenador->k13 = 8;
-	break;
-	
-	case SDLK_y:
-		ordenador->k13 = 16;
-	break;
-	
-	case SDLK_0:
-		ordenador->k12 = 1;
-	break;
-	
-	case SDLK_9:
-		ordenador->k12 = 2;
-	break;
-	
-	case SDLK_8:
-		ordenador->k12 = 4;
-	break;
-	
-	case SDLK_7:
-		ordenador->k12 = 8;
-	break;
-	
-	case SDLK_6:
-		ordenador->k12 = 16;
-	break;
-	
-	case SDLK_1:
-		ordenador->k11 = 1;
-	break;
-	
-	case SDLK_2:
-		ordenador->k11 = 2;
-	break;
-	
-	case SDLK_3:
-		ordenador->k11 = 4;
-	break;
-	
-	case SDLK_4:
-		ordenador->k11 = 8;
-	break;
-	
-	case SDLK_5:
-		ordenador->k11 = 16;
-	break;
-	
-	case SDLK_q:
-		ordenador->k10 = 1;
-	break;
-	
-	case SDLK_w:
-		ordenador->k10 = 2;
-	break;
-	
-	case SDLK_e:
-		ordenador->k10 = 4;
-	break;
-	
-	case SDLK_r:
-		ordenador->k10 = 8;
-	break;
-	
-	case SDLK_t:
-		ordenador->k10 = 16;
-	break;
-	
-	case SDLK_a:
-		ordenador->k9 = 1;
-	break;
-	
-	case SDLK_s:
-		ordenador->k9 = 2;
-	break;
-	
-	case SDLK_d:
-		ordenador->k9 = 4;
-	break;
-	
-	case SDLK_f:
-		ordenador->k9 = 8;
-	break;
-	
-	case SDLK_g:
-		ordenador->k9 = 16;
-	break;
-	
-	case SDLK_RSHIFT:
-	case SDLK_LSHIFT:
-		ordenador->k8 = 1;
-	break;
-	
-	case SDLK_z:
-		ordenador->k8 = 2;
-	break;
-	
-	case SDLK_x:
-		ordenador->k8 = 4;
-	break;
-	
-	case SDLK_c:
-		ordenador->k8 = 8;
-	break;
-	
-	case SDLK_v:
-		ordenador->k8 = 16;
-	break;
-	
-	case SDLK_BACKSPACE:
-		ordenador->k12 = 1;
-		ordenador->k8 = 1;
-	break;
-	case SDLK_PERIOD:
-		ordenador->k15 = 6;
-	break;
-	case SDLK_COMMA:
-		ordenador->k15 = 10;
-	break;
-	
-	}
-
-	if (pevento->type == SDL_KEYUP) {
-		ordenador->s8 |= ordenador->k8;
-		ordenador->s9 |= ordenador->k9;
-		ordenador->s10 |= ordenador->k10;
-		ordenador->s11 |= ordenador->k11;
-		ordenador->s12 |= ordenador->k12;
-		ordenador->s13 |= ordenador->k13;
-		ordenador->s14 |= ordenador->k14;
-		ordenador->s15 |= ordenador->k15;
-		ordenador->js &= (ordenador->jk ^ 255);
-	} else {
-		ordenador->s8 &= (ordenador->k8 ^ 255);
-		ordenador->s9 &= (ordenador->k9 ^ 255);
-		ordenador->s10 &= (ordenador->k10 ^ 255);
-		ordenador->s11 &= (ordenador->k11 ^ 255);
-		ordenador->s12 &= (ordenador->k12 ^ 255);
-		ordenador->s13 &= (ordenador->k13 ^ 255);
-		ordenador->s14 &= (ordenador->k14 ^ 255);
-		ordenador->s15 &= (ordenador->k15 ^ 255);
-		ordenador->js |= ordenador->jk;
-	}
-
-	return;
-}
-
 // resets the computer and loads the right ROMs
 
 void ResetComputer () {
@@ -717,16 +180,6 @@ void ResetComputer () {
 	ordenador->vol_a = 0;
 	ordenador->vol_b = 0;
 	ordenador->vol_c = 0;
-
-	ordenador->s8|=0x1F;
-	ordenador->s9|=0x1F;
-	ordenador->s10|=0x1F;
-	ordenador->s11|=0x1F;
-	ordenador->s12|=0x1F;
-	ordenador->s13|=0x1F;
-	ordenador->s14|=0x1F;
-	ordenador->s15|=0x1F;
-	ordenador->js=0;
 
 	ordenador->updown=0;
 	ordenador->leftright=0;
@@ -751,6 +204,7 @@ void ResetComputer () {
 		Z80free_Out (0x7FFD, 0);
 	break;
 	}
+	keyboard->reset();
 	screen->reset(ordenador->mode128k);
 	microdrive_reset();
 }
@@ -908,21 +362,21 @@ byte Z80free_In (register word Port) {
 	if (!(temporal_io & 0x0001)) {
 		pines = 0xBF;	// by default, sound bit is 0
 		if (!(temporal_io & 0x0100))
-			pines &= ordenador->s8;
+			pines &= keyboard->s8;
 		if (!(temporal_io & 0x0200))
-			pines &= ordenador->s9;
+			pines &= keyboard->s9;
 		if (!(temporal_io & 0x0400))
-			pines &= ordenador->s10;
+			pines &= keyboard->s10;
 		if (!(temporal_io & 0x0800))
-			pines &= ordenador->s11;
+			pines &= keyboard->s11;
 		if (!(temporal_io & 0x1000))
-			pines &= ordenador->s12;
+			pines &= keyboard->s12;
 		if (!(temporal_io & 0x2000))
-			pines &= ordenador->s13;
+			pines &= keyboard->s13;
 		if (!(temporal_io & 0x4000))
-			pines &= ordenador->s14;
+			pines &= keyboard->s14;
 		if (!(temporal_io & 0x8000))
-			pines &= ordenador->s15;
+			pines &= keyboard->s15;
 
 		if (OOTape->get_pause()) {
 			if (ordenador->issue == 2)	{
@@ -946,8 +400,8 @@ byte Z80free_In (register word Port) {
 
 	// Joystick
 	if (!(temporal_io & 0x0020)) {
-		if (ordenador->joystick == 1) {
-			return (ordenador->js);
+		if (keyboard->joystick == 1) {
+			return (keyboard->js);
 		} else {
 			return 0; // if Kempston is not selected, emulate it, but always 0
 		}

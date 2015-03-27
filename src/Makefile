@@ -7,8 +7,8 @@ CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE 
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
 
-fbzx: cargador.o cmdline.o computer.o emulator.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
-	$(LN) -o fbzx cargador.o cmdline.o computer.o emulator.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
+fbzx: cargador.o cmdline.o computer.o emulator.o keyboard.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
+	$(LN) -o fbzx cargador.o cmdline.o computer.o emulator.o keyboard.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
 
 Z80free.o: z80free/Z80free.c z80free/Z80free.h
 	$(CC) -o Z80free.o z80free/Z80free.c
@@ -34,17 +34,20 @@ Z80free_codesDDCB.o: z80free/Z80free_codesDDCB.c z80free/Z80free.h
 Z80free_codesFDCB.o: z80free/Z80free_codesFDCB.c z80free/Z80free.h
 	$(CC) -o Z80free_codesFDCB.o z80free/Z80free_codesFDCB.c
 
-cargador.o: cargador.cpp emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh cargador.hh
+cargador.o: cargador.cpp keyboard.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o cargador.o cargador.cpp
 
 cmdline.o: cmdline.cpp cmdline.hh
 	$(CPP) $(CPPFLAGS) -o cmdline.o cmdline.cpp
 
-computer.o: computer.cpp z80free/Z80free.h llsound.hh computer.hh screen.hh signals.hh llscreen.hh tape.hh emulator.hh osd.hh spk_ay.hh microdrive.hh menus.hh
+computer.o: computer.cpp z80free/Z80free.h llsound.hh keyboard.hh computer.hh screen.hh signals.hh llscreen.hh tape.hh emulator.hh osd.hh spk_ay.hh microdrive.hh menus.hh
 	$(CPP) $(CPPFLAGS) -o computer.o computer.cpp
 
-emulator.o: emulator.cpp llsound.hh cmdline.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh microdrive.hh menus.hh cargador.hh
+emulator.o: emulator.cpp keyboard.hh llsound.hh cmdline.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh microdrive.hh menus.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o emulator.o emulator.cpp
+
+keyboard.o: keyboard.cpp keyboard.hh
+	$(CPP) $(CPPFLAGS) -o keyboard.o keyboard.cpp
 
 llscreen.o: llscreen.cpp osd.hh font.h llscreen.hh
 	$(CPP) $(CPPFLAGS) -o llscreen.o llscreen.cpp
@@ -52,7 +55,7 @@ llscreen.o: llscreen.cpp osd.hh font.h llscreen.hh
 llsound.o: llsound.cpp emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh llsound.hh
 	$(CPP) $(CPPFLAGS) -o llsound.o llsound.cpp
 
-menus.o: menus.cpp llsound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh cargador.hh
+menus.o: menus.cpp keyboard.hh llsound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o menus.o menus.cpp
 
 microdrive.o: microdrive.cpp osd.hh emulator.hh screen.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh microdrive.hh
@@ -61,7 +64,7 @@ microdrive.o: microdrive.cpp osd.hh emulator.hh screen.hh z80free/Z80free.h comp
 osd.o: osd.cpp osd.hh
 	$(CPP) $(CPPFLAGS) -o osd.o osd.cpp
 
-screen.o: screen.cpp computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh
+screen.o: screen.cpp keyboard.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh
 	$(CPP) $(CPPFLAGS) -o screen.o screen.cpp
 
 signals.o: signals.cpp signals.hh

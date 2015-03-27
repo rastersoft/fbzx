@@ -24,6 +24,7 @@
 #include <string.h>
 #include "computer.hh"
 #include "emulator.hh"
+#include "keyboard.hh"
 
 void uncompress_z80(FILE *fichero,int length,unsigned char *memo) {
 
@@ -109,7 +110,7 @@ int save_z80(char *filename) {
   value=procesador.IM;
   if(ordenador->issue==2)
     value|=4;
-  switch (ordenador->joystick) {
+  switch (keyboard->joystick) {
   case 1:
   	value|=64;
   	break;
@@ -587,7 +588,7 @@ void load_snap(struct z80snapshot *snap) {
     break;
   }
   
-  ordenador->joystick=snap->joystick;
+  keyboard->joystick=snap->joystick;
 
   procesador.Rm.br.A=snap->A;
   procesador.Rm.br.F=snap->F;

@@ -9,6 +9,7 @@
 #include "screen.hh"
 #include "emulator.hh"
 #include "computer.hh"
+#include "keyboard.hh"
 
 class Screen *screen;
 
@@ -281,8 +282,8 @@ void Screen::show_screen (int tstados) {
 				text = osd->get_text(lines);
 				llscreen->print_string(text, -1,-lines, 12, 0);
 			} else {
-				ordenador->tab_extended=0;
-				ordenador->esc_again=0;
+				keyboard->tab_extended = false;
+				keyboard->esc_again = false;
 			}
 
 			llscreen->do_flip();

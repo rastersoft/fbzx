@@ -51,18 +51,6 @@ public:
 	bool contended_zone; // 0-> no contention; 1-> contention possible
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 
-	// keyboard private global variables
-
-	unsigned char s8,s9,s10,s11,s12,s13,s14,s15;
-	unsigned char k8,k9,k10,k11,k12,k13,k14,k15;
-	unsigned char readed;
-	unsigned char tab_extended;
-	unsigned char esc_again;
-
-	// kempston joystick private global variables
-
-	unsigned char js,jk;
-
 	// Linux joystick private global variables
 
 	unsigned char updown,leftright;
@@ -90,7 +78,6 @@ public:
 	unsigned char bus_value;
 	unsigned char issue; // 2= 48K issue 2, 3= 48K issue 3
 	unsigned char mode128k; // 0=48K, 1=128K, 2=+2, 3=+3
-	unsigned char joystick; // 0=cursor, 1=kempston, 2=sinclair1, 3=sinclair2
 	unsigned char port254;
 
 
@@ -139,7 +126,6 @@ public:
 	void do_contention();
 };
 
-void read_keyboard(SDL_Event *pevento2);
 void fill_audio(void *udata,Uint8 *,int);
 void ResetComputer();
 

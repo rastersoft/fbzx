@@ -33,6 +33,7 @@
 #include "computer.hh"
 #include "cmdline.hh"
 #include "llsound.hh"
+#include "keyboard.hh"
 
 char debug_var=1;
 
@@ -200,7 +201,7 @@ void save_config(struct computer *object) {
 	}
 	fprintf(fconfig,"mode=%c%c",48+object->mode128k,10);
 	fprintf(fconfig,"issue=%c%c",48+object->issue,10);
-	fprintf(fconfig,"joystick=%c%c",48+object->joystick,10);
+	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
 	fprintf(fconfig,"ay_sound=%c%c",48+object->ay_emul,10);
 	fprintf(fconfig,"interface1=%c%c",48+object->mdr_active,10);
 	fprintf(fconfig,"doublescan=%c%c",object->dblscan ? '1' : '0',10);
@@ -292,7 +293,7 @@ void load_config(struct computer *object) {
 		object->issue=issue;
 	}
 	if (joystick<4) {
-		object->joystick=joystick;
+		keyboard->joystick=joystick;
 	}
 	if (ay_emul<2) {
 		object->ay_emul=ay_emul;
@@ -347,6 +348,7 @@ int main(int argc,char *argv[]) {
 
 	llsound = new LLSound(sound_type);
 	OOTape = new Tape();
+	keyboard = new Keyboard();
 	ordenador = new computer();
 
 	load_config(ordenador);
@@ -491,7 +493,7 @@ int main(int argc,char *argv[]) {
 			ordenador->mdr_paged = 2;
 
 		if(ordenador->interr==1) {
-			read_keyboard (NULL);	// read the physical keyboard
+			keyboard->read_keyboard (NULL);	// read the physical keyboard
 			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->interr=0;
 		}
