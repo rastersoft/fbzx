@@ -34,7 +34,7 @@
 #include "tape.hh"
 #include "menus.hh"
 #include "llscreen.hh"
-#include "sound.hh"
+#include "llsound.hh"
 
 // shows the settings menu
 

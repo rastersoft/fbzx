@@ -7,8 +7,8 @@ CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE 
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
 
-fbzx: cargador.o cmdline.o computer.o emulator.o llscreen.o menus.o microdrive.o osd.o screen.o signals.o sound.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
-	$(LN) -o fbzx cargador.o cmdline.o computer.o emulator.o llscreen.o menus.o microdrive.o osd.o screen.o signals.o sound.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
+fbzx: cargador.o cmdline.o computer.o emulator.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
+	$(LN) -o fbzx cargador.o cmdline.o computer.o emulator.o llscreen.o llsound.o menus.o microdrive.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
 
 Z80free.o: z80free/Z80free.c z80free/Z80free.h
 	$(CC) -o Z80free.o z80free/Z80free.c
@@ -40,16 +40,19 @@ cargador.o: cargador.cpp emulator.hh screen.hh osd.hh z80free/Z80free.h computer
 cmdline.o: cmdline.cpp cmdline.hh
 	$(CPP) $(CPPFLAGS) -o cmdline.o cmdline.cpp
 
-computer.o: computer.cpp z80free/Z80free.h computer.hh screen.hh signals.hh llscreen.hh tape.hh emulator.hh osd.hh spk_ay.hh sound.hh microdrive.hh menus.hh
+computer.o: computer.cpp z80free/Z80free.h llsound.hh computer.hh screen.hh signals.hh llscreen.hh tape.hh emulator.hh osd.hh spk_ay.hh microdrive.hh menus.hh
 	$(CPP) $(CPPFLAGS) -o computer.o computer.cpp
 
-emulator.o: emulator.cpp cmdline.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh sound.hh microdrive.hh menus.hh cargador.hh
+emulator.o: emulator.cpp llsound.hh cmdline.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh microdrive.hh menus.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o emulator.o emulator.cpp
 
 llscreen.o: llscreen.cpp osd.hh font.h llscreen.hh
 	$(CPP) $(CPPFLAGS) -o llscreen.o llscreen.cpp
 
-menus.o: menus.cpp sound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh cargador.hh
+llsound.o: llsound.cpp emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh llsound.hh
+	$(CPP) $(CPPFLAGS) -o llsound.o llsound.cpp
+
+menus.o: menus.cpp llsound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o menus.o menus.cpp
 
 microdrive.o: microdrive.cpp osd.hh emulator.hh screen.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh microdrive.hh
@@ -64,10 +67,7 @@ screen.o: screen.cpp computer.hh screen.hh signals.hh llscreen.hh z80free/Z80fre
 signals.o: signals.cpp signals.hh
 	$(CPP) $(CPPFLAGS) -o signals.o signals.cpp
 
-sound.o: sound.cpp sound.hh emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh
-	$(CPP) $(CPPFLAGS) -o sound.o sound.cpp
-
-spk_ay.o: spk_ay.cpp computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh sound.hh
+spk_ay.o: spk_ay.cpp llsound.hh computer.hh screen.hh signals.hh llscreen.hh z80free/Z80free.h tape.hh emulator.hh osd.hh
 	$(CPP) $(CPPFLAGS) -o spk_ay.o spk_ay.cpp
 
 tape.o: tape.cpp z80free/Z80free.h tape.hh signals.hh emulator.hh screen.hh osd.hh computer.hh llscreen.hh

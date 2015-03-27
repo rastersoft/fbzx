@@ -22,8 +22,8 @@
 
 #include <stdlib.h>
 #include "emulator.hh"
-#include "sound.hh"
 #include "computer.hh"
+#include "llsound.hh"
 
 /* emulates the AY-3-8912 during TSTADOS tstates */
 

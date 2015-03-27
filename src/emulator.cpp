@@ -30,9 +30,9 @@
 #include "llscreen.hh"
 #include "menus.hh"
 #include "microdrive.hh"
-#include "sound.hh"
 #include "computer.hh"
 #include "cmdline.hh"
+#include "llsound.hh"
 
 char debug_var=1;
 

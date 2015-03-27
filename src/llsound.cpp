@@ -16,6 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
+#include "llsound.hh"
+
 #include <sstream>
 
 #include "z80free/Z80free.h"
@@ -28,7 +30,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
-#include "sound.hh"
 
 class LLSound *llsound;
 

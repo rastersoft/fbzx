@@ -28,10 +28,11 @@
 #include "llscreen.hh"
 #include "menus.hh"
 #include "microdrive.hh"
-#include "sound.hh"
 #include "spk_ay.hh"
 #include "tape.hh"
 #include "computer.hh"
+
+#include "llsound.hh"
 #include "z80free/Z80free.h"
 
 class computer *ordenador;
