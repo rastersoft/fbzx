@@ -473,6 +473,14 @@ class TAPBlock : public FullBlock {
 
 public:
 
+	TAPBlock() {
+
+	}
+
+	TAPBlock(uint8_t *data, uint16_t size) {
+
+	}
+
 	~TAPBlock() {
 		if (this->data != NULL) {
 			delete[](this->data);
@@ -535,6 +543,13 @@ public:
 class TZXBlock : public FullBlock {
 
 public:
+
+	TZXBlock() {
+	}
+
+	TZXBlock(uint8_t *data, uint16_t size) {
+
+	}
 
 	~TZXBlock() {
 		if (this->data != NULL) {
@@ -1178,6 +1193,7 @@ Tape::Tape() {
 	this->paused = true;
 	this->block_accesed = false;
 	this->tzx = false;
+	this->current_file = "";
 }
 
 Tape::~Tape() {
@@ -1205,8 +1221,10 @@ bool Tape::load_file(string filename) {
 
 	char char_id[10];
 	this->delete_blocks();
+	bool retval;
 
 	this->paused = true;
+	this->current_file = "";
 	ifstream file (filename.c_str(),ios::in|ios::binary);
 
 	if (!file.is_open()) {
@@ -1216,10 +1234,18 @@ bool Tape::load_file(string filename) {
 	file.close();
 	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
 		this->tzx = true;
-		return this->load_tzx(filename);
+		retval = this->load_tzx(filename);
+		if (!retval) {
+			this->current_file = filename;
+		}
+		return retval;
 	} else {
 		this->tzx = false;
-		return this->load_tap(filename);
+		retval = this->load_tap(filename);
+		if (!retval) {
+			this->current_file = filename;
+		}
+		return retval;
 	}
 }
 
@@ -1430,10 +1456,26 @@ void Tape:: save_file(string filename) {
 	if (this->blocks != NULL) {
 		ofstream *file = new ofstream(filename.c_str(),ios::out|ios::binary|ios::trunc);
 		if (this->tzx) {
-			file->write("ZXTape!\032\001\012",10); // TZX header
+			file->write("ZXTape!\032\001\024",10); // TZX header
 		}
 		this->blocks->save_block(file);
 		file->close();
 		delete file;
 	}
+}
+
+bool Tape::add_block(uint8_t *data, uint16_t size) {
+
+	class TapeBlock *block;
+
+	if (this->current_file == "") {
+		return true;
+	}
+	if (this->tzx) {
+		return true;
+	}
+	block = new TAPBlock(data,size);
+	this->add_block(block);
+	this->save_file(this->current_file);
+	return false;
 }

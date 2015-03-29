@@ -469,14 +469,9 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
-		/*if((!ordenador->mdr_paged)&&(PC==0x04C2)&&(ordenador->tape_write==1)&&(ordenador->tape_file_type==TAP_TAP)) {
-			if(ordenador->tap_file!=NULL)
-				save_file(ordenador->tap_file);
-			else {
-				sprintf(ordenador->osd_text,"No TAP file selected");
-				ordenador->osd_time=50;
-			}
-		}*/
+		if((!ordenador->mdr_paged)&&(PC==0x04C2)&&(ordenador->tape_write==1)) {
+			OOTape->add_block();
+		}
 		
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */
@@ -539,7 +534,9 @@ void do_fast_load() {
 		break;
 		case FASTLOAD_NO_BLOCK:
 			ordenador->other_ret = 0;	// next instruction must NOT be RET
-			osd->set_message("Can't do fast load. Press F6 to play",2000);
+			if (OOTape->get_pause()) {
+				osd->set_message("Can't do fast load. Press F6 to play",2000);
+			}
 			return;
 		break;
 		case FASTLOAD_END_TAPE:

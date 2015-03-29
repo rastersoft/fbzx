@@ -52,6 +52,7 @@ class Tape : public Signals {
 	void delete_blocks();
 	bool load_tap(string);
 	bool load_tzx(string);
+	string current_file;
 public:
 	Tape();
 	~Tape();
@@ -106,8 +107,17 @@ public:
 
 	/**
 	 * Saves in disk the current tape
+	 * @param filename The path to the file to create/overwrite
 	 */
-	void save_file(string);
+	void save_file(string filename);
+
+	/**
+	 * Adds a new standard block to the end of the current tape
+	 * @param data Pointer to the data to store
+	 * @param size The size of the block
+	 * @return FALSE if all went fine; TRUE if there was an error
+	 */
+	bool add_block(uint8_t *data,uint16_t size);
 };
 
 #endif /* SRC_TAPE_HPP_ */

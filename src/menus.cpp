@@ -543,15 +543,15 @@ void taps_menu() {
 
 		llscreen->print_string("1: \001\017select a TAP/TZX file",14,4,12,0);
 
-		llscreen->print_string("2: \001\017rewind TAP/TZX file",14,6,12,0);
+		llscreen->print_string("2: \001\017rewind TAP/TZX file",320,4,12,0);
 
-		llscreen->print_string("3: \001\017fast/normal speed",14,8,12,0);
+		llscreen->print_string("3: \001\017fast/normal speed",14,6,12,0);
 
-		llscreen->print_string("4: \001\017write protection",14,10,12,0);
+		llscreen->print_string("4: \001\017write protection",320,6,12,0);
 
-		llscreen->print_string("5: \001\017create empty TAP file",14,12,12,0);
+		llscreen->print_string("5: \001\017create empty TAP file",14,8,12,0);
 
-		llscreen->print_string("ESC: \001\017return to emulator",14,16,12,0);
+		llscreen->print_string("ESC: \001\017return to emulator",14,12,12,0);
 
 		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
 		llscreen->print_string(ordenador->current_tap,-1,20,15,0);
