@@ -460,14 +460,8 @@ int main(int argc,char *argv[]) {
 
 		if((!ordenador->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load)) {
 			if(ordenador->current_tap != "") {
-				byte iff1 = procesador.IFF1;
-				byte iff2 = procesador.IFF2;
-				procesador.Rm.br.F &= ~F_Z;
-				procesador.IFF1 = 0;
-				procesador.IFF2 = 0;
+				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();
-				procesador.IFF1 = iff1;
-				procesador.IFF2 = iff2;
 			} else {
 				osd->set_message("No TAP/TZX file selected",1000);
 			}
