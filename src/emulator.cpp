@@ -596,11 +596,9 @@ void do_fast_load() {
 				counter++;
 				size--;
 			}
-			printf("\n");
 			if (size == 0) {
 				if (procesador.Rm.wr.DE == 0) {
 					procesador.Rm.br.F |= (F_C);	// Load OK
-					printf("Load OK\n");
 					ordenador->other_ret = 1;	// next instruction must be RET
 					return;
 				}
