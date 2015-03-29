@@ -40,7 +40,6 @@ private:
 protected:
 	bool read_8bit(ifstream *file, uint8_t &value) {
 		uint8_t data;
-		size_t retval;
 
 		file->read((char*)&data, 1);
 		if (file->eof()) {
@@ -48,6 +47,12 @@ protected:
 			return true;
 		}
 		value = data;
+		return false;
+	}
+
+	bool write_8bit(ofstream *file, uint8_t value) {
+
+		file->write((char*)&value, 1);
 		return false;
 	}
 
@@ -65,6 +70,17 @@ protected:
 		return false;
 	}
 
+	bool write_16bit(ofstream *file, uint16_t value) {
+
+		uint8_t data[2];
+		size_t retval;
+
+		data[0] = (uint8_t)(value%256);
+		data[1] = (uint8_t)(value/256);
+		file->write((char*)data, 2);
+		return false;
+	}
+
 	bool read_24bit(ifstream *file, uint32_t &value) {
 
 		uint8_t data[3];
@@ -76,6 +92,18 @@ protected:
 			return true;
 		}
 		value = ((uint32_t) data[0]) + 256 * ((uint32_t) data[1]) + 65536 * ((uint32_t) data[2]);
+		return false;
+	}
+
+	bool write_24bit(ofstream *file, uint32_t value) {
+
+		uint8_t data[3];
+		size_t retval;
+
+		data[0] = (uint8_t)(value%256);
+		data[1] = (uint8_t)((value/256)%256);
+		data[2] = (uint8_t)(value/65536);
+		file->write((char*)data, 3);
 		return false;
 	}
 
@@ -95,6 +123,20 @@ protected:
 		}
 		data[length] = 0;
 		value = data;
+		return false;
+	}
+
+	bool write_string(ofstream *file, string value) {
+
+		uint8_t length;
+		char data[256];
+		size_t retval;
+
+		length = (uint8_t) value.length();
+		if (this->write_8bit(file,length)) {
+			return true;
+		}
+		file->write(value.c_str(), length);
 		return false;
 	}
 
@@ -121,6 +163,8 @@ public:
 	virtual bool load_block(ifstream *) {
 		return false;
 	}
+
+	virtual bool save_block(ofstream *) = 0;
 
 	virtual bool fast_load(uint8_t *data, uint16_t &size, uint8_t &flag) {
 		size = 0;
@@ -207,6 +251,18 @@ private:
 	uint16_t counter;
 	class TapeBlock *loop;
 public:
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x25)) { // block ID
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
+
 	virtual bool next_bit() {
 		return false;
 	}
@@ -235,6 +291,21 @@ private:
 	uint16_t loop;
 	class EndLoopBlock *endblock;
 public:
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x24)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->loop)) {
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 
 	bool load_block(ifstream *file) {
 
@@ -407,6 +478,20 @@ public:
 			delete[](this->data);
 		}
 	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_16bit(file, uint16_t(this->data_size))) {
+			return true;
+		}
+		file->write((char *)this->data,this->data_size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
+
 	bool load_block(ifstream *file) {
 
 		uint16_t size;
@@ -499,6 +584,25 @@ public:
 		this->set_state(TURBOBLOCK_GUIDE);
 		return false;
 	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x10)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, uint16_t(this->pause))) {
+			return true;
+		}
+		if (this->write_16bit(file, uint16_t(this->data_size))) {
+			return true;
+		}
+		file->write((char *)this->data,this->data_size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 };
 
 class TurboBlock : public FullBlock {
@@ -507,6 +611,46 @@ public:
 	~TurboBlock() {
 		if (this->data != NULL) {
 			delete[](this->data);
+		}
+	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x11)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->pilot)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->sync0)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->sync1)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->zero)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->one)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->lpilot)) {
+			return true;
+		}
+		if (this->write_8bit(file, this->bits_at_end)) {
+			return true;
+		}
+		if (this->write_16bit(file, uint16_t(this->pause))) {
+			return true;
+		}
+		if (this->write_24bit(file, this->data_size)) {
+			return true;
+		}
+		file->write((char *)this->data,this->data_size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
 		}
 	}
 
@@ -589,6 +733,34 @@ public:
 	~PureDataBlock() {
 		if (this->data != NULL) {
 			delete[](this->data);
+		}
+	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x14)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->zero)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->one)) {
+			return true;
+		}
+		if (this->write_8bit(file, this->bits_at_end)) {
+			return true;
+		}
+		if (this->write_16bit(file, uint16_t(this->pause))) {
+			return true;
+		}
+		if (this->write_24bit(file, this->data_size)) {
+			return true;
+		}
+		file->write((char *)this->data,this->data_size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
 		}
 	}
 	bool load_block (ifstream *file) {
@@ -683,6 +855,23 @@ class ToneBlock : public TapeBlock {
 
 public:
 
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x12)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->pilot)) {
+			return true;
+		}
+		if (this->write_16bit(file, this->lpilot)) {
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 	bool load_block(ifstream *file) {
 
 		// read pilot pulse duration
@@ -731,6 +920,23 @@ class PulsesBlock : public TapeBlock {
 
 public:
 
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x13)) { // block ID
+			return true;
+		}
+		if (this->write_8bit(file, this->npulses)) {
+			return true;
+		}
+		for (int i=0; i<this->npulses; i++) {
+			this->write_16bit(file,this->pulses[i]);
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 	bool load_block(ifstream *file) {
 
 		uint8_t loop;
@@ -785,6 +991,20 @@ public:
 		this->tape = tape;
 	}
 
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x20)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->length)) {
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 	bool read_block(ifstream *file) {
 
 		uint16_t length;
@@ -820,6 +1040,17 @@ public:
 		this->tape = tape;
 	}
 
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x2A)) { // block ID
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 	bool next_bit() {
 
 		this->tape->send_pause_signal48k();
@@ -832,6 +1063,21 @@ class GroupStartBlock : public TapeBlock {
 	string name;
 
 public:
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x21)) { // block ID
+			return true;
+		}
+		if (this->write_string(file, this->name)) {
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 
 	bool load_block(ifstream *file) {
 
@@ -856,7 +1102,17 @@ public:
 
 	GroupEndBlock() {
 	}
+	bool save_block(ofstream *file) {
 
+		if (this->write_8bit(file,0x22)) { // block ID
+			return true;
+		}
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
 	bool next_bit() {
 		return false;
 	}
@@ -877,6 +1133,22 @@ public:
 	~InfoBlock() {
 		if (this->data != NULL) {
 			delete[](this->data);
+		}
+	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x32)) { // block ID
+			return true;
+		}
+		if (this->write_16bit(file, this->size)) {
+			return true;
+		}
+		file->write((char*)this->data,this->size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
 		}
 	}
 
@@ -1152,4 +1424,16 @@ void Tape::send_pause_signal() {
 
 void Tape::send_pause_signal48k() {
 	this->send_signal("pause_tape_48k");
+}
+
+void Tape:: save_file(string filename) {
+	if (this->blocks != NULL) {
+		ofstream *file = new ofstream(filename.c_str(),ios::out|ios::binary|ios::trunc);
+		if (this->tzx) {
+			file->write("ZXTape!\032\001\012",10); // TZX header
+		}
+		this->blocks->save_block(file);
+		file->close();
+		delete file;
+	}
 }

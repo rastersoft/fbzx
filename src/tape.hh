@@ -55,17 +55,20 @@ class Tape : public Signals {
 public:
 	Tape();
 	~Tape();
+
 	/**
 	 * Emulates the tape for an specified amount of time
 	 * @param tstates The number of tstates to emulate
 	 */
 	void play(uint32_t tstates);
+
 	/**
 	 * Loads a TAP or TZX file. It also pauses the tape.
 	 * @param filename The full path to the file
 	 * @return TRUE if there was an error; FALSE if the file was loaded fine
 	 */
 	bool load_file(string);
+
 	/**
 	 * Pauses or releases the tape emulation
 	 * @param pause TRUE to pause the tape, FALSE to release it
@@ -77,15 +80,18 @@ public:
 	 * @return TRUE if paused; FALSE if not paused
 	 */
 	bool get_pause();
+
 	/**
 	 * Reads the current signal being "emited" by the tape.
 	 * @return the current signal value, which can be 0 or 1.
 	 */
 	uint8_t read_signal();
+
 	/**
 	 * Rewinds the tape, putting it at the start, ready to begin again.
 	 */
 	void rewind();
+
 	/**
 	 * Tries to fast-read the next block in the tape
 	 * @param data Where to return the block's data
@@ -97,6 +103,11 @@ public:
 
 	void send_pause_signal();
 	void send_pause_signal48k();
+
+	/**
+	 * Saves in disk the current tape
+	 */
+	void save_file(string);
 };
 
 #endif /* SRC_TAPE_HPP_ */
