@@ -477,9 +477,10 @@ public:
 
 	}
 
-	TAPBlock(uint8_t *data, uint16_t size) {
+	TAPBlock(uint8_t *data, uint16_t size) : FullBlock() {
 
 		size_t retval;
+		this->next = NULL;
 
 		this->data = new uint8_t[size];
 		memcpy(this->data, data, size);
@@ -1502,6 +1503,11 @@ bool Tape::add_block(uint8_t *data, uint16_t size) {
 	}
 	block = new TAPBlock(data,size);
 	this->add_block(block);
+	if (this->current_block == NULL) {
+		this->current_block = this->blocks;
+		this->block_accesed = false;
+	}
+	block->reset();
 	this->save_file(this->current_file);
 	return false;
 }

@@ -49,6 +49,7 @@ public:
 	bool bw;
 
 	bool contended_zone; // 0-> no contention; 1-> contention possible
+	bool no_contention;
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 
 	// Linux joystick private global variables

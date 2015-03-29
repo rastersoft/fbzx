@@ -81,6 +81,7 @@ computer::computer() {
 	this->ay_envel_way = 0;
 
 	this->contended_zone = false;
+	this->no_contention = false;
 	this->cicles_counter=0;
 
 	this->tstados_counter_sound = 0;
@@ -144,8 +145,9 @@ void computer::emulate (int tstados) {
 
 void computer::do_contention() {
 
-	if (!this->contended_zone)
+	if ((!this->contended_zone) || (this->no_contention)) {
 		return;
+	}
 
 	if (this->cicles_counter<14335) {
 		return;

@@ -164,6 +164,9 @@ void Screen::set_memory_pointers () {
 			ordenador->block0 = ordenador->memoria + (16384 * rom);
 			ordenador->page48k = (rom==3) ? 1 : 0; // 48K ROM is in ROM page 3
 		}
+	} else if (ordenador->mode128k == 0) {
+		ordenador->block0 = ordenador->memoria;
+		ordenador->page48k = 1;
 	} else {			// ROMs for 128K/+2 mode
 		if (ordenador->mport1 & 0x10) {
 			ordenador->block0 = ordenador->memoria + 16384;

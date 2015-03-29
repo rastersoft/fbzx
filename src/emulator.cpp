@@ -256,7 +256,6 @@ void load_config(struct computer *object) {
 			continue;
 		}
 		if (!strncmp(line,"mode=",5)) {
-			printf("Cambio a modo %d\n",line[5]-'0');
 			mode128k=line[5]-'0';
 			continue;
 		}
@@ -445,31 +444,40 @@ int main(int argc,char *argv[]) {
 	while(salir) {
 
 		do {
+			ordenador->no_contention = false;
 			tstados=Z80free_ustep(&procesador);
+			ordenador->no_contention = true;
 			if(tstados<0) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
 			}
 			ordenador->emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
 		} while(procesador.Status!=Z80XX);
-			
 		PC=procesador.PC;
 				
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
+		if((!ordenador->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load)) {
 			if(ordenador->current_tap != "") {
+				byte iff1 = procesador.IFF1;
+				byte iff2 = procesador.IFF2;
+				procesador.Rm.br.F &= ~F_Z;
+				procesador.IFF1 = 0;
+				procesador.IFF2 = 0;
 				do_fast_load();
+				procesador.IFF1 = iff1;
+				procesador.IFF2 = iff2;
 			} else {
 				osd->set_message("No TAP/TZX file selected",1000);
 			}
+			continue;
 		}
 		
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
-		if((!ordenador->mdr_paged)&&(PC==0x04C2)&&(ordenador->tape_write==1)) {
+		if((!ordenador->mdr_paged) && (PC==0x04C2) && (ordenador->tape_write==1)) {
 
 			uint8_t *data;
 			uint8_t op_xor;
@@ -502,9 +510,8 @@ int main(int argc,char *argv[]) {
 			procesador.Rm.wr.IX++;
 			procesador.Rm.wr.IX++;
 			OOTape->add_block(data,length);
-			if(ordenador->tape_fast_load==1) { //if we want fast load, we assume we want fast save too
-				ordenador->other_ret = 1;	// next instruction must be RET
-			}
+			ordenador->other_ret = 1;	// next instruction must be RET
+			continue;
 		}
 		
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
@@ -538,15 +545,11 @@ int main(int argc,char *argv[]) {
 
 void do_fast_load() {
 
-	ordenador->other_ret = 1;	// next instruction must be RET
-
-	procesador.Rm.br.F &= ~F_Z;
-	procesador.IFF1 = 0;
-	procesador.IFF2 = 0;
 	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
 		procesador.Rm.br.F |= F_C;	 // verify OK
 		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 		procesador.Rm.wr.DE = 0;
+		ordenador->other_ret = 1;	// next instruction must be RET
 		return;
 	}
 
@@ -564,13 +567,14 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("No tape selected",2000);
+			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		break;
 		case FASTLOAD_NO_BLOCK:
-			ordenador->other_ret = 0;	// next instruction must NOT be RET
 			if (OOTape->get_pause()) {
 				osd->set_message("Can't do fast load. Press F6 to play",2000);
 			}
+			ordenador->other_ret = 0;	// next instruction must NOT be RET
 			return;
 		break;
 		case FASTLOAD_END_TAPE:
@@ -578,6 +582,7 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("End of tape. Rewind it.",2000);
+			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		case FASTLOAD_OK:
 			counter = 0;
@@ -591,14 +596,17 @@ void do_fast_load() {
 				counter++;
 				size--;
 			}
+			printf("\n");
 			if (size == 0) {
 				if (procesador.Rm.wr.DE == 0) {
 					procesador.Rm.br.F |= (F_C);	// Load OK
+					printf("Load OK\n");
+					ordenador->other_ret = 1;	// next instruction must be RET
 					return;
 				}
 			}
 			procesador.Rm.br.F &= (~F_C);	// Load error
-			printf("Error %d %d\n",size,procesador.Rm.wr.DE);
+			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		break;
 		case FASTLOAD_NO_FLAG:
