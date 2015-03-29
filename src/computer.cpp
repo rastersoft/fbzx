@@ -50,7 +50,10 @@ computer::computer() {
 	this->port254 = 0;
 	this->issue = 3;
 	this->mode128k = 0;
+	this->turbo = false;
+	this->sound_bit = 0;
 
+	this->tape_write = false;
 	this->tape_fast_load = true; // fast load by default
 
 	this->other_ret = 0;

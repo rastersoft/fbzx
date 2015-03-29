@@ -329,10 +329,10 @@ void settings_menu() {
 		case SDLK_t:
 			if(ordenador->turbo){
 				llsound->tst_sample = 3500000 / llsound->freq;
-				ordenador->turbo = 0;
+				ordenador->turbo = false;
 			} else {
 				llsound->tst_sample = 100000000 / llsound->freq;
-				ordenador->turbo = 1;
+				ordenador->turbo = true;
 			}
 		}
 	} while(fin);

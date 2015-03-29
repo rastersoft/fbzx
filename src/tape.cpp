@@ -27,8 +27,8 @@
 #include "tape.hh"
 #include "z80free/Z80free.h"
 
-#include <stdio.h>
-#include <string.h>
+#include <iostream>
+#include <fstream>
 
 class Tape *OOTape; // Tape object
 
@@ -38,48 +38,48 @@ private:
 	uint8_t signal;
 
 protected:
-	bool read_8bit(FILE *file, uint8_t &value) {
+	bool read_8bit(ifstream *file, uint8_t &value) {
 		uint8_t data;
 		size_t retval;
 
-		retval = fread (&data, 1, 1, file);
-		if (retval < 1) {
-			fclose(file); // end-of-file
+		file->read((char*)&data, 1);
+		if (file->eof()) {
+			file->close(); // end-of-file
 			return true;
 		}
 		value = data;
 		return false;
 	}
 
-	bool read_16bit(FILE *file, uint16_t &value) {
+	bool read_16bit(ifstream *file, uint16_t &value) {
 
 		uint8_t data[2];
 		size_t retval;
 
-		retval = fread (data, 2, 1, file);
-		if (retval < 1) {
-			fclose(file); // end-of-file
+		file->read((char*)data, 2);
+		if (file->eof()) {
+			file->close(); // end-of-file
 			return true;
 		}
 		value = ((uint16_t) data[0]) + 256 * ((uint16_t) data[1]);
 		return false;
 	}
 
-	bool read_24bit(FILE *file, uint32_t &value) {
+	bool read_24bit(ifstream *file, uint32_t &value) {
 
 		uint8_t data[3];
 		size_t retval;
 
-		retval = fread (data, 3, 1, file);
-		if (retval < 1) {
-			fclose(file); // end-of-file
+		file->read((char*)data, 3);
+		if (file->eof()) {
+			file->close(); // end-of-file
 			return true;
 		}
 		value = ((uint32_t) data[0]) + 256 * ((uint32_t) data[1]) + 65536 * ((uint32_t) data[2]);
 		return false;
 	}
 
-	bool read_string(FILE *file, string &value) {
+	bool read_string(ifstream *file, string &value) {
 
 		uint8_t length;
 		char data[256];
@@ -88,9 +88,9 @@ protected:
 		if (this->read_8bit(file,length)) {
 			return true;
 		}
-		retval = fread (data, length, 1, file);
-		if (retval < 1) {
-			fclose(file); // end-of-file
+		file->read(data, length);
+		if (file->eof()) {
+			file->close(); // end-of-file
 			return true;
 		}
 		data[length] = 0;
@@ -118,7 +118,7 @@ public:
 		}
 	}
 
-	virtual bool load_block(FILE *) {
+	virtual bool load_block(ifstream *) {
 		return false;
 	}
 
@@ -236,7 +236,7 @@ private:
 	class EndLoopBlock *endblock;
 public:
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		// read repetitions
 		if (this->read_16bit(file,this->loop)) {
@@ -407,7 +407,7 @@ public:
 			delete[](this->data);
 		}
 	}
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		uint16_t size;
 		size_t retval;
@@ -416,9 +416,9 @@ public:
 			return true;
 		}
 		this->data = new uint8_t[size];
-		retval = fread (this->data, size, 1, file);
-		if (retval != 1) {
-			fclose(file);
+		file->read ((char*)this->data, size);
+		if (file->eof()) {
+			file->close();
 			return (true); // end-of-file and error
 		}
 
@@ -456,7 +456,7 @@ public:
 			delete[](this->data);
 		}
 	}
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		uint16_t size;
 		uint16_t pause;
@@ -471,9 +471,9 @@ public:
 			return true;
 		}
 		this->data = new uint8_t[size];
-		retval = fread (this->data, size, 1, file);
-		if (retval != 1) {
-			fclose(file);
+		file->read ((char*)this->data, size);
+		if (file->eof()) {
+			file->close();
 			return (true); // end-of-file and error
 		}
 		this->allow_fast_load = false;
@@ -510,7 +510,7 @@ public:
 		}
 	}
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		size_t retval;
 		uint16_t pause;
@@ -554,9 +554,9 @@ public:
 		this->allow_fast_load = false;
 
 		this->data = new uint8_t[this->data_size];
-		retval = fread (this->data, this->data_size, 1, file);
-		if (retval != 1) {
-			fclose(file);
+		file->read ((char*)this->data, this->data_size);
+		if (file->eof()) {
+			file->close();
 			return (true); // end-of-file and error
 		}
 
@@ -591,7 +591,7 @@ public:
 			delete[](this->data);
 		}
 	}
-	bool load_block (FILE *file) {
+	bool load_block (ifstream *file) {
 
 		int loop;
 		uint16_t lpause;
@@ -683,7 +683,7 @@ class ToneBlock : public TapeBlock {
 
 public:
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		// read pilot pulse duration
 		if (this->read_16bit(file,this->pilot)) {
@@ -731,7 +731,7 @@ class PulsesBlock : public TapeBlock {
 
 public:
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		uint8_t loop;
 		uint16_t pulses[255];
@@ -785,7 +785,7 @@ public:
 		this->tape = tape;
 	}
 
-	bool read_block(FILE *file) {
+	bool read_block(ifstream *file) {
 
 		uint16_t length;
 		// read pilot pulse duration
@@ -833,7 +833,7 @@ class GroupStartBlock : public TapeBlock {
 
 public:
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		if (this->read_string(file,this->name)) {
 			return true;
@@ -880,7 +880,7 @@ public:
 		}
 	}
 
-	bool load_block(FILE *file) {
+	bool load_block(ifstream *file) {
 
 		size_t retval;
 
@@ -888,8 +888,8 @@ public:
 			return true;
 		}
 		this->data = new uint8_t[this->size];
-		retval = fread(this->data,this->size,1,file);
-		if (retval != 1) {
+		file->read((char*)this->data,this->size);
+		if (file->eof()) {
 			return true;
 		}
 		return false;
@@ -905,6 +905,7 @@ Tape::Tape() {
 	this->current_block = NULL;
 	this->paused = true;
 	this->block_accesed = false;
+	this->tzx = false;
 }
 
 Tape::~Tape() {
@@ -934,26 +935,30 @@ bool Tape::load_file(string filename) {
 	this->delete_blocks();
 
 	this->paused = true;
-	FILE *file = fopen(filename.c_str(),"rb");
-	if (file == NULL) {
+	ifstream file (filename.c_str(),ios::in|ios::binary);
+
+	if (!file.is_open()) {
 		return true; // error while opening the file
 	}
-	fread(char_id,10,1,file); // read the (maybe) TZX header
-	fclose(file);
+	file.read(char_id,10); // read the (maybe) TZX header
+	file.close();
 	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
+		this->tzx = true;
 		return this->load_tzx(filename);
 	} else {
+		this->tzx = false;
 		return this->load_tap(filename);
 	}
 }
 
 bool Tape::load_tap(string filename) {
 
-	FILE *file;
+	ifstream *file;
 	class TAPBlock *block;
 
-	file = fopen(filename.c_str(),"rb");
-	if (file == NULL) {
+	file = new ifstream(filename.c_str(),ios::in|ios::binary);
+	if (!file->is_open()) {
+		delete (file);
 		return true; // error while opening the file
 	}
 	do {
@@ -967,26 +972,28 @@ bool Tape::load_tap(string filename) {
 	} while(true);
 
 	this->current_block = this->blocks;
+	delete file;
 	return false;
 }
 
 bool Tape::load_tzx(string filename) {
 
-	FILE *file;
+	ifstream *file;
 	uint8_t block_type;
 	uint8_t tmpdata[10];
 	size_t retval;
 	class TapeBlock *block;
 
-	file = fopen(filename.c_str(),"rb");
-	if (file == NULL) {
+	file = new ifstream(filename.c_str(),ios::in|ios::binary);
+	if (!file->is_open()) {
+		delete (file);
 		return true; // error while opening the file
 	}
-	fread(tmpdata,10,1,file); // read TZX header
+	file->read((char*)tmpdata,10); // read TZX header
 	while(true) {
 		// read block type
-		retval = fread (&block_type, 1, 1, file);
-		if (retval < 1) {
+		file->read ((char*)&block_type, 1);
+		if (file->eof()) {
 			break; // end-of-file
 		}
 		switch(block_type) {
@@ -1025,16 +1032,21 @@ bool Tape::load_tzx(string filename) {
 		break;
 		default:
 			printf("Block unknown: %X\n",block_type);
+			file->close();
+			delete (file);
 			return true;
 		break;
 		}
 		if (block->load_block(file)) {
+			file->close();
+			delete (file);
 			return true;
 		}
 		this->add_block(block);
 	}
 
-	fclose(file);
+	file->close();
+	delete (file);
 	this->current_block = this->blocks;
 	return false;
 }
@@ -1092,7 +1104,9 @@ void Tape::rewind() {
 
 void Tape::set_pause(bool pause) {
 	this->paused = pause;
-	osd->set_message("Tape paused",2000);
+	if (pause) {
+		osd->set_message("Tape paused",2000);
+	}
 }
 
 bool Tape::get_pause() {

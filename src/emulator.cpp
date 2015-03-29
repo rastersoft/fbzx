@@ -43,58 +43,59 @@ char path_snaps[2049];
 char path_taps[2049];
 char path_mdrs[2049];
 unsigned int jump_frames, curr_frames;
-char *filenames[5];
+string filenames[5];
 
-char *load_a_rom(char **filenames) {
+string load_a_rom(string *filenames) {
 	
-	char **pointer;
+	string *pointer;
 	int offset=0;
-	FILE *fichero;
+	ifstream *fichero;
 
-	for(pointer=filenames;*pointer!=NULL;pointer++) {
-		fichero=llscreen->myfopen(*pointer,"r");
-		if(fichero==NULL) {
+	for(pointer=filenames; *pointer != ""; pointer++) {
+		fichero=llscreen->myfopen(*pointer,ios::in|ios::binary);
+		if(fichero == NULL) {
 			return (*pointer);
 		}
-		fread(ordenador->memoria+offset,16384,1,fichero);
+		fichero->read((char*)ordenador->memoria+offset,16384);
 		offset+=16384;
-		fclose(fichero);
+		fichero->close();
+		delete fichero;
 	}
-	return (NULL);
+	return "";
 }
 
 void load_rom(char type) {
 
-	char *retval;
-	FILE *fichero;
+	string retval;
+	ifstream *fichero;
 
 	switch(type) {
 	case 0:
 		filenames[0]="spectrum-roms/48.rom";
-		filenames[1]=NULL;
+		filenames[1]="";
 		retval=load_a_rom(filenames);
-		if (retval) {
-			printf("Can't load file %s\n",retval);
+		if (retval != "") {
+			printf("Can't load file %s\n",retval.c_str());
 			exit(1);
 		}
 	break;
 	case 1:
 		filenames[0]="spectrum-roms/128-0.rom";
 		filenames[1]="spectrum-roms/128-1.rom";
-		filenames[2]=NULL;
+		filenames[2]="";
 		retval=load_a_rom(filenames);
-		if (retval) {
-			printf("Can't load file %s\n",retval);
+		if (retval != "") {
+			printf("Can't load file %s\n",retval.c_str());
 			exit(1);
 		}
 	break;
 	case 2:
 		filenames[0]="spectrum-roms/plus2-0.rom";
 		filenames[1]="spectrum-roms/plus2-1.rom";
-		filenames[2]=NULL;
+		filenames[2]="";
 		retval=load_a_rom(filenames);
-		if (retval) {
-			printf("Can't load file %s\n",retval);
+		if (retval != "") {
+			printf("Can't load file %s\n",retval.c_str());
 			exit(1);
 		}
 	break;
@@ -105,26 +106,26 @@ void load_rom(char type) {
 		filenames[1]="spectrum-roms/plus3-41-1.rom";
 		filenames[2]="spectrum-roms/plus3-41-2.rom";
 		filenames[3]="spectrum-roms/plus3-41-3.rom";
-		filenames[4]=NULL;
+		filenames[4]="";
 		retval=load_a_rom(filenames);
-		if (retval) {
+		if (retval != "") {
 			printf("Can't load the Spectrum +3 ROM version 4.1. Trying with version 4.0\n");
 			filenames[0]="spectrum-roms/plus3-40-0.rom";
 			filenames[1]="spectrum-roms/plus3-40-1.rom";
 			filenames[2]="spectrum-roms/plus3-40-2.rom";
 			filenames[3]="spectrum-roms/plus3-40-3.rom";
-			filenames[4]=NULL;
+			filenames[4]="";
 			retval=load_a_rom(filenames);
-			if (retval) {
+			if (retval != "") {
 				printf("Can't load the Spectrum +3 ROM version 4.0. Trying with legacy filenames\n");
 				filenames[0]="spectrum-roms/plus3-0.rom";
 				filenames[1]="spectrum-roms/plus3-1.rom";
 				filenames[2]="spectrum-roms/plus3-2.rom";
 				filenames[3]="spectrum-roms/plus3-3.rom";
-				filenames[4]=NULL;
+				filenames[4]="";
 				retval=load_a_rom(filenames);
-				if (retval) {
-					printf("Can't load file %s\n",retval);
+				if (retval != "") {
+					printf("Can't load file %s\n",retval.c_str());
 					exit(1);
 				}
 			}
@@ -133,26 +134,29 @@ void load_rom(char type) {
 	case 4:
 		filenames[0]="spectrum-roms/128-spanish-0.rom";
 		filenames[1]="spectrum-roms/128-spanish-1.rom";
-		filenames[2]=NULL;
+		filenames[2]="";
 		retval=load_a_rom(filenames);
-		if (retval) {
-			printf("Can't load file %s\n",retval);
+		if (retval != "") {
+			printf("Can't load file %s\n",retval.c_str());
 			exit(1);
 		}
 	break;
 	}
   
-	fichero=llscreen->myfopen("spectrum-roms/if1-2.rom","r"); // load Interface1 ROM
-	if(fichero==NULL) {
+	fichero=llscreen->myfopen("spectrum-roms/if1-2.rom",ios::in|ios::binary); // load Interface1 ROM
+	if(fichero == NULL) {
+		delete fichero;
 		// try legacy name
-		fichero=llscreen->myfopen("spectrum-roms/if1-v2.rom","r");
-		if(fichero==NULL) {
+		fichero=llscreen->myfopen("spectrum-roms/if1-v2.rom",ios::in|ios::binary);
+		if(fichero == NULL) {
+			delete fichero;
 			printf("Can't open Interface1 ROM file\n");
 			exit(1);
 		}
 	}
-	fread(ordenador->shadowrom,8192,1,fichero);
-  	fclose(fichero);
+	fichero->read((char*)ordenador->shadowrom,8192);
+  	fichero->close();
+  	delete fichero;
 }
 
 void end_system() {

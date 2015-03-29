@@ -26,6 +26,8 @@ using namespace std;
 #include <string>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
+#include <iostream>
+#include <fstream>
 
 extern struct Charset charset;
 
@@ -50,7 +52,7 @@ public:
 
 	LLScreen(int16_t resx, int16_t resy, uint8_t depth, bool fullscreen, bool dblbuffer, bool hwsurface);
 	~LLScreen();
-	FILE *myfopen(char *filename,char *mode);
+	ifstream *myfopen(string,ios_base::openmode);
 	void print_string(string message, int16_t x, int16_t y, uint8_t ink, uint8_t paper);
 	void set_paletes(bool);
 	void paint_one_pixel(uint8_t value,unsigned char *address);

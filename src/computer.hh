@@ -116,7 +116,7 @@ public:
 	unsigned char interr;
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
-	unsigned char turbo;
+	bool turbo;
 
 	computer();
 	~computer();

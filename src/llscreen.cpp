@@ -109,26 +109,29 @@ LLScreen::LLScreen(int16_t resx,int16_t resy,uint8_t depth,bool fullscreen,bool 
 	printf("Locking screen\n");
 }
 
-FILE *LLScreen::myfopen(char *filename,char *mode) {
+ifstream *LLScreen::myfopen(string filename,ios_base::openmode mode) {
 
 	char tmp[4096];
-	FILE *fichero;
+	ifstream *fichero;
 
-	fichero=fopen(filename,mode);
-	if (fichero!=NULL) {
+	fichero = new ifstream(filename.c_str(),mode);
+	if (fichero->is_open()) {
 		return (fichero);
 	}
-	sprintf(tmp,"/usr/share/%s",filename);
-	fichero=fopen(tmp,mode);
-	if (fichero!=NULL) {
+	delete(fichero);
+	sprintf(tmp,"/usr/share/%s",filename.c_str());
+	fichero = new ifstream(tmp,mode);
+	if (fichero->is_open()) {
 		return (fichero);
 	}
-	sprintf(tmp,"/usr/local/share/%s",filename);
-	fichero=fopen(tmp,mode);
-	if (fichero!=NULL) {
+	delete(fichero);
+	sprintf(tmp,"/usr/local/share/%s",filename.c_str());
+	fichero = new ifstream(tmp,mode);
+	if (fichero->is_open()) {
 		return (fichero);
 	}
-	return (NULL);
+	delete(fichero);
+	return NULL;
 }
 
 LLScreen::~LLScreen(){
@@ -469,14 +472,14 @@ uint8_t LLScreen::printchar(uint8_t carac, int16_t x, int16_t y, uint8_t color, 
 
 void LLScreen::paint_picture(string filename) {
 
-	FILE *fichero;
+	ifstream *fichero;
 	int bucle1,bucle2;
 	unsigned char *buffer,*buffer2,valor;
 
 	buffer=(unsigned char *)this->llscreen->pixels;
 
 	this->clear_screen();
-	fichero=myfopen((char *)filename.c_str(),"r");
+	fichero = myfopen(filename,ios::in|ios::binary);
 	if (fichero==NULL) {
 		osd->set_message("Keymap picture not found",2000);
 		return;
@@ -484,7 +487,7 @@ void LLScreen::paint_picture(string filename) {
 	if (!this->rotate) {
 		for (bucle1=0;bucle1<344;bucle1++)
 			for(bucle2=0;bucle2<640;bucle2++) {
-				fscanf(fichero,"%c",&valor);
+				fichero->read((char *)&valor,1);
 				paint_one_pixel(valor,buffer);
 				buffer += this->bpp;
 			}
@@ -493,14 +496,15 @@ void LLScreen::paint_picture(string filename) {
 		for(bucle1 = 0;bucle1 < 344;bucle1++) {
 			buffer2 = buffer;
 			for(bucle2 = 0;bucle2 < 640;bucle2++) {
-				fscanf(fichero,"%c",&valor);
+				fichero->read((char *)&valor,1);
 				paint_one_pixel(valor,buffer);
 				buffer += (480 * this->bpp);
 			}
 			buffer = buffer2 - this->bpp;
 		}
 	}
-
+	fichero->close();
+	delete fichero;
 }
 
 void LLScreen::clear_screen() {

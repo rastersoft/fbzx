@@ -38,19 +38,6 @@ using namespace std;
 #ifndef SRC_TAPE_HPP_
 #define SRC_TAPE_HPP_
 
-/*
-class TapeSignal {
-
-	class Tape *tape_object;
-	~TapeSignal();
-public:
-	virtual void callback_pause(bool pause) = 0;
-	void register_tape_object(class Tape *tape);
-};
-
-typedef void (TapeSignal::*signal_pause) (bool);
-*/
-
 enum FastLoadReturn {FASTLOAD_OK, FASTLOAD_NO_BLOCK, FASTLOAD_NO_TAPE, FASTLOAD_NO_FLAG, FASTLOAD_END_TAPE};
 
 class Tape : public Signals {
@@ -59,6 +46,7 @@ class Tape : public Signals {
 	class TapeBlock *current_block;
 	bool paused;
 	bool block_accesed;
+	bool tzx;
 
 	void add_block(class TapeBlock *);
 	void delete_blocks();
