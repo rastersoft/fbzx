@@ -479,6 +479,31 @@ public:
 
 	TAPBlock(uint8_t *data, uint16_t size) {
 
+		size_t retval;
+
+		this->data = new uint8_t[size];
+		memcpy(this->data, data, size);
+
+		this->allow_fast_load = true;
+		this->data_size = size;
+		this->pilot = 2168;
+		this->sync0 = 667;
+		this->sync1 = 735;
+		this->zero = 855;
+		this->one = 1710;
+		if (!(0x80 & this->data[0])) {
+			this->lpilot = 8063; // 5 seconds (aprox)
+		} else {
+			this->lpilot = 3223; // 2 seconds (aprox)
+		}
+		this->bits_at_end = 8;
+		this->pause = 1000;
+
+		this->loop = this->lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
 	}
 
 	~TAPBlock() {
@@ -1231,8 +1256,8 @@ bool Tape::load_file(string filename) {
 		return true; // error while opening the file
 	}
 	file.read(char_id,10); // read the (maybe) TZX header
-	file.close();
-	if((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1)) {
+	if (!file.eof() && ((!strncmp(char_id,"ZXTape!",7)) && (char_id[7]==0x1A)&&(char_id[8]==1))) {
+		file.close();
 		this->tzx = true;
 		retval = this->load_tzx(filename);
 		if (!retval) {
@@ -1240,6 +1265,7 @@ bool Tape::load_file(string filename) {
 		}
 		return retval;
 	} else {
+		file.close();
 		this->tzx = false;
 		retval = this->load_tap(filename);
 		if (!retval) {

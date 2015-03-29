@@ -470,7 +470,41 @@ int main(int argc,char *argv[]) {
 		we want to save to the TAP file, we do it */
 		
 		if((!ordenador->mdr_paged)&&(PC==0x04C2)&&(ordenador->tape_write==1)) {
-			OOTape->add_block();
+
+			uint8_t *data;
+			uint8_t op_xor;
+			uint8_t dato;
+			uint32_t length;
+			int pointer;
+
+			length = (uint32_t)(procesador.Rm.wr.DE);
+			length += 2;
+
+			data = new uint8_t[length];
+			pointer = 0;
+			data[pointer++] = procesador.Rm.br.A; // flag
+
+			op_xor = procesador.Rm.br.A;
+
+			salir = 0;
+			do {
+				if (procesador.Rm.wr.DE == 0)
+					salir = 2;
+				if (!salir) {
+					dato = Z80free_Rd(procesador.Rm.wr.IX); // read data
+					op_xor^=dato;
+					data[pointer++] = dato;
+					procesador.Rm.wr.IX++;
+					procesador.Rm.wr.DE--;
+				}
+			} while (!salir);
+			data[pointer] = op_xor;
+			procesador.Rm.wr.IX++;
+			procesador.Rm.wr.IX++;
+			OOTape->add_block(data,length);
+			if(ordenador->tape_fast_load==1) { //if we want fast load, we assume we want fast save too
+				ordenador->other_ret = 1;	// next instruction must be RET
+			}
 		}
 		
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
