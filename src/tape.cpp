@@ -146,7 +146,9 @@ protected:
 	uint32_t counter1;
 public:
 
+	bool has_data;
 	TapeBlock() {
+		this->has_data = true;
 		this->next = NULL;
 		this->signal = 0;
 		this->counter0 = 0;
@@ -602,7 +604,7 @@ public:
 			file->close();
 			return (true); // end-of-file and error
 		}
-		this->allow_fast_load = false;
+		this->allow_fast_load = true;
 		this->data_size = size;
 		this->pilot = 2168;
 		this->sync0 = 667;
@@ -1028,6 +1030,7 @@ class PauseBlock : public TapeBlock {
 public:
 
 	PauseBlock(Tape *tape) :TapeBlock() {
+		this->has_data = false;
 		this->length = 0;
 		this->tape = tape;
 	}
@@ -1077,7 +1080,7 @@ class Pause48Block : public TapeBlock {
 public:
 
 	Pause48Block(Tape *tape) :TapeBlock() {
-
+		this->has_data = false;
 		this->tape = tape;
 	}
 
@@ -1170,6 +1173,7 @@ public:
 	InfoBlock() {
 		this->data = NULL;
 		this->size = 0;
+		this->has_data = false;
 	}
 	~InfoBlock() {
 		if (this->data != NULL) {
@@ -1441,6 +1445,7 @@ bool Tape::get_pause() {
 enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag) {
 
 	uint8_t block_flag;
+	bool hasdata;
 
 	if (this->blocks == NULL) {
 		return FASTLOAD_NO_TAPE;
@@ -1456,12 +1461,21 @@ enum FastLoadReturn Tape::fast_read(uint8_t *data, uint16_t &length,uint8_t flag
 	}
 	this->block_accesed = false;
 
-	if (!this->current_block->fast_load(data,length,block_flag)) {
-		return FASTLOAD_NO_BLOCK;
+	hasdata = this->current_block->has_data;
+	if (hasdata) {
+
+		if (!this->current_block->fast_load(data,length,block_flag)) {
+			return FASTLOAD_NO_BLOCK;
+		}
 	}
+
 	this->current_block = this->current_block->next_block();
 	if (this->current_block != NULL) {
 		this->current_block->reset();
+	}
+
+	if (!hasdata) {
+		return FASTLOAD_NODATA;
 	}
 
 	if (block_flag != flag) {

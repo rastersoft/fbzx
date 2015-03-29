@@ -608,7 +608,9 @@ void do_fast_load() {
 			return;
 		break;
 		case FASTLOAD_NO_FLAG:
-			printf("No flag\n");
+			continue;
+		break;
+		case FASTLOAD_NODATA:
 			continue;
 		break;
 		}
