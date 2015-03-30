@@ -575,8 +575,33 @@ public:
 	TZXBlock() {
 	}
 
-	TZXBlock(uint8_t *data, uint16_t size) {
+	TZXBlock(uint8_t *data, uint16_t size) : FullBlock() {
+		size_t retval;
+		this->next = NULL;
 
+		this->data = new uint8_t[size];
+		memcpy(this->data, data, size);
+
+		this->allow_fast_load = true;
+		this->data_size = size;
+		this->pilot = 2168;
+		this->sync0 = 667;
+		this->sync1 = 735;
+		this->zero = 855;
+		this->one = 1710;
+		if (!(0x80 & this->data[0])) {
+			this->lpilot = 8063; // 5 seconds (aprox)
+		} else {
+			this->lpilot = 3223; // 2 seconds (aprox)
+		}
+		this->bits_at_end = 8;
+		this->pause = 1000;
+
+		this->loop = this->lpilot;
+		this->pointer = 0;
+		this->bit = 0x80;
+		this->bit_counter = 8;
+		this->set_state(TURBOBLOCK_GUIDE);
 	}
 
 	~TZXBlock() {
@@ -1255,6 +1280,7 @@ bool Tape::load_file(string filename) {
 
 	this->paused = true;
 	this->current_file = "";
+
 	ifstream file (filename.c_str(),ios::in|ios::binary);
 
 	if (!file.is_open()) {
@@ -1513,9 +1539,11 @@ bool Tape::add_block(uint8_t *data, uint16_t size) {
 		return true;
 	}
 	if (this->tzx) {
-		return true;
+		block = new TZXBlock(data,size);
+	} else {
+		block = new TAPBlock(data,size);
 	}
-	block = new TAPBlock(data,size);
+
 	this->add_block(block);
 	if (this->current_block == NULL) {
 		this->current_block = this->blocks;

@@ -671,6 +671,7 @@ void create_tapfile() {
 	case 0:
 		ordenador->tape_write = true; // allow to write
 		ordenador->current_tap = nombre2;
+		OOTape->load_file(nombre2);
 	break;
 	case -1:
 		llscreen->print_string("File already exists",-1,5,10,0);
