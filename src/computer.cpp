@@ -51,43 +51,18 @@ computer::computer() {
 	this->issue = 3;
 	this->mode128k = 0;
 	this->turbo = false;
-	this->sound_bit = 0;
 
 	this->tape_write = false;
 	this->tape_fast_load = true; // fast load by default
 
 	this->other_ret = 0;
 
-	for (bucle = 0; bucle < 16; bucle++)
-		this->ay_registers[bucle] = 0;
-
-	this->ay_emul = 0;
-	this->aych_a = 0;
-	this->aych_b = 0;
-	this->aych_c = 0;
-	this->aych_n = 0;
-	this->aych_envel = 0;
-	this->vol_a = 0;
-	this->vol_b = 0;
-	this->vol_c = 0;
-	this->tst_ay = 0;
-	this->tst_ay2 = 0;
-
-	this->ayval_a = 0;
-	this->ayval_b = 0;
-	this->ayval_c = 0;
-	this->ayval_n = 0;
-	this->ay_envel_value = 0;
-	this->ay_envel_way = 0;
+	this->sound_bit = 0;
 
 	this->contended_zone = false;
 	this->no_contention = false;
 	this->cicles_counter=0;
 
-	this->tstados_counter_sound = 0;
-	this->num_buff = 0;	// first buffer
-	this->sound_cuantity = 0;
-	this->sound_current_value = 0;
 	this->interr = 0;
 
 	OOTape->register_signal("pause_tape",this);
@@ -128,8 +103,8 @@ byte computer::bus_empty () {
 void computer::emulate (int tstados) {
 
 	screen->show_screen (tstados);
-	play_ay (tstados);
-	play_sound (tstados);
+	spk_ay->play_ay (tstados);
+	spk_ay->play_sound (tstados);
 	OOTape->play(tstados);
 	microdrive->emulate(tstados);
 
@@ -173,19 +148,7 @@ void ResetComputer () {
 	Z80free_reset (&procesador);
 	load_rom (ordenador->mode128k);
 
-	// reset the AY-3-8912
 
-	for (bucle = 0; bucle < 16; bucle++)
-		ordenador->ay_registers[bucle] = 0;
-
-	ordenador->aych_a = 0;
-	ordenador->aych_b = 0;
-	ordenador->aych_c = 0;
-	ordenador->aych_n = 0;
-	ordenador->aych_envel = 0;
-	ordenador->vol_a = 0;
-	ordenador->vol_b = 0;
-	ordenador->vol_c = 0;
 
 	ordenador->updown=0;
 	ordenador->leftright=0;
@@ -210,6 +173,7 @@ void ResetComputer () {
 		Z80free_Out (0x7FFD, 0);
 	break;
 	}
+	spk_ay->reset();
 	keyboard->reset();
 	screen->reset(ordenador->mode128k);
 	microdrive->reset();
@@ -338,13 +302,12 @@ void Z80free_Out (register word Port, register byte Value) {
 
 	// Sound chip (AY-3-8912)
 
-	if (((Port|maskport) == 0xFFFD)&&(ordenador->ay_emul))
-		ordenador->ay_latch = ((unsigned int) (Value & 0x0F));
+	if (((Port|maskport) == 0xFFFD) && (spk_ay->ay_emul)) {
+		spk_ay->set_latch(Value &0x0F);
+	}
 
-	if (((Port|maskport) == 0xBFFD)&&(ordenador->ay_emul)) {
-		ordenador->ay_registers[ordenador->ay_latch] = (unsigned char) Value;
-		if (ordenador->ay_latch == 13)
-			ordenador->ay_envel_way = 2;	// start cycle
+	if (((Port|maskport) == 0xBFFD)&&(spk_ay->ay_emul)) {
+		spk_ay->set_value(Value);
 	}
 }
 
@@ -413,8 +376,8 @@ byte Z80free_In (register word Port) {
 		}
 	}
 
-	if ((temporal_io == 0xFFFD)&&(ordenador->ay_emul))
-		return (ordenador->ay_registers[ordenador->ay_latch]);
+	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul))
+		return (spk_ay->get_value());
 
 	// Microdrive access
 	

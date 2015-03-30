@@ -37,6 +37,7 @@
 #include "llsound.hh"
 #include "keyboard.hh"
 #include "microdrive.hh"
+#include "spk_ay.hh"
 
 // shows the settings menu
 
@@ -190,7 +191,7 @@ void settings_menu() {
 		}
 		llscreen->print_string(texto,-1,3,13,0);
 
-		if(ordenador->ay_emul)
+		if(spk_ay->ay_emul)
 			sprintf(texto,"AY-3-8912 Emulation: enabled");
 		else
 			sprintf(texto,"AY-3-8912 Emulation: disabled");
@@ -265,38 +266,38 @@ void settings_menu() {
 		case SDLK_1:
 			ordenador->issue=2;
 			ordenador->mode128k=0;
-			ordenador->ay_emul=0;
+			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_2:
 			ordenador->issue=3;
 			ordenador->mode128k=0;
-			ordenador->ay_emul=0;
+			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_3:
 			ordenador->issue=3;
 			ordenador->mode128k=1;
-			ordenador->ay_emul=1;
+			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_4:
 			ordenador->issue=3;
 			ordenador->mode128k=2;
-			ordenador->ay_emul=1;
+			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_5:
 			ordenador->issue=3;
 			ordenador->mode128k=3;
-			ordenador->ay_emul=1;
+			spk_ay->ay_emul=1;
 			microdrive->mdr_active=0;
 			ResetComputer();
 		break;
 		case SDLK_6:
 			ordenador->issue=3;
 			ordenador->mode128k=4;
-			ordenador->ay_emul=1;
+			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_7:
@@ -321,7 +322,7 @@ void settings_menu() {
 			ordenador->dblscan = !ordenador->dblscan;
 		break;
 		case SDLK_a:
-			ordenador->ay_emul=1-ordenador->ay_emul;
+			spk_ay->ay_emul=1 - spk_ay->ay_emul;
 		break;
 		case SDLK_v:
 			ordenador->bw = !ordenador->bw;

@@ -34,6 +34,7 @@
 #include "cmdline.hh"
 #include "llsound.hh"
 #include "keyboard.hh"
+#include "spk_ay.hh"
 
 char debug_var=1;
 
@@ -206,7 +207,7 @@ void save_config(struct computer *object) {
 	fprintf(fconfig,"mode=%c%c",48+object->mode128k,10);
 	fprintf(fconfig,"issue=%c%c",48+object->issue,10);
 	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
-	fprintf(fconfig,"ay_sound=%c%c",48+object->ay_emul,10);
+	fprintf(fconfig,"ay_sound=%c%c",48+spk_ay->ay_emul,10);
 	fprintf(fconfig,"interface1=%c%c",48+microdrive->mdr_active,10);
 	fprintf(fconfig,"doublescan=%c%c",object->dblscan ? '1' : '0',10);
 	fprintf(fconfig,"volume=%c%c",65+(llsound->volume/4),10);
@@ -299,7 +300,7 @@ void load_config(struct computer *object) {
 		keyboard->joystick=joystick;
 	}
 	if (ay_emul<2) {
-		object->ay_emul=ay_emul;
+		spk_ay->ay_emul=ay_emul;
 	}
 	if (mdr_active<2) {
 		microdrive->mdr_active=mdr_active;
@@ -354,6 +355,7 @@ int main(int argc,char *argv[]) {
 	keyboard = new Keyboard();
 	ordenador = new computer();
 	microdrive = new Microdrive();
+	spk_ay = new SPK_AY();
 
 	load_config(ordenador);
 

@@ -56,22 +56,8 @@ public:
 
 	unsigned char updown,leftright;
 
-	// sound global variables
+	// Sound variables
 	unsigned char sound_bit;
-	unsigned int tstados_counter_sound;
-	unsigned char num_buff;
-	unsigned int sound_cuantity; // counter for the buffer
-	unsigned char ay_registers[16]; // registers for the AY emulation
-	unsigned int aych_a,aych_b,aych_c,aych_n,aych_envel; // counters for AY emulation
-	unsigned char ayval_a,ayval_b,ayval_c,ayval_n;
-	unsigned char ay_emul; // 0: no AY emulation; 1: AY emulation
-	unsigned char vol_a,vol_b,vol_c;
-	unsigned int tst_ay;
-	unsigned int tst_ay2;
-	unsigned int ay_latch;
-	signed char ay_envel_value;
-	unsigned char ay_envel_way;
-	unsigned char sound_current_value;
 
 	// bus global variables
 
