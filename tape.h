@@ -20,9 +20,9 @@
 #ifndef H_TAPE
 #define H_TAPE
 
-inline void tape_read(FILE *, int);
-inline void tape_read_tap(FILE *, int);
-inline void tape_read_tzx(FILE *, int);
+void tape_read(FILE *, int);
+void tape_read_tap(FILE *, int);
+void tape_read_tzx(FILE *, int);
 void rewind_tape(FILE *,unsigned char);
 unsigned char file_empty(FILE *);
 void fastload_block (FILE *);

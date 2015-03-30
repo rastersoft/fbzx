@@ -197,18 +197,18 @@ struct computer {
 
 void computer_init();
 void register_screen(SDL_Surface *);
-inline void show_screen(int);
-inline void paint_pixels(unsigned char, unsigned char, unsigned char);
-inline void read_keyboard();
+void show_screen(int);
+void paint_pixels(unsigned char, unsigned char, unsigned char);
+void read_keyboard();
 void fill_audio(void *udata,Uint8 *,int);
 void set_volume(unsigned char);
-inline void play_sound(unsigned int);
-inline void emulate(int);
+void play_sound(unsigned int);
+void emulate(int);
 void ResetComputer();
-inline byte bus_empty();
+byte bus_empty();
 void set_memory_pointers();
-inline void play_ay();
-inline void paint_one_pixel(unsigned char *colour,unsigned char *address);
+void play_ay();
+void paint_one_pixel(unsigned char *colour,unsigned char *address);
 void computer_set_palete();
 void set_palete_entry(unsigned char entry, byte Value);
 

@@ -33,7 +33,7 @@
 
 /* Returns the bus value when reading a port without a periferial */
 
-inline byte bus_empty () {
+byte bus_empty () {
 
 	if (ordenador.mode128k != 3)
 		return (ordenador.bus_value);
@@ -44,7 +44,7 @@ inline byte bus_empty () {
 /* calls all the routines that emulates the computer, runing them for 'tstados'
    tstates */
 
-inline void emulate (int tstados) {
+void emulate (int tstados) {
 
 	if((procesador.I>=0x40)&&(procesador.I<=0x7F)) {
 		ordenador.screen_snow=1;
@@ -484,7 +484,7 @@ void set_memory_pointers () {
 /* Paints the spectrum screen during the TSTADOS tstates that the Z80 used
 to execute last instruction */
 
-inline void show_screen (int tstados) {
+void show_screen (int tstados) {
 
 	static unsigned char temporal, ink, paper, fflash, tmp2;
 
@@ -613,7 +613,7 @@ inline void show_screen (int tstados) {
 /* PAINT_PIXELS paints one byte with INK color for 1 bits and PAPER color
 for 0 bits, and increment acordingly the pointer PIXEL */
 
-inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
+void paint_pixels (unsigned char octet,unsigned char ink, unsigned char paper) {
 
 	static int bucle,valor,*p;
 	static unsigned char mask;
@@ -642,7 +642,7 @@ inline void paint_pixels (unsigned char octet,unsigned char ink, unsigned char p
 	}
 }
 
-inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
+void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	switch(ordenador.bpp) {
@@ -679,7 +679,7 @@ inline void paint_one_pixel(unsigned char *colour,unsigned char *address) {
 
 // Read the keyboard and stores the flags
 
-inline void read_keyboard (SDL_Event *pevento2) {
+void read_keyboard (SDL_Event *pevento2) {
 
 	unsigned int temporal_io;
 	SDL_Event evento,evento2,*pevento;

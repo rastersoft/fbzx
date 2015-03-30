@@ -26,7 +26,7 @@
 
 /* emulates the AY-3-8912 during TSTADOS tstates */
 
-inline void play_ay (unsigned int tstados) {
+void play_ay (unsigned int tstados) {
 	
 	static unsigned int noise = 1; // init value assigned on AY chip reset
 
@@ -296,7 +296,7 @@ inline void play_ay (unsigned int tstados) {
 /* Creates the sound buffer during the TSTADOS tstate that the Z80 used to
    execute last instruction */
 
-inline void play_sound (unsigned int tstados) {
+void play_sound (unsigned int tstados) {
 
 	int bucle;
 	int value;

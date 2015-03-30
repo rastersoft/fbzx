@@ -29,7 +29,7 @@ char elbit=0;
 
 /* reads a tape file and updates the readed bit */
 
-inline void tape_read(FILE *fichero, int tstados) {
+void tape_read(FILE *fichero, int tstados) {
 
 	if(ordenador.pause)
 		return;
@@ -43,7 +43,7 @@ inline void tape_read(FILE *fichero, int tstados) {
 
 // manages TAP files in REAL_MODE
 
-inline void tape_read_tap (FILE * fichero, int tstados) {
+void tape_read_tap (FILE * fichero, int tstados) {
 
 	static unsigned char value, value2;
 	int retval;
@@ -162,7 +162,7 @@ inline void tape_read_tap (FILE * fichero, int tstados) {
 
 // manages TZX files
 
-inline void tape_read_tzx (FILE * fichero, int tstados) {
+void tape_read_tzx (FILE * fichero, int tstados) {
 
 	static unsigned char value, value2,value3,value4,done;
 	static unsigned int bucle,bucle2;
