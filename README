@@ -62,7 +62,7 @@ FBZX can handle TAP files (load and save), and have a fast-load mode that allows
 to load in milliseconds a TAP file. This fast-load mode is enabled by default, but
 can be disabled.
 
-FBZX can also handle TZX files (see README.TZX for details).
+FBZX can also handle TZX files (both load and save) (see README.TZX for details).
 
 FBZX can emulate the Kempston, Cursor, Sinclair 1 and Sinclair 2 joysticks,
 with the cursor keys (fire is emulated with the right ALT key, ALT-GR
@@ -182,7 +182,7 @@ since the emulator intercepts the call to SA-BYTES). Each new block is added at
 the end of the file, but only if the SAVE operation is enabled for this file.
 
 
-HOW WORKS THE FAST SPEED LOAD AND SAVE FOR TAP FILES?
+HOW WORKS THE FAST SPEED LOAD AND SAVE FOR TAP/TZX FILES?
 
 Just type LOAD "" in the emulator (or choose the TAPE LOADER option in the 128K
 menu) and the tape will automagically load. This only works with programs that
@@ -199,15 +199,11 @@ tape when you want with the right option in the TAP menu (F3 key).
 In a near future a block manager will be added, in order to allow the user to
 choose a block into the TAP file (thinking in multistage games).
 
-Remember that the Fast Speed is available only for TAP files, not in TZX. In
-the last case you can go to the SETTINGS menu (F4) and change the TURBO mode
-to FAST, so the tape will load faster, and then change again to NORMAL.
-
-The FAST SPEED applies when saving too. The SAVE operation is done ALWAYS
-when SA-BYTES (in the Spectrum ROM) is called. The difference between FAST and
-normal SAVE is that FAST returns inmediately, and NORMAL calls the original
-routine. This means that, if you abort the save command, the block will be saved
-in the TAP file anyway.
+Remember that the Fast Speed is available both for TAP and TZX files, but it
+only works with some parts (only when the ROM is called, never for specific
+loader routines). In the last case you can go to the SETTINGS menu (F4) and
+change the TURBO mode to FAST, so the tape will load faster, and then change
+again to NORMAL.
 
 
 HOW WORKS THE INTERFACE I AND MICRODRIVE EMULATION?

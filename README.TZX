@@ -6,7 +6,7 @@ allow to load the 99% of the games, including a lot with specific load
 routines (like Turbo).
 
 I didn't add that blocks because I was able to find only a limited number of
-TZX with estrange load protections, so I preferred to add only blocks that I can test
+TZX with odd load protections, so I preferred to add only blocks that I can test
 myself.
 
 If you try to load a TZX file that contains an unsuported block, FBZX will show

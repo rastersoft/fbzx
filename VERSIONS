@@ -1,3 +1,11 @@
+2.99.0
+*Refactor in C++
+*Allows to use fast-load with some parts of TZX files too
+*Allows to save data both in TAP and TZX files
+*Sorts the files and folders alphabetically
+*New fonts for menus
+*Supports new TZX blocks, like "pause if 48K mode"
+
 2.10.0
 
 *Fixed CPIR, CPDR, INI, INIR, IND, INDR, OUTI, OTIR, OUTD and OTDR instructions
