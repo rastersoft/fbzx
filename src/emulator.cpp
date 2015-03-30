@@ -512,20 +512,23 @@ int main(int argc,char *argv[]) {
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */
 		
-		if(microdrive->mdr_paged==2)
-			microdrive->mdr_paged=0;
+		if(microdrive->mdr_paged == 2) {
+			microdrive->mdr_paged = 0;
+		}
 		
 		/* if PC is 0x0008 or 0x1708, and we have a microdrive, we have to page
 		the Interface 1 ROM */
 		
-		if(((PC==0x0008)||(PC==0x1708))&&(microdrive->mdr_active))
+		if(((PC==0x0008)||(PC==0x1708))&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 1;
+		}
 		
 		/* if PC is 0x0700 and we have a microdrive, we have to unpage
 		the Interface 1 ROM after the last instruction */
 		
-		if((PC==0x0700)&&(microdrive->mdr_active))
+		if((PC==0x0700)&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 2;
+		}
 
 		if(ordenador->interr==1) {
 			keyboard->read_keyboard (NULL);	// read the physical keyboard

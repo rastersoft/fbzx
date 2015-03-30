@@ -40,7 +40,7 @@ Microdrive::Microdrive() {
 	this->mdr_cartridge[137922]=0; // but not write-protected
 
 	this->mdr_tapehead=0;
-	this->mdr_drive=0; // no motor on
+	this->mdr_drive = 0; // no motor on
 	this->mdr_old_STATUS=0x00; // default -> no down edge
 	this->mdr_modified=0; // not modified
 	this->mdr_current_mdr[0]=0; // no cartridge
@@ -70,7 +70,7 @@ byte Microdrive::in(word Port) {
 
 	/* allow access to the port only if motor 1 is ON and there's a file open */
 	
-	if(((Port|0xFFE7)==0xFFE7)&&(this->mdr_drive==0x01)&&(this->mdr_current_mdr[0])) {
+	if(((Port|0xFFE7) == 0xFFE7)&&(this->mdr_drive==0x01)&&(this->mdr_current_mdr[0])) {
 		if(this->mdr_bytes<this->mdr_maxbytes) {
 			retorno=this->mdr_cartridge[this->mdr_tapehead];
 			this->trash = retorno;
@@ -82,7 +82,7 @@ byte Microdrive::in(word Port) {
 		return (retorno);
 	}
 	
-	if((Port|0xFFE7)==0xFFEF) {
+	if((Port|0xFFE7) == 0xFFEF) {
 		if((this->mdr_drive==0x01)&&(this->mdr_current_mdr[0])) { // motor 1 ON and file selected
 			if(this->mdr_gap) {
 				retorno=0xFE; // GAP and SYNC high
@@ -119,6 +119,7 @@ void Microdrive::out(word Port,byte Value) {
 	/* allow access to the port only if motor 1 is ON and there's a file open */
 	
 	if(((Port|0xFFE7)==0xFFE7)&&(this->mdr_drive==0x01)&&(this->mdr_current_mdr[0])) {
+
 		if((this->mdr_bytes>11)&&(this->mdr_bytes<(this->mdr_maxbytes+12))) {
 			this->mdr_cartridge[this->mdr_tapehead]=(unsigned int) Value;
 			this->increment_head();
@@ -130,9 +131,9 @@ void Microdrive::out(word Port,byte Value) {
 	
 	if((Port|0xFFE7)==0xFFEF) {
 		if(((Value&0x02)==0)&&((this->mdr_old_STATUS&0x02)==2)) { // edge down-> new bit for motor ON
-			this->mdr_drive=((this->mdr_drive<<1)&0xFE); // rotate one drive
+			this->mdr_drive = ((this->mdr_drive<<1)&0xFE); // rotate one drive
 			if(!(Value&0x01)) // if COM DATA is 0, we add a 1 bit to mdr_drive
-				this->mdr_drive|=0x01;
+				this->mdr_drive |= 0x01;
 			
 			if(this->mdr_modified) { // if the cartridge has been modified, we store it in hard disk
 				this->save_cartridge();
@@ -224,13 +225,15 @@ int Microdrive::new_mdrfile(char *filename) {
 	for(bucle=0;bucle<137921;bucle++) {
 		this->mdr_cartridge[bucle]=0xFF; // erase cartridge
 	}
+	strcpy(this->mdr_current_mdr,filename);
 	this->mdr_cartridge[137922]=0;
 	if (this->save_cartridge()) {
 		retorno = -2;
+		this->mdr_current_mdr[0] = 0;
 	} else {
 		retorno = 0;
 	}
-	strcpy(this->mdr_current_mdr,filename);
+
 	return retorno;
 }
 

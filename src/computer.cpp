@@ -418,7 +418,7 @@ byte Z80free_In (register word Port) {
 
 	// Microdrive access
 	
-	if(((Port &0x0018)!=0x0018)&&(microdrive->mdr_active))
+	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active))
 		return(microdrive->in(Port));
 	
 	pines=ordenador->bus_empty();

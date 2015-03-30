@@ -53,7 +53,7 @@ public:
 	void set_protected(bool);
 
 	bool mdr_active; // 0: not installed; 1: installed
-	bool mdr_paged; // 0: not pagined; 1: pagined
+	uint8_t mdr_paged; // 0: not pagined; 1: pagined
 	char mdr_current_mdr[2049]; // current path and name for microdrive file
 };
 
