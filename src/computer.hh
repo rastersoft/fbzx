@@ -88,21 +88,6 @@ public:
 	bool tape_write; // FALSE can't write; TRUE can write
 	bool tape_fast_load; // FALSE normal load; TRUE fast load
 
-	// Microdrive global variables
-	FILE *mdr_file;                  // Current microdrive file
-	char mdr_current_mdr[2049]; // current path and name for microdrive file
-	unsigned char mdr_active;	// 0: not installed; 1: installed
-	unsigned char mdr_paged;	// 0: not pagined; 1: pagined
-	unsigned int mdr_tapehead; // current position in the tape
-	unsigned int mdr_bytes;      // number of bytes read or written in this transfer
-	unsigned int mdr_maxbytes; // maximum number of bytes to read or write in this transfer
-	unsigned int mdr_gap;         // TSTATEs remaining for GAP end
-	unsigned int mdr_nogap;      // TSTATEs remaining for next GAP
-	unsigned char mdr_cartridge[137923]; // current cartridge
-	unsigned char mdr_drive; // current drive
-	byte mdr_old_STATUS; // to detect an edge in COM CLK
-	unsigned char mdr_modified; // if a sector is stored, this change to know that it must be stored in the file
-
 	// pagination global variables
 
 	unsigned char mport1,mport2; // ports for memory management (128K and +3)

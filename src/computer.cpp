@@ -89,6 +89,7 @@ computer::computer() {
 	this->sound_cuantity = 0;
 	this->sound_current_value = 0;
 	this->interr = 0;
+
 	OOTape->register_signal("pause_tape",this);
 	OOTape->register_signal("pause_tape_48k",this);
 }
@@ -130,7 +131,7 @@ void computer::emulate (int tstados) {
 	play_ay (tstados);
 	play_sound (tstados);
 	OOTape->play(tstados);
-	microdrive_emulate(tstados);
+	microdrive->emulate(tstados);
 
 	if (!OOTape->get_pause()) {
 		if (OOTape->read_signal() != 0) {
@@ -211,7 +212,7 @@ void ResetComputer () {
 	}
 	keyboard->reset();
 	screen->reset(ordenador->mode128k);
-	microdrive_reset();
+	microdrive->reset();
 }
 
 void Z80free_Wr (register word Addr, register byte Value) {
@@ -242,7 +243,7 @@ void Z80free_Wr (register word Addr, register byte Value) {
 
 byte Z80free_Rd (register word Addr) {
 
-	if((ordenador->mdr_active)&&(ordenador->mdr_paged)&&(Addr<8192)) // Interface I
+	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
 	
 	switch (ordenador->other_ret) {
@@ -300,8 +301,8 @@ void Z80free_Out (register word Port, register byte Value) {
 		screen->set_ulaplus_value(Value);
 	}
 
-	if(((Port &0x0018)!=0x0018)&&(ordenador->mdr_active))
-		microdrive_out(Port,Value);
+	if(((Port &0x0018)!=0x0018)&&(microdrive->mdr_active))
+		microdrive->out(Port,Value);
 	
 	// ULA port (A0 low)
 
@@ -417,8 +418,8 @@ byte Z80free_In (register word Port) {
 
 	// Microdrive access
 	
-	if(((Port &0x0018)!=0x0018)&&(ordenador->mdr_active))
-		return(microdrive_in(Port));
+	if(((Port &0x0018)!=0x0018)&&(microdrive->mdr_active))
+		return(microdrive->in(Port));
 	
 	pines=ordenador->bus_empty();
 

@@ -207,7 +207,7 @@ void save_config(struct computer *object) {
 	fprintf(fconfig,"issue=%c%c",48+object->issue,10);
 	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
 	fprintf(fconfig,"ay_sound=%c%c",48+object->ay_emul,10);
-	fprintf(fconfig,"interface1=%c%c",48+object->mdr_active,10);
+	fprintf(fconfig,"interface1=%c%c",48+microdrive->mdr_active,10);
 	fprintf(fconfig,"doublescan=%c%c",object->dblscan ? '1' : '0',10);
 	fprintf(fconfig,"volume=%c%c",65+(llsound->volume/4),10);
 	fprintf(fconfig,"bw=%c%c",object->bw ? '1' : '0',10);
@@ -302,7 +302,7 @@ void load_config(struct computer *object) {
 		object->ay_emul=ay_emul;
 	}
 	if (mdr_active<2) {
-		object->mdr_active=mdr_active;
+		microdrive->mdr_active=mdr_active;
 	}
 	if (dblscan<2) {
 		object->dblscan = dblscan==0 ? false : true;
@@ -353,6 +353,7 @@ int main(int argc,char *argv[]) {
 	OOTape = new Tape();
 	keyboard = new Keyboard();
 	ordenador = new computer();
+	microdrive = new Microdrive();
 
 	load_config(ordenador);
 
@@ -419,7 +420,7 @@ int main(int argc,char *argv[]) {
 	salir=1;
   
 	printf("Init microdrive\n");
-	microdrive_init();
+
 
 	printf("Reset computer\n");
 	ResetComputer();
@@ -458,7 +459,7 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!ordenador->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load)) {
+		if((!microdrive->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load)) {
 			if(ordenador->current_tap != "") {
 				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();
@@ -471,7 +472,7 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
-		if((!ordenador->mdr_paged) && (PC==0x04C2) && (ordenador->tape_write==1)) {
+		if((!microdrive->mdr_paged) && (PC==0x04C2) && (ordenador->tape_write==1)) {
 
 			uint8_t *data;
 			uint8_t op_xor;
@@ -511,20 +512,20 @@ int main(int argc,char *argv[]) {
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */
 		
-		if(ordenador->mdr_paged==2)
-			ordenador->mdr_paged=0;
+		if(microdrive->mdr_paged==2)
+			microdrive->mdr_paged=0;
 		
 		/* if PC is 0x0008 or 0x1708, and we have a microdrive, we have to page
 		the Interface 1 ROM */
 		
-		if(((PC==0x0008)||(PC==0x1708))&&(ordenador->mdr_active))
-			ordenador->mdr_paged = 1;
+		if(((PC==0x0008)||(PC==0x1708))&&(microdrive->mdr_active))
+			microdrive->mdr_paged = 1;
 		
 		/* if PC is 0x0700 and we have a microdrive, we have to unpage
 		the Interface 1 ROM after the last instruction */
 		
-		if((PC==0x0700)&&(ordenador->mdr_active))
-			ordenador->mdr_paged = 2;
+		if((PC==0x0700)&&(microdrive->mdr_active))
+			microdrive->mdr_paged = 2;
 
 		if(ordenador->interr==1) {
 			keyboard->read_keyboard (NULL);	// read the physical keyboard

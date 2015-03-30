@@ -36,6 +36,7 @@
 #include "llscreen.hh"
 #include "llsound.hh"
 #include "keyboard.hh"
+#include "microdrive.hh"
 
 // shows the settings menu
 
@@ -196,7 +197,7 @@ void settings_menu() {
 
 		llscreen->print_string(texto,-1,4,11,0);
 
-		if(ordenador->mdr_active)
+		if(microdrive->mdr_active)
 			sprintf(texto,"Interface I Emulation: enabled");
 		else
 			sprintf(texto,"Interface I Emulation: disabled");
@@ -289,7 +290,7 @@ void settings_menu() {
 			ordenador->issue=3;
 			ordenador->mode128k=3;
 			ordenador->ay_emul=1;
-			ordenador->mdr_active=0;
+			microdrive->mdr_active=0;
 			ResetComputer();
 		break;
 		case SDLK_6:
@@ -312,7 +313,7 @@ void settings_menu() {
 		break;
 		case SDLK_i:
 			if(ordenador->mode128k!=3) {
-				ordenador->mdr_active=1-ordenador->mdr_active;
+				microdrive->mdr_active=1-microdrive->mdr_active;
 				ResetComputer();
 			}
 		break;
@@ -710,11 +711,11 @@ void microdrive_menu() {
 		llscreen->print_string("ESC: \001\017return to emulator",14,10,12,0);
 
 		llscreen->print_string("Current MDR file is:",-1,13,12,0);
-		llscreen->print_string(ordenador->mdr_current_mdr,-1,14,12,0);
+		llscreen->print_string(microdrive->mdr_current_mdr,-1,14,12,0);
 
 		print_copy();
 
-		if(!ordenador->mdr_cartridge[137922])
+		if(!microdrive->get_protected())
 			llscreen->print_string("Write enabled",-1,-4,14,0);
 		else
 			llscreen->print_string("Write disabled",-1,-4,14,0);
@@ -731,16 +732,10 @@ void microdrive_menu() {
 			create_mdrfile();
 		break;
 		case SDLK_3:
-			if(ordenador->mdr_cartridge[137922])
-				ordenador->mdr_cartridge[137922]=0;
-			else
-				ordenador->mdr_cartridge[137922]=1;
-			ordenador->mdr_file=fopen(ordenador->mdr_current_mdr,"wb"); // create for write
-			if(ordenador->mdr_file!=NULL) {
-				fwrite(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // save cartridge
-				fclose(ordenador->mdr_file);
-				ordenador->mdr_file=NULL;
-				ordenador->mdr_modified=0;
+			if(microdrive->get_protected()) {
+				microdrive->set_protected(false);
+			} else {
+				microdrive->set_protected(true);
 			}
 		break;
 		default:
@@ -769,22 +764,10 @@ void select_mdrfile() {
 		return;
 	}
 
-	ordenador->mdr_file=fopen(filename,"rb"); // read
-	if(ordenador->mdr_file==NULL)
-		retorno=-1;
-	else {
-		retorno=0;
-		fread(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // read the cartridge in memory
-		ordenador->mdr_modified=0; // not modified
-		fclose(ordenador->mdr_file);
-		ordenador->mdr_tapehead=0;
-	}
-
-	llscreen->clear_screen();
-
-	strcpy(ordenador->mdr_current_mdr,filename);
+	retorno = microdrive->select_mdrfile(filename);
 
 	free(filename);
+	llscreen->clear_screen();
 
 	switch(retorno) {
 	case 0: // all right
@@ -792,7 +775,7 @@ void select_mdrfile() {
 	case -1:
 		llscreen->print_string("Error: Can't load that file",-1,-3,10,0);
 		llscreen->print_string("Press any key",-1,-2,10,0);
-		ordenador->mdr_current_mdr[0]=0;
+		microdrive->mdr_current_mdr[0]=0;
 		wait_key();
 		break;
 	}
@@ -821,39 +804,19 @@ void create_mdrfile() {
 	if(retorno==2) // abort
 		return;
 
-	ordenador->mdr_file=fopen(nombre2,"r"); // test if it exists
-	if(ordenador->mdr_file==NULL)
-		retorno=0;
-	else
-		retorno=-1;
+	retorno = microdrive->new_mdrfile(nombre2);
 
-	if(!retorno) {
-		ordenador->mdr_file=fopen(nombre2,"wb"); // create for write
-		if(ordenador->mdr_file==NULL)
-			retorno=-2;
-		else {
-			for(bucle=0;bucle<137921;bucle++)
-				ordenador->mdr_cartridge[bucle]=0xFF; // erase cartridge
-			ordenador->mdr_cartridge[137922]=0;
-			fwrite(ordenador->mdr_cartridge,137923,1,ordenador->mdr_file); // save cartridge
-			fclose(ordenador->mdr_file);
-			ordenador->mdr_file=NULL;
-			ordenador->mdr_modified=0;
-			retorno=0;
-		}
-	}
-	strcpy(ordenador->mdr_current_mdr,nombre2);
 	switch(retorno) {
 	case 0:
 	break;
 	case -1:
 		llscreen->print_string("File already exists",-1,9,10,0);
-		ordenador->mdr_current_mdr[0]=0;
+		microdrive->mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	case -2:
 		llscreen->print_string("Can't create file",-1,9,10,0);
-		ordenador->mdr_current_mdr[0]=0;
+		microdrive->mdr_current_mdr[0]=0;
 		wait_key();
 	break;
 	}
