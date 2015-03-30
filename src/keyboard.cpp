@@ -210,10 +210,16 @@ void Keyboard::read_keyboard (SDL_Event *pevento2) {
 
 		case SDLK_F5:   // STOP tape
 			OOTape->set_pause(true);
+			llsound->set_speed(ordenador->turbo);
 			break;
 
 		case SDLK_F6:	// PLAY tape
 			OOTape->set_pause(false);
+			if (ordenador->turbo_play) {
+				llsound->set_speed(true);
+			} else {
+				llsound->set_speed(ordenador->turbo);
+			}
 			break;
 
 		case SDLK_F9:

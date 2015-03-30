@@ -51,13 +51,6 @@ class LLSound {
 	void show_volume();
 
 public:
-	LLSound(enum e_soundtype);
-	~LLSound();
-	void play();
-	void increase_volume();
-	void decrease_volume();
-	void set_volume(uint8_t);
-
 	uint32_t freq; // frequency for reproduction
 	uint32_t tst_sample; // number of tstates per sample
 	int8_t sign; // 0: unsigned; 1: signed
@@ -67,9 +60,15 @@ public:
 	uint32_t buffer_len; // sound buffer length (in samples)
 	uint32_t increment; // cuantity to add to jump to the next sample
 	uint8_t volume; // volume
-
 	enum e_soundtype sound_type;
 
+	LLSound(enum e_soundtype);
+	~LLSound();
+	void play();
+	void increase_volume();
+	void decrease_volume();
+	void set_volume(uint8_t);
+	void set_speed(bool);
 };
 
 extern volatile unsigned char *sdl_sound_buffer;

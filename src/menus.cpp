@@ -55,7 +55,7 @@ void help_menu() {
 
 	llscreen->clear_screen();
 
-	llscreen->print_string("FBZX (2.99.0)",-1,1,15,0);
+	llscreen->print_string("FBZX (2.99.1)",-1,1,15,0);
 	llscreen->print_string("Available keys",-1,2,14,0);
 	llscreen->print_string("Shift:Caps Shift        Ctrl:Symbol Shift",-1,4,11,0);
 
@@ -330,16 +330,21 @@ void settings_menu() {
 		break;
 		case SDLK_t:
 			if(ordenador->turbo){
-				llsound->tst_sample = 3500000 / llsound->freq;
 				ordenador->turbo = false;
 			} else {
-				llsound->tst_sample = 100000000 / llsound->freq;
 				ordenador->turbo = true;
 			}
+			llsound->set_speed(ordenador->turbo);
 		}
 	} while(fin);
 
 	llscreen->clear_screen();
+
+	if ((ordenador->turbo_play) && (!OOTape->get_pause())) {
+		llsound->set_speed(true);
+	} else {
+		llsound->set_speed(ordenador->turbo);
+	}
 }
 
 
@@ -553,22 +558,29 @@ void taps_menu() {
 
 		llscreen->print_string("5: \001\017create empty TAP file",14,8,12,0);
 
+		llscreen->print_string("6: \001\017Fast mode when playing tape",320,8,12,0);
+
 		llscreen->print_string("ESC: \001\017return to emulator",14,12,12,0);
 
-		llscreen->print_string("Current TAP/TZX file is:",-1,19,12,0);
-		llscreen->print_string(ordenador->current_tap,-1,20,15,0);
+		llscreen->print_string("Current TAP/TZX file is:",-1,17,12,0);
+		llscreen->print_string(ordenador->current_tap,-1,18,15,0);
 
 		print_copy();
 
 		if(ordenador->tape_fast_load)
-			llscreen->print_string("Fast load enabled",10,-4,14,0);
+			llscreen->print_string("Fast load \001\014enabled",10,-6,14,0);
 		else
-			llscreen->print_string("Fast load disabled",10,-4,14,0);
+			llscreen->print_string("Fast load \001\012disabled",10,-6,14,0);
 
 		if(ordenador->tape_write)
-			llscreen->print_string("Write enabled",390,-4,14,0);
+			llscreen->print_string("Write \001\014enabled",390,-6,14,0);
 		else
-			llscreen->print_string("Write disabled",390,-4,14,0);
+			llscreen->print_string("Write \001\012disabled",390,-6,14,0);
+
+		if(ordenador->turbo_play)
+			llscreen->print_string("Turbo while playing \001\014enabled",10,-4,14,0);
+		else
+			llscreen->print_string("Turbo while playing \001\012disabled",10,-4,14,0);
 
 		switch(wait_key()) {
 		case SDLK_ESCAPE: // to exit the help
@@ -593,6 +605,9 @@ void taps_menu() {
 		break;
 		case SDLK_5:
 			create_tapfile();
+		break;
+		case SDLK_6:
+			ordenador->turbo_play = ordenador->turbo_play ? false : true;
 		break;
 		default:
 		break;

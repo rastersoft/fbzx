@@ -189,7 +189,7 @@ void load_main_game(const char *nombre) {
 	}
 }
 
-void save_config(struct computer *object) {
+void save_config() {
 	
 	char config_path[1024];
 	int length;
@@ -204,24 +204,26 @@ void save_config(struct computer *object) {
 	if (fconfig==NULL) {
 		return;
 	}
-	fprintf(fconfig,"mode=%c%c",48+object->mode128k,10);
-	fprintf(fconfig,"issue=%c%c",48+object->issue,10);
+	fprintf(fconfig,"mode=%c%c",48+ordenador->mode128k,10);
+	fprintf(fconfig,"issue=%c%c",48+ordenador->issue,10);
 	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
 	fprintf(fconfig,"ay_sound=%c%c",48+spk_ay->ay_emul,10);
 	fprintf(fconfig,"interface1=%c%c",48+microdrive->mdr_active,10);
-	fprintf(fconfig,"doublescan=%c%c",object->dblscan ? '1' : '0',10);
+	fprintf(fconfig,"doublescan=%c%c",ordenador->dblscan ? '1' : '0',10);
 	fprintf(fconfig,"volume=%c%c",65+(llsound->volume/4),10);
-	fprintf(fconfig,"bw=%c%c",object->bw ? '1' : '0',10);
+	fprintf(fconfig,"bw=%c%c",ordenador->bw ? '1' : '0',10);
+	fprintf(fconfig,"fast=%c%c",ordenador->tape_fast_load ? '1' : '0',10);
+	fprintf(fconfig,"turboload=%c%c",ordenador->turbo_play ? '1' : '0',10);
 	fclose(fconfig);
 }
 
-void load_config(struct computer *object) {
+void load_config() {
 	
 	char config_path[1024];
 	char line[1024],carac,done;
 	int length,pos;
 	FILE *fconfig;
-	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw=255;
+	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw,fast,turboload=255;
 	
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
@@ -288,13 +290,21 @@ void load_config(struct computer *object) {
 			bw=(line[3]-'0');
 			continue;
 		}
+		if (!strncmp(line,"fast=",5)) {
+			fast=(line[5]-'0');
+			continue;
+		}
+		if (!strncmp(line,"turboload=",10)) {
+			turboload=(line[10]-'0');
+			continue;
+		}
 	}
 	
 	if (mode128k<5) {
-		object->mode128k=mode128k;
+		ordenador->mode128k=mode128k;
 	}
 	if (issue<4) {
-		object->issue=issue;
+		ordenador->issue=issue;
 	}
 	if (joystick<4) {
 		keyboard->joystick=joystick;
@@ -306,10 +316,16 @@ void load_config(struct computer *object) {
 		microdrive->mdr_active=mdr_active;
 	}
 	if (dblscan<2) {
-		object->dblscan = dblscan==0 ? false : true;
+		ordenador->dblscan = dblscan==0 ? false : true;
 	}
 	if (bw<2) {
-		object->bw = bw==0 ? false : true;
+		ordenador->bw = bw==0 ? false : true;
+	}
+	if (fast<2) {
+		ordenador->tape_fast_load = fast==0 ? false : true;
+	}
+	if (turboload<2) {
+		ordenador->turbo_play = turboload==0 ? false : true;
 	}
 	if (volume<255) {
 		llsound->set_volume(volume);
@@ -357,7 +373,7 @@ int main(int argc,char *argv[]) {
 	microdrive = new Microdrive();
 	spk_ay = new SPK_AY();
 
-	load_config(ordenador);
+	load_config();
 
 	ordenador->zaurus_mini = 0;
 	if (parse.mini) {
@@ -539,7 +555,7 @@ int main(int argc,char *argv[]) {
 		}
 	}
 
-	save_config(ordenador);
+	save_config();
 	return 0;
 }
 

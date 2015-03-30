@@ -51,9 +51,10 @@ computer::computer() {
 	this->issue = 3;
 	this->mode128k = 0;
 	this->turbo = false;
+	this->turbo_play = true;
 
 	this->tape_write = false;
-	this->tape_fast_load = true; // fast load by default
+	this->tape_fast_load = false; // don't fast load by default
 
 	this->other_ret = 0;
 

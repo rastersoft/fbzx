@@ -89,6 +89,7 @@ public:
 	unsigned char other_ret; // 0=no change; 1=memory returns RET (201)
 
 	bool turbo;
+	bool turbo_play;
 
 	computer();
 	~computer();

@@ -83,6 +83,15 @@ LLSound::LLSound(enum e_soundtype sound_type) {
 	printf("Return init\n");
 }
 
+void LLSound::set_speed(bool turbo) {
+
+	if(turbo){
+		this->tst_sample = 1000000000 / this->freq;
+	} else {
+		this->tst_sample = 3500000 / this->freq;
+	}
+}
+
 int LLSound::init_sound() {
 
 	if (this->sound_type != SOUND_AUTOMATIC) {

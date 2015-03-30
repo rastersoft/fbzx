@@ -223,7 +223,7 @@ void SPK_AY::play_ay (int tstados) {
 		
 		if (!noise_period) noise_period = 1;
 	
-		if (tone_period_a * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+		if (tone_period_a * llsound->freq < 110841)  //Freq_camp > cpufreq/(2*16*tone_period)
 			this->aych_a =1;
 		else
 		{
@@ -236,7 +236,7 @@ void SPK_AY::play_ay (int tstados) {
 			}
 		}
 
-		if (tone_period_b * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+		if (tone_period_b * llsound->freq < 110841)  //Freq_camp > cpufreq/(2*16*tone_period)
 			this->aych_b =1;
 		else
 		{
@@ -249,7 +249,7 @@ void SPK_AY::play_ay (int tstados) {
 			}
 		}
 		
-		if (tone_period_c * llsound->freq<110841)  //Freq_camp > cpufreq/(2*16*tone_period)
+		if (tone_period_c * llsound->freq < 110841)  //Freq_camp > cpufreq/(2*16*tone_period)
 			this->aych_c =1;
 		else
 		{

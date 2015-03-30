@@ -1,3 +1,7 @@
+2.99.1
+*Now allows to run in TURBO mode when the tape is playing, and return to NORMAL mode when the tape is paused
+*More C++ refactoring
+
 2.99.0
 *Refactor in C++
 *Allows to use fast-load with some parts of TZX files too
