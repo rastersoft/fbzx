@@ -39,6 +39,8 @@ Screen::Screen() {
 	this->currline = 0;
 	this->currpix = 0;
 	this->flash = 0;
+	this->screen_snow = false;
+	this->bus_value = 255;
 
 	switch (ordenador->zaurus_mini) {
 	case 0:

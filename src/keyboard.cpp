@@ -15,10 +15,12 @@ class Keyboard *keyboard;
 Keyboard::Keyboard() {
 
 	this->s8 = this->s9 = this->s10 = this->s11 = this->s12 = this->s13 = this->s14 = this->s15 = 0xFF;
+	this->k8 = this->k9 = this->k10 = this->k11 = this->k12 = this->k13 = this->k14 = this->k15 = 0;
 	this->tab_extended = false;
 	this->esc_again = false;
 
 	this->js = 0x00;
+	this->jk = 0x00;
 
 	this->readed = 0;
 	this->joystick = 0;
