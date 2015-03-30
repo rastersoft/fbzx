@@ -456,6 +456,7 @@ int load_sna(const char *filename) {
 		free(tempo);
 		free(tempo2);
 		free(snap);
+		fclose(fichero);
 		return -1;
 	}
 	
@@ -524,6 +525,7 @@ int load_sna(const char *filename) {
 			free(tempo);
 			free(tempo2);
 			free(snap);
+			fclose(fichero);
 			printf("Error loading SNA file. Return address in ROM.\n");
 			return -1;
 		}
@@ -559,6 +561,7 @@ int load_sna(const char *filename) {
 	free(tempo);
 	free(tempo2);
 	free(snap);
+	fclose(fichero);
 	return 0;
 	
 }
