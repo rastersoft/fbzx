@@ -36,7 +36,7 @@
 #include "keyboard.hh"
 #include "spk_ay.hh"
 
-char debug_var=1;
+bool debug_var = false;
 
 Z80FREE procesador;
 char salir;
@@ -460,12 +460,11 @@ int main(int argc,char *argv[]) {
 	osd->set_message("Press F1 for help",4000);
 
 	printf("BPP: %d\n",llscreen->bpp);
+	debug_var = false;
 	while(salir) {
 
 		do {
-			ordenador->no_contention = false;
 			tstados=Z80free_ustep(&procesador);
-			ordenador->no_contention = true;
 			if(tstados<0) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
@@ -473,11 +472,11 @@ int main(int argc,char *argv[]) {
 			ordenador->emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
 		} while(procesador.Status!=Z80XX);
 		PC=procesador.PC;
-				
+
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!microdrive->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load)) {
+		if((!microdrive->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
 			if(ordenador->current_tap != "") {
 				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();
@@ -490,13 +489,15 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
-		if((!microdrive->mdr_paged) && (PC==0x04C2) && (ordenador->tape_write==1)) {
+		if((!microdrive->mdr_paged) && (PC==0x04C2) && (ordenador->tape_write==1) && (ordenador->page48k == 1)) {
 
 			uint8_t *data;
 			uint8_t op_xor;
 			uint8_t dato;
 			uint32_t length;
 			int pointer;
+
+			do_push(0x053F); // return address
 
 			length = (uint32_t)(procesador.Rm.wr.DE);
 			length += 2;
@@ -512,7 +513,7 @@ int main(int argc,char *argv[]) {
 				if (procesador.Rm.wr.DE == 0)
 					salir = 2;
 				if (!salir) {
-					dato = Z80free_Rd(procesador.Rm.wr.IX); // read data
+					dato = ordenador->read_memory(procesador.Rm.wr.IX); // read data
 					op_xor^=dato;
 					data[pointer++] = dato;
 					procesador.Rm.wr.IX++;
@@ -559,9 +560,28 @@ int main(int argc,char *argv[]) {
 	return 0;
 }
 
+void print_status() {
+
+	printf("\nPC: 0x%04X   SP:0x%04X\n",procesador.PC,procesador.Rm.wr.SP);
+	printf("AF: 0x%04X   BC: 0x%04X   DE: 0x%04X   HL: 0x%04X\n",procesador.Rm.wr.AF,procesador.Rm.wr.BC,procesador.Rm.wr.DE,procesador.Rm.wr.HL);
+	printf("AF': 0x%04X  BC': 0x%04X  DE': 0x%04X  HL': 0x%04X\n",procesador.Ra.wr.AF,procesador.Ra.wr.BC,procesador.Ra.wr.DE,procesador.Ra.wr.HL);
+	printf("IX: 0x%04X   IY: 0x%04X   IX': 0x%04X  IY': 0x%04X\n",procesador.Rm.wr.IX,procesador.Rm.wr.IY,procesador.Ra.wr.IX,procesador.Ra.wr.IY);
+	printf("IFF1: %X   IFF2: %X   I: %X   R: %X\n\n\n",procesador.IFF1,procesador.IFF2,procesador.I,procesador.R|procesador.R2);
+
+}
+
+void do_push(uint16_t value) {
+
+	procesador.Rm.wr.SP -= 2;
+	ordenador->write_memory(procesador.Rm.wr.SP, (uint8_t)(value & 0xFF));
+	value >>= 8;
+	ordenador->write_memory(procesador.Rm.wr.SP + 1, (uint8_t)(value & 0xFF));
+}
+
 void do_fast_load() {
 
 	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
+		do_push(0x053F);
 		procesador.Rm.br.F |= F_C;	 // verify OK
 		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 		procesador.Rm.wr.DE = 0;
@@ -583,6 +603,7 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("No tape selected",2000);
+			do_push(0x053F);
 			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		break;
@@ -598,6 +619,7 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("End of tape. Rewind it.",2000);
+			do_push(0x053F);
 			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		case FASTLOAD_OK:
@@ -606,21 +628,27 @@ void do_fast_load() {
 				if ((size == 0) || (procesador.Rm.wr.DE == 0)) {
 					break;
 				}
-				Z80free_Wr (procesador.Rm.wr.IX, (byte) data[counter]); // store the byte
+				ordenador->write_memory(procesador.Rm.wr.IX, (byte) data[counter]); // store the byte
 				procesador.Rm.wr.IX++;
 				procesador.Rm.wr.DE--;
 				counter++;
 				size--;
 			}
+			procesador.Rm.wr.AF = 0x0093;
+			procesador.Rm.br.H = 0;
+			procesador.Ra.wr.AF = 0x0145;
+			procesador.Rm.wr.BC = 0xB001;
+			procesador.IFF1 = 0;
+			procesador.IFF2 = 0;
+			ordenador->other_ret = 1;	// next instruction must be RET
+			do_push(0x053F);
 			if (size == 0) {
 				if (procesador.Rm.wr.DE == 0) {
 					procesador.Rm.br.F |= (F_C);	// Load OK
-					ordenador->other_ret = 1;	// next instruction must be RET
 					return;
 				}
 			}
 			procesador.Rm.br.F &= (~F_C);	// Load error
-			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		break;
 		case FASTLOAD_NO_FLAG:

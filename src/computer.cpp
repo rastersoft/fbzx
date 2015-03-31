@@ -61,7 +61,6 @@ computer::computer() {
 	this->sound_bit = 0;
 
 	this->contended_zone = false;
-	this->no_contention = false;
 	this->cicles_counter=0;
 
 	this->interr = 0;
@@ -124,7 +123,7 @@ void computer::emulate (int tstados) {
 
 void computer::do_contention() {
 
-	if ((!this->contended_zone) || (this->no_contention)) {
+	if (!this->contended_zone) {
 		return;
 	}
 
@@ -184,6 +183,14 @@ void ResetComputer () {
 
 void Z80free_Wr (register word Addr, register byte Value) {
 
+	if ((Addr & 0xC000) == 0x4000) {
+		ordenador->do_contention();
+	}
+	ordenador->write_memory(Addr,Value);
+}
+
+void computer::write_memory (uint16_t Addr, uint8_t Value) {
+
 	switch (Addr & 0xC000) {
 	case 0x0000:
 	// only writes in the first 16K if we are in +3 mode and bit0 of mport2 is 1
@@ -193,20 +200,19 @@ void Z80free_Wr (register word Addr, register byte Value) {
 	break;
 
 	case 0x4000:
-		ordenador->do_contention();
 		*(ordenador->block1 + Addr) = (unsigned char) Value;
 	break;
-	
+
 	case 0x8000:
 		*(ordenador->block2 + Addr) = (unsigned char) Value;
 	break;
-	
+
 	case 0xC000:
 		*(ordenador->block3 + Addr) = (unsigned char) Value;
 	break;
 	}
-}
 
+}
 
 byte Z80free_Rd (register word Addr) {
 
@@ -220,30 +226,35 @@ byte Z80free_Rd (register word Addr) {
 	break;
 
 	default:
-		switch (Addr & 0xC000) {
-		case 0x0000:
-			return ((byte) (*(ordenador->block0 + Addr)));
-		break;
-
-		case 0x4000:
+		if ((Addr & 0xC000) == 0x4000) {
 			ordenador->do_contention();
-			return ((byte) (*(ordenador->block1 + Addr)));
-		break;
-
-		case 0x8000:
-			return ((byte) (*(ordenador->block2 + Addr)));
-		break;
-
-		case 0xC000:
-			return ((byte) (*(ordenador->block3 + Addr)));
-		break;
-
-		default:
-			printf ("Memory error\n");
-			exit (1);
-			return 0;
 		}
-		break;
+		return (ordenador->read_memory(Addr));
+	}
+}
+
+uint8_t computer::read_memory(uint16_t Addr) {
+	switch (Addr & 0xC000) {
+	case 0x0000:
+		return ((byte) (*(ordenador->block0 + Addr)));
+	break;
+
+	case 0x4000:
+		return ((byte) (*(ordenador->block1 + Addr)));
+	break;
+
+	case 0x8000:
+		return ((byte) (*(ordenador->block2 + Addr)));
+	break;
+
+	case 0xC000:
+		return ((byte) (*(ordenador->block3 + Addr)));
+	break;
+
+	default:
+		printf ("Memory error\n");
+		exit (1);
+		return 0;
 	}
 }
 

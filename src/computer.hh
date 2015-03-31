@@ -49,7 +49,6 @@ public:
 	bool bw;
 
 	bool contended_zone; // 0-> no contention; 1-> contention possible
-	bool no_contention;
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 
 	// Linux joystick private global variables
@@ -97,6 +96,8 @@ public:
 	byte bus_empty();
 	void emulate(int);
 	void do_contention();
+	uint8_t read_memory(uint16_t Addr);
+	void write_memory (uint16_t Addr, uint8_t Value);
 };
 
 void fill_audio(void *udata,Uint8 *,int);

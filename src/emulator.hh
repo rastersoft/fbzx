@@ -17,6 +17,8 @@
  * 
  */
 
+#include <inttypes.h>
+
 #include "z80free/Z80free.h"
 #include "osd.hh"
 #include "screen.hh"
@@ -26,7 +28,7 @@
 
 #define NUM_SNDBUF 2
 
-extern char debug_var;
+extern bool debug_var;
 
 extern Z80FREE procesador;
 extern char path_snaps[2049];
@@ -37,5 +39,7 @@ extern unsigned int jump_frames,curr_frames;
 void load_rom(char);
 void load_main_game(const char *nombre);
 void do_fast_load();
+void print_status();
+void do_push(uint16_t value);
 
 #endif
