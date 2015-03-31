@@ -581,7 +581,7 @@ void do_push(uint16_t value) {
 void do_fast_load() {
 
 	if (!(procesador.Rm.br.F & F_C)) { // if Carry=0, is VERIFY, so return OK
-		do_push(0x053F);
+		do_push(0x053F); // LD_BYTES pushes this address in the stack to return through it
 		procesador.Rm.br.F |= F_C;	 // verify OK
 		procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 		procesador.Rm.wr.DE = 0;
@@ -603,7 +603,7 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("No tape selected",2000);
-			do_push(0x053F);
+			do_push(0x053F); // LD_BYTES pushes this address in the stack to return through it
 			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		break;
@@ -619,7 +619,7 @@ void do_fast_load() {
 			procesador.Rm.wr.IX += procesador.Rm.wr.DE;
 			procesador.Rm.wr.DE = 0;
 			osd->set_message("End of tape. Rewind it.",2000);
-			do_push(0x053F);
+			do_push(0x053F); // LD_BYTES pushes this address in the stack to return through it
 			ordenador->other_ret = 1;	// next instruction must be RET
 			return;
 		case FASTLOAD_OK:
@@ -641,7 +641,7 @@ void do_fast_load() {
 			procesador.IFF1 = 0;
 			procesador.IFF2 = 0;
 			ordenador->other_ret = 1;	// next instruction must be RET
-			do_push(0x053F);
+			do_push(0x053F); // LD_BYTES pushes this address in the stack to return through it
 			if (size == 0) {
 				if (procesador.Rm.wr.DE == 0) {
 					procesador.Rm.br.F |= (F_C);	// Load OK

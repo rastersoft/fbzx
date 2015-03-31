@@ -1,3 +1,6 @@
+2.99.2
+*Fixed an stupid bug in the FAST LD_BYTES code that avoided it to work as expected
+
 2.99.1
 *Now allows to run in TURBO mode when the tape is playing, and return to NORMAL mode when the tape is paused
 *More C++ refactoring
