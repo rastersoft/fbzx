@@ -77,11 +77,13 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 
 	if (signal_received == "pause_tape") {
 		OOTape->set_pause(true);
+		llsound->set_speed(ordenador->turbo); // set speed to the desired mode
 		return true;
 	}
 	if (signal_received == "pause_tape_48k") {
 		if ((this->mode128k == 0) || ((this->mport1 & 0x20) != 0)) {
 			OOTape->set_pause(true);
+			llsound->set_speed(ordenador->turbo); // set speed to the desired mode
 		}
 		return true;
 	}
