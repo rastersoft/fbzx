@@ -17,3 +17,5 @@ WHAT EMULATES RIGHT IN FBZX?
 -Allows to insert POKE values in memory (inmunity, infinite lives...)
 -Can load and save SCR snapshots
 -ULAPlus support
+-Allows to save data in TAP and TZX files
+-Allows to fast-load from TAP and TZX files (only certain block types)

@@ -17,35 +17,43 @@
  * 
  */
 
-struct fichero {
-	char nombre[256]; // filename (for files and directories)
-	char nombrepath[2049]; // filename with path
+using namespace std;
+#include <string>
+
+#include "llscreen.hh"
+
+class fichero {
+public:
+	string nombre; // filename (for files and directories)
+	string nombrepath; // filename with path
 	int tipo; // file type (0=file, 1=directory, 2=parent directory)
 	struct fichero *next;
+	struct fichero *prev;
 };
+
+#define CURSOR_ELEMENT '_'
 
 enum LOAD_FILE_TYPES {FILETYPE_Z80, FILETYPE_TAP_TZX, FILETYPE_MDR, FILETYPE_SCR};
 
-void clean_screen();
 void help_menu();
 void load_z80file();
-char *select_file(char *,enum LOAD_FILE_TYPES);
-struct fichero *read_directory(char *,enum LOAD_FILE_TYPES);
+char *select_file(string,char *,enum LOAD_FILE_TYPES);
+class fichero *read_directory(char *,enum LOAD_FILE_TYPES);
 unsigned int wait_key();
-void print_files(struct fichero *,int,int);
-void delete_filelist(struct fichero *);
+void print_files(class fichero *,int,int);
+void delete_filelist(class fichero *);
 void select_tapfile();
 void save_z80file();
 void settings_menu();
 void snapshots_menu();
 void taps_menu();
-void create_tapfile();
+void create_tapfile(bool);
 void select_mdrfile();
 void create_mdrfile();
 void microdrive_menu();
 void keyboard_menu();
 void load_scrfile();
-int ask_filename(char *nombre,int y_coord,char *extension);
+int ask_filename(char *nombre,int y_coord,string extension);
 void create_scrfile();
 void do_poke();
 int ask_value(int *final_value,int y_coord,int max_value);

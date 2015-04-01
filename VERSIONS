@@ -1,3 +1,15 @@
+3.0.0
+*Now allows to run in TURBO mode when the tape is playing, and return to NORMAL mode when the tape is paused
+*Sorts the files and folders alphabetically
+*Allows to use fast-load with some parts of TZX files
+*Allows to save data both in TAP and TZX files
+*Allows to do FAST-SAVE in +3 mode
+*Allows to create TZX files
+*New fonts for menus
+*Fixed an stupid bug in the FAST LD_BYTES code that avoided it to work as expected
+*Supports new TZX blocks, like "pause if 48K mode"
+*Refactorized in C++
+
 2.11.0
 
 *Allows to play and pause the tape even with the FAST LOAD mode enabled  

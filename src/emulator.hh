@@ -17,23 +17,29 @@
  * 
  */
 
-#ifndef SOUND_H
-#define SOUND_H
+#include <inttypes.h>
 
-enum e_soundtype {SOUND_NO, SOUND_OSS, SOUND_ALSA, SOUND_PULSEAUDIO, SOUND_AUTOMATIC};
+#include "z80free/Z80free.h"
+#include "osd.hh"
+#include "screen.hh"
 
-extern enum e_soundtype sound_type;
+#ifndef emulator_h
+#define emulator_h
 
-int sound_init();
-void sound_play();
-void sound_close();
+#define NUM_SNDBUF 2
 
-extern volatile unsigned char *sdl_sound_buffer;
+extern bool debug_var;
 
-int sound_init_oss();
-int sound_init_alsa();
-int sound_init_pulse();
+extern Z80FREE procesador;
+extern char path_snaps[2049];
+extern char path_taps[2049];
+extern char path_mdrs[2049];
+extern unsigned int jump_frames,curr_frames;
 
-void sdlcallback(void *userdata, Uint8 *stream, int len);
+void load_rom(char);
+void load_main_game(const char *nombre);
+void do_fast_load();
+void print_status();
+void do_push(uint16_t value);
 
 #endif

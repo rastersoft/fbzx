@@ -64,6 +64,8 @@ typedef union {
 
 } Z80FRegs;
 
+enum Z80Status {Z80XX, Z80CB, Z80DD, Z80ED, Z80FD, Z80INT};
+
 /** A Z80 execution context. */
 typedef struct
 {
@@ -82,7 +84,7 @@ typedef struct
 	byte	empty_bus;		/* value for empty bus when procesing a maskable int */
 	word	IAddr;			/* address with offset for IX+d and IY+d */
 	byte	IAddr_done;		/* if 1, IAddr contains a valid data */
-	enum {Z80XX, Z80CB, Z80DD, Z80ED, Z80FD, Z80INT} Status;
+	enum    Z80Status Status;
 } Z80FREE;
 
 /* internal Z80 methods */

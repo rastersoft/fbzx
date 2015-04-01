@@ -17,15 +17,27 @@
  * 
  */
 
-#ifndef H_TAPE
-#define H_TAPE
+#include "computer.hh"
+#include "emulator.hh"
+#include "z80free/Z80free.h"
 
-void tape_read(FILE *, int);
-void tape_read_tap(FILE *, int);
-void tape_read_tzx(FILE *, int);
-void rewind_tape(FILE *,unsigned char);
-unsigned char file_empty(FILE *);
-void fastload_block (FILE *);
-void save_file(FILE *);
+struct z80snapshot {
 
-#endif
+  byte A,F,B,C,D,E,H,L,AA,FF,BB,CC,DD,EE,HH,LL,R,I,IFF1,IFF2,Imode,issue;
+  word PC,IX,IY,SP;
+  byte type; // bit 0/1: 48K/128K/+3
+  byte border; // border color
+  byte pager; // content of pagination register in 128K mode
+  unsigned char page[12][16384];
+  unsigned int found_pages; // bit=1: page exists. bit=0: page don't exists.
+  unsigned char ay_regs[16];
+  unsigned char ay_latch;
+  unsigned char joystick;
+
+};
+
+int save_z80(char *);
+int load_z80(const char *);
+int load_sna(const char *);
+void load_snap(struct z80snapshot *);
+void uncompress_z80(FILE *,int,unsigned char *);

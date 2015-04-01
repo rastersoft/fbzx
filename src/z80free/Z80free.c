@@ -38,7 +38,7 @@ void Z80free_reset(Z80FREE *processor) {
 	processor->HALT=0;
 	processor->IM=0;
 	processor->I=0;
-	processor->Status=0;
+	processor->Status=Z80XX;
 	processor->IAddr_done=0;
 	processor->INT_P=0;
 	processor->NMI_P=0;
@@ -181,19 +181,19 @@ int Z80free_ustep(Z80FREE *processor) {
  */
  
 /** Sets a flag */
-inline void  Z80free_setFlag(Z80FREE *processor, byte flag) {
+void  Z80free_setFlag(Z80FREE *processor, byte flag) {
 
 	processor->Rm.br.F |= flag;
 }
 
 /** Resets a flag */
-inline void Z80free_resFlag(Z80FREE *processor, byte flag) {
+void Z80free_resFlag(Z80FREE *processor, byte flag) {
 
 	processor->Rm.br.F &= ~flag;
 }
 
 /** Puts a value in a flag */
-inline void Z80free_valFlag(Z80FREE *processor, byte flag, int val) {
+void Z80free_valFlag(Z80FREE *processor, byte flag, int val) {
 
 	if (val)
 		processor->Rm.br.F |= flag;
@@ -202,7 +202,7 @@ inline void Z80free_valFlag(Z80FREE *processor, byte flag, int val) {
 }
 
 /** Returns a flag */
-inline int Z80free_getFlag(Z80FREE *processor, byte flag) {
+int Z80free_getFlag(Z80FREE *processor, byte flag) {
 
 	return (processor->Rm.br.F & flag) != 0;
 }
@@ -233,14 +233,14 @@ int Z80free_parityBit[256] = {
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1 };
 
 
-inline void Z80free_adjustFlags (Z80FREE *processor, byte val) {
+void Z80free_adjustFlags (Z80FREE *processor, byte val) {
 
 	Z80free_valFlag(processor,F_5, (val & F_5) != 0);
 	Z80free_valFlag(processor,F_3, (val & F_3) != 0);
 }
 
 
-inline void Z80free_adjustFlagSZP (Z80FREE *processor, byte val) {
+void Z80free_adjustFlagSZP (Z80FREE *processor, byte val) {
 
 	Z80free_valFlag(processor,F_S, (val & 0x80) != 0);
 	Z80free_valFlag(processor,F_Z, (val == 0));
@@ -249,7 +249,7 @@ inline void Z80free_adjustFlagSZP (Z80FREE *processor, byte val) {
 
 
 // Adjust flags after AND, OR, XOR
-inline void Z80free_adjustLogicFlag (Z80FREE *processor, int flagH) {
+void Z80free_adjustLogicFlag (Z80FREE *processor, int flagH) {
 
 	Z80free_valFlag(processor,F_S, (processor->Rm.br.A & 0x80) != 0);
 	Z80free_valFlag(processor,F_Z, (processor->Rm.br.A == 0));
