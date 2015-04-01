@@ -181,7 +181,7 @@ void ResetComputer () {
 	microdrive->reset();
 }
 
-void Z80free_Wr (register word Addr, register byte Value) {
+void Z80free_Wr (word Addr, byte Value) {
 
 	if ((Addr & 0xC000) == 0x4000) {
 		ordenador->do_contention();
@@ -214,7 +214,7 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 
 }
 
-byte Z80free_Rd (register word Addr) {
+byte Z80free_Rd (word Addr) {
 
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
@@ -258,7 +258,7 @@ uint8_t computer::read_memory(uint16_t Addr) {
 	}
 }
 
-void Z80free_Out (register word Port, register byte Value) {
+void Z80free_Out (word Port, byte Value) {
 
 	// Microdrive access
 	
@@ -326,7 +326,7 @@ void Z80free_Out (register word Port, register byte Value) {
 }
 
 
-byte Z80free_In (register word Port) {
+byte Z80free_In (word Port) {
 
 	static unsigned int temporal_io;
 	byte pines;

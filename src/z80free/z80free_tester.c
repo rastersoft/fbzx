@@ -218,17 +218,17 @@ int read_test() {
 	return 0;
 }
 
-byte Z80free_Rd (register word Addr) {
+byte Z80free_Rd (word Addr) {
 
 	return ((byte)memory[Addr]);
 
 }
-void Z80free_Wr (register word Addr, register byte Value) {
+void Z80free_Wr (word Addr, byte Value) {
 
 	memory[Addr]=(unsigned char) Value;
 
 }
-byte Z80free_In (register word Port) {
+byte Z80free_In (word Port) {
 
 	byte value;
 
@@ -244,7 +244,7 @@ byte Z80free_In (register word Port) {
 	return (value);
 
 }
-void Z80free_Out (register word Port, register byte Value) {
+void Z80free_Out (word Port, byte Value) {
 
 }
 

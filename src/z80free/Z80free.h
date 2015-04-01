@@ -125,8 +125,8 @@ word Z80free_addr_relative(Z80FREE *processor,word address);
 word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1);
 byte Z80free_read_param_8(Z80FREE *z80);
 word Z80free_read_param_16(Z80FREE *z80);
-word Z80free_read16 (register word addr);
-void Z80free_write16 (register word addr,register word val);
+word Z80free_read16 (word addr);
+void Z80free_write16 (word addr,word val);
 
 /* external Z80 methods */
 
@@ -135,10 +135,10 @@ int Z80free_step(Z80FREE *);
 int Z80free_ustep(Z80FREE *);
 void Z80free_INT(Z80FREE *,byte);
 
-byte Z80free_Rd (register word Addr);
-void Z80free_Wr (register word Addr, register byte Value);
-byte Z80free_In (register word Port);
-void Z80free_Out (register word Port, register byte Value);
+byte Z80free_Rd (word Addr);
+void Z80free_Wr (word Addr, byte Value);
+byte Z80free_In (word Port);
+void Z80free_Out (word Port, byte Value);
 
 /* Opcode functions */
 

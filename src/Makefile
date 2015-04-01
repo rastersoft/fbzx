@@ -1,9 +1,9 @@
-CC=g++ -c
-CPP=g++ -c -g
-LN=g++
+CC=g++ -c -O2
+CPP=g++ -c -O2
+LN=g++ -O2
 
-CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
-CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -O2 -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
+CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
+CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
 

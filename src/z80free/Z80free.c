@@ -749,7 +749,7 @@ word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1) {
 	return (address+rel2);
 }
 
-void Z80free_write16 (register word addr,register word val) {
+void Z80free_write16 (word addr,word val) {
 
 	Z80free_Wr(addr, (byte)(val & 0xFF));
 	val >>= 8;
@@ -757,7 +757,7 @@ void Z80free_write16 (register word addr,register word val) {
 	Z80free_Wr(addr, (byte)(val & 0xFF));
 }
 
-word Z80free_read16 (register word addr) {
+word Z80free_read16 (word addr) {
 
 	static word v1;
 	v1=((word)Z80free_Rd(addr))&0x00FF;
