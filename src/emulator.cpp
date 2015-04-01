@@ -481,19 +481,20 @@ int main(int argc,char *argv[]) {
 				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();
 			} else {
-				osd->set_message("No TAP/TZX file selected",1000);
+				osd->set_message("No TAP/TZX file selected",2000);
 			}
 			continue;
 		}
 		
-		if ((PC >= 0x04C2) && (PC <=0x53D) && (ordenador->page48k == 1)) {
-			printf("Direccion %X\n",PC);
-		}
-
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
 		
 		if((!microdrive->mdr_paged) && ((PC==0x04C2) || (PC == 0x04C6)) && (ordenador->tape_write==1) && (ordenador->page48k == 1)) {
+
+			if(ordenador->current_tap == "") {
+				osd->set_message("No TAP/TZX file selected",2000);
+				continue;
+			}
 
 			uint8_t *data;
 			uint8_t op_xor;

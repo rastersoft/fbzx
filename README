@@ -40,6 +40,8 @@ mode, resulting in a high performance penalty. If you use an specific Framebuffe
 driver, or the VESAFB driver from kernels 2.6, just don't worry: FBZX will
 automagically change the graphic mode when starts.
 
+Of course, currently that is no problem thanks to the high speed of computers.
+
 
 WHAT CAPABILITIES HAVE FBZX?
 
@@ -135,7 +137,10 @@ F2 sends you to a menu where you can load and save snapshots.
 
 F3 sends you to a menu where you can choose a TAP/TZX file, rewind it,
 choose if you want normal speed or fast speed for loading, enable or
-disable the write protection, and create a new (and empty) TAP file.
+disable the write protection, and create a new (and empty) TAP or TZX file.
+Also, allows to enable the TURBO WHILE PLAYING mode, that makes the emulator
+run at the maximum possible speed while the tape is running, allowing to
+do a fast load even with protected tapes.
 
 F4 send you to a menu where you can choose the emulation type you want (48K,
 128K, +2, +2A or spanish 128K), the joystick, enable or disable the AY
@@ -182,7 +187,7 @@ since the emulator intercepts the call to SA-BYTES). Each new block is added at
 the end of the file, but only if the SAVE operation is enabled for this file.
 
 
-HOW WORKS THE FAST SPEED LOAD AND SAVE FOR TAP/TZX FILES?
+HOW DOES WORK THE FAST SPEED LOAD FOR TAP/TZX FILES?
 
 Just type LOAD "" in the emulator (or choose the TAPE LOADER option in the 128K
 menu) and the tape will automagically load. This only works with programs that
@@ -193,7 +198,7 @@ to the emulation (with ESC) and use LOAD "" (or the TAPE LOADER option).
 Finally, put the tape in Play with F6. You can stop the tape with F5 and start
 it again with F6 as many times you want.
 
-When the tape ends, is automatically stoped and rewinded. You can rewind the
+When the tape ends, is automatically stoped. You can rewind the
 tape when you want with the right option in the TAP menu (F3 key).
 
 In a near future a block manager will be added, in order to allow the user to
@@ -201,12 +206,23 @@ choose a block into the TAP file (thinking in multistage games).
 
 Remember that the Fast Speed is available both for TAP and TZX files, but it
 only works with some parts (only when the ROM is called, never for specific
-loader routines). In the last case you can go to the SETTINGS menu (F4) and
-change the TURBO mode to FAST, so the tape will load faster, and then change
-again to NORMAL.
+loader routines). In the last case you can go to the TAP/TZX menu (F3) and
+change the TURBO WHILE PLAYING mode to ENABLED, so the computer (and the tape)
+will run faster when the tape is playing (F6 key), but will return to normal
+speed when the tape is paused (F5 key or end-of-tape).
 
 
-HOW WORKS THE INTERFACE I AND MICRODRIVE EMULATION?
+HOW DOES WORK THE FAST SPEED SAVE FOR TAP/TZX FILES?
+
+If write is enabled, using the SAVE command will add blocks to the currently
+selected tape file, no matter if FAST-LOAD is enabled or not. By default,
+write is disabled whenever a file is selected, but is enabled whenever a
+new TAP/TZX file is created from scratch. This functionality works with any
+program that uses the SA-BYTES ROM routine, no matter if enters at 04C2 (like
+the classic spectrum 48K rom) or at 04C6 (like the Spectrum +3).
+
+
+HOW DOES WORK THE INTERFACE I AND MICRODRIVE EMULATION?
 
 FBZX can emulate an Interface I with one microdrive attached, but only when
 working as Spectrum 48K, 128K or +2, never as +2A/+3 since it's incompatible.
