@@ -47,7 +47,7 @@ void save_z80file();
 void settings_menu();
 void snapshots_menu();
 void taps_menu();
-void create_tapfile();
+void create_tapfile(bool);
 void select_mdrfile();
 void create_mdrfile();
 void microdrive_menu();

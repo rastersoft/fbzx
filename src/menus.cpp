@@ -558,9 +558,11 @@ void taps_menu() {
 
 		llscreen->print_string("5: \001\017create empty TAP file",14,8,12,0);
 
-		llscreen->print_string("6: \001\017Fast mode when playing tape",320,8,12,0);
+		llscreen->print_string("6: \001\017create empty TZX file",320,8,12,0);
 
-		llscreen->print_string("ESC: \001\017return to emulator",14,12,12,0);
+		llscreen->print_string("7: \001\017Fast mode when playing tape",14,10,12,0);
+
+		llscreen->print_string("ESC: \001\017return to emulator",-1,14,12,0);
 
 		llscreen->print_string("Current TAP/TZX file is:",-1,17,12,0);
 		llscreen->print_string(ordenador->current_tap,-1,18,15,0);
@@ -604,9 +606,12 @@ void taps_menu() {
 			ordenador->tape_write = ordenador->tape_write ? false : true;
 		break;
 		case SDLK_5:
-			create_tapfile();
+			create_tapfile(false);
 		break;
 		case SDLK_6:
+			create_tapfile(true);
+		break;
+		case SDLK_7:
 			ordenador->turbo_play = ordenador->turbo_play ? false : true;
 		break;
 		default:
@@ -649,7 +654,7 @@ void select_tapfile() {
 	llscreen->clear_screen();
 }
 
-void create_tapfile() {
+void create_tapfile(bool tzx) {
 
 	int retorno;
 	char nombre2[1024];
@@ -657,14 +662,18 @@ void create_tapfile() {
 
 	llscreen->clear_screen();
 
-	llscreen->print_string("Choose a name for the TAP file",-1,2,14,0);
 	llscreen->print_string("(up to 30 characters)",-1,3,14,0);
 
-	llscreen->print_string("TAP file will be saved in:",-1,19,12,0);
+	llscreen->print_string("File will be saved in:",-1,19,12,0);
 	llscreen->print_string(path_taps,0,20,12,0);
 
-
-	retorno=ask_filename(nombre2,5,"tap");
+	if (tzx) {
+		llscreen->print_string("Choose a name for the TZX file",-1,2,14,0);
+		retorno=ask_filename(nombre2,5,"tzx");
+	} else {
+		llscreen->print_string("Choose a name for the TAP file",-1,2,14,0);
+		retorno=ask_filename(nombre2,5,"tap");
+	}
 
 	llscreen->clear_screen();
 
@@ -673,10 +682,11 @@ void create_tapfile() {
 
 	if (-1 == stat(nombre2,&tmpstat)) {
 		// File not exists. Good.
-		FILE *tmp = fopen(nombre2,"a+"); // create for read and write
+		FILE *tmp = fopen(nombre2,"wb"); // create for read and write
 		if(tmp == NULL) {
 			retorno = -2;
 		} else {
+			fwrite("ZXTape!\032\001\024",10,1,tmp); // TZX header
 			fclose(tmp);
 			retorno = 0;
 		}
