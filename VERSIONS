@@ -1,3 +1,7 @@
+2.99.3
+*Allows to do FAST-SAVE in +3 mode
+*Allows to create TZX files
+
 2.99.2
 *Fixed an stupid bug in the FAST LD_BYTES code that avoided it to work as expected
 
