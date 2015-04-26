@@ -1,0 +1,14 @@
+Source: fbzx
+Maintainer: Sergio Costas Rodriguez <raster@rastersoft.com>
+Section: games
+Priority: optional
+Build-Depends: build-essential, make, libpulse-dev, libasound2-dev, libsdl1.2-dev
+
+Package: fbzx
+Version: 3.0.0
+Architecture: any
+Depends: libpulse0,libasound2,libsdl1.2debian,spectrum-roms (>=20081224-1)
+Homepage: http://www.rastersoft.com/fbzx.html
+Description: Sinclair Spectrum emulator
+ FBZX is a Sinclair ZX Spectrum emulator for Linux/Unix. It
+ can work over X-Windows or in a FrameBuffer console.
