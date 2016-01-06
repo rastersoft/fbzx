@@ -30,6 +30,11 @@ public:
 	uint8_t s8,s9,s10,s11,s12,s13,s14,s15;
 	uint8_t js;
 	uint8_t joystick; // 0=cursor, 1=kempston, 2=sinclair1, 3=sinclair2
+	int32_t mouse_x;
+	int32_t mouse_y;
+	bool mouse_left;
+	bool mouse_center;
+	bool mouse_right;
 	bool tab_extended;
 	bool esc_again;
 };

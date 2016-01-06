@@ -24,6 +24,11 @@ Keyboard::Keyboard() {
 
 	this->readed = 0;
 	this->joystick = 0;
+	this->mouse_x = 0;
+	this->mouse_y = 0;
+	this->mouse_left = false;
+	this->mouse_right = false;
+	this->mouse_center = false;
 }
 
 void Keyboard::reset() {
@@ -39,7 +44,7 @@ void Keyboard::reset() {
 	this->js=0;
 }
 
-// Read the keyboard and stores the flags
+// Read the keyboard and mouse, and stores the flags
 
 void Keyboard::read_keyboard (SDL_Event *pevento2) {
 
@@ -59,6 +64,40 @@ void Keyboard::read_keyboard (SDL_Event *pevento2) {
 	if (pevento->type==SDL_QUIT) {
 		salir = 0;
 		return;
+	}
+
+	if (pevento->type==SDL_MOUSEMOTION) {
+		this->mouse_x += pevento->motion.xrel;
+		this->mouse_y += pevento->motion.yrel;
+		return;
+	}
+
+	if (pevento->type==SDL_MOUSEBUTTONDOWN) {
+		switch (pevento->button.button) {
+		case SDL_BUTTON_LEFT:
+			this->mouse_left = true;
+		break;
+		case SDL_BUTTON_MIDDLE:
+			this->mouse_center = true;
+		break;
+		case SDL_BUTTON_RIGHT:
+			this->mouse_right = true;
+		break;
+		}
+	}
+
+	if (pevento->type==SDL_MOUSEBUTTONUP) {
+		switch (pevento->button.button) {
+		case SDL_BUTTON_LEFT:
+			this->mouse_left = false;
+		break;
+		case SDL_BUTTON_MIDDLE:
+			this->mouse_center = false;
+		break;
+		case SDL_BUTTON_RIGHT:
+			this->mouse_right = false;
+		break;
+		}
 	}
 
 	if (pevento->type==SDL_JOYBUTTONDOWN) {

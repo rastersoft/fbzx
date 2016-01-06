@@ -29,7 +29,7 @@ install:
 	cp data/keymap.bmp $(PREFIX2)/share/fbzx
 	cp data/fbzx.desktop $(PREFIX2)/share/applications
 	cp data/fbzx.svg $(PREFIX2)/share/pixmaps
-	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS $(PREFIX2)/share/doc/fbzx/
+	cp AMSTRAD CAPABILITIES COPYING FAQ README README.TZX VERSIONS.md $(PREFIX2)/share/doc/fbzx/
 	cp fbzx.appdata.xml $(PREFIX2)/share/appdata/
 	chmod 644 $(PREFIX2)/share/fbzx/*
 	chmod 644 $(PREFIX2)/share/doc/fbzx/*

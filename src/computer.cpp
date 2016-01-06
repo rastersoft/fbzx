@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -32,6 +32,7 @@
 #include "tape.hh"
 #include "computer.hh"
 #include "keyboard.hh"
+#include "mouse.hh"
 
 #include "llsound.hh"
 #include "z80free/Z80free.h"
@@ -109,6 +110,7 @@ void computer::emulate (int tstados) {
 	spk_ay->play_sound (tstados);
 	OOTape->play(tstados);
 	microdrive->emulate(tstados);
+	mouse->emulate(tstados);
 
 	if (!OOTape->get_pause()) {
 		if (OOTape->read_signal() != 0) {
@@ -179,6 +181,7 @@ void ResetComputer () {
 	keyboard->reset();
 	screen->reset(ordenador->mode128k);
 	microdrive->reset();
+	mouse->reset();
 }
 
 void Z80free_Wr (word Addr, byte Value) {
@@ -386,6 +389,15 @@ byte Z80free_In (word Port) {
 		if (keyboard->joystick == 1) {
 			return (keyboard->js);
 		} else {
+			if(((Port&0xFF00) == 0xFA00) && (mouse->enabled)) {
+				return(mouse->button);
+			}
+			if(((Port&0xFF00) == 0xFB00) && (mouse->enabled)) {
+				return(mouse->x);
+			}
+			if(((Port&0xFF00) == 0xFF00) && (mouse->enabled)) {
+				return(mouse->y);
+			}
 			return 0; // if Kempston is not selected, emulate it, but always 0
 		}
 	}
@@ -397,9 +409,10 @@ byte Z80free_In (word Port) {
 	
 	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active))
 		return(microdrive->in(Port));
+
 	
+
 	pines=ordenador->bus_empty();
 
 	return (pines);
 }
-

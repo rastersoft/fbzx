@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <stdio.h>
@@ -35,6 +35,7 @@
 #include "llsound.hh"
 #include "keyboard.hh"
 #include "spk_ay.hh"
+#include "mouse.hh"
 
 bool debug_var = false;
 
@@ -372,6 +373,7 @@ int main(int argc,char *argv[]) {
 	ordenador = new computer();
 	microdrive = new Microdrive();
 	spk_ay = new SPK_AY();
+	mouse = new Mouse();
 
 	load_config();
 

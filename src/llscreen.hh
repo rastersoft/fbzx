@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef __LLSCREEN_H_
@@ -57,6 +57,7 @@ public:
 	void set_paletes(bool);
 	void paint_one_pixel(uint8_t value,unsigned char *address);
 	void fullscreen_switch();
+	void set_mouse();
 	void set_palete_entry(uint8_t entry, uint8_t Value, bool bw);
 	uint8_t get_palete_entry(uint8_t entry);
 	void clear_screen();
