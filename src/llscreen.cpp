@@ -534,7 +534,7 @@ void LLScreen::clear_screen() {
 
 // prints the string CADENA in X,Y (centered if X=-1), with colors COLOR and BACK
 
-void LLScreen::print_string(string o_cadena, int16_t x, int16_t y, uint8_t ink, uint8_t paper) {
+void LLScreen::print_string(string o_cadena, int16_t x, float y, uint8_t ink, uint8_t paper) {
 
 	int length, ncarac, bucle, xx;
 	uint16_t xxx, yyy;

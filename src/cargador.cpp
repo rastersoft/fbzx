@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "cargador.hh"
@@ -121,13 +121,13 @@ int save_z80(char *filename) {
 	if (ordenador->issue == 2)
 		value |= 4;
 	switch (keyboard->joystick) {
-	case 1:
+	case JOYSTICK_KEMPSTON:
 		value |= 64;
 		break;
-	case 2:
+	case JOYSTICK_SINCLAIR1:
 		value |= 128;
 		break;
-	case 3:
+	case JOYSTICK_SINCLAIR2:
 		value |= 192;
 		break;
 	}
@@ -603,7 +603,20 @@ void load_snap(struct z80snapshot *snap) {
 		break;
 	}
 
-	keyboard->joystick = snap->joystick;
+	switch (snap->joystick) {
+	case 0:
+		keyboard->joystick = JOYSTICK_CURSOR;
+	break;
+	case 1:
+		keyboard->joystick = JOYSTICK_KEMPSTON;
+	break;
+	case 2:
+		keyboard->joystick = JOYSTICK_SINCLAIR1;
+	break;
+	case 3:
+		keyboard->joystick = JOYSTICK_SINCLAIR2;
+	break;
+	}
 
 	procesador.Rm.br.A = snap->A;
 	procesador.Rm.br.F = snap->F;

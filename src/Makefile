@@ -55,7 +55,7 @@ llscreen.o: llscreen.cpp osd.hh font.h llscreen.hh
 llsound.o: llsound.cpp emulator.hh screen.hh osd.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh llsound.hh
 	$(CPP) $(CPPFLAGS) -o llsound.o llsound.cpp
 
-menus.o: menus.cpp spk_ay.hh microdrive.hh z80free/Z80free.h keyboard.hh llsound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh computer.hh cargador.hh
+menus.o: menus.cpp mouse.hh z80free/Z80free.h spk_ay.hh microdrive.hh keyboard.hh llsound.hh llscreen.hh menus.hh tape.hh signals.hh emulator.hh screen.hh osd.hh computer.hh cargador.hh
 	$(CPP) $(CPPFLAGS) -o menus.o menus.cpp
 
 microdrive.o: microdrive.cpp osd.hh emulator.hh screen.hh z80free/Z80free.h computer.hh signals.hh llscreen.hh tape.hh microdrive.hh

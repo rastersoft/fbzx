@@ -215,6 +215,7 @@ void save_config() {
 	fprintf(fconfig,"bw=%c%c",ordenador->bw ? '1' : '0',10);
 	fprintf(fconfig,"fast=%c%c",ordenador->tape_fast_load ? '1' : '0',10);
 	fprintf(fconfig,"turboload=%c%c",ordenador->turbo_play ? '1' : '0',10);
+	fprintf(fconfig,"mouse=%c%c",mouse->enabled ? '1' : '0',10);
 	fclose(fconfig);
 }
 
@@ -224,7 +225,7 @@ void load_config() {
 	char line[1024],carac,done;
 	int length,pos;
 	FILE *fconfig;
-	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw,fast,turboload=255;
+	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw=255,fast=255,turboload=255,mouse_enabled=255;
 	
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
@@ -299,6 +300,10 @@ void load_config() {
 			turboload=(line[10]-'0');
 			continue;
 		}
+		if (!strncmp(line,"mouse=",6)) {
+			mouse_enabled=(line[6]-'0');
+			continue;
+		}
 	}
 	
 	if (mode128k<5) {
@@ -308,7 +313,20 @@ void load_config() {
 		ordenador->issue=issue;
 	}
 	if (joystick<4) {
-		keyboard->joystick=joystick;
+		switch (joystick) {
+		case 0:
+			keyboard->joystick = JOYSTICK_CURSOR;
+		break;
+		case 1:
+			keyboard->joystick = JOYSTICK_KEMPSTON;
+		break;
+		case 2:
+			keyboard->joystick = JOYSTICK_SINCLAIR1;
+		break;
+		case 3:
+			keyboard->joystick = JOYSTICK_SINCLAIR2;
+		break;
+		}
 	}
 	if (ay_emul<2) {
 		spk_ay->ay_emul=ay_emul;
@@ -327,6 +345,9 @@ void load_config() {
 	}
 	if (turboload<2) {
 		ordenador->turbo_play = turboload==0 ? false : true;
+	}
+	if (mouse_enabled<2) {
+		mouse->enabled = mouse_enabled==0 ? false : true;
 	}
 	if (volume<255) {
 		llsound->set_volume(volume);

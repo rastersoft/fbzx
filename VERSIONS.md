@@ -1,3 +1,6 @@
+* Version 3.1.0
+   * Added Kempston Mouse emulation
+   * Added block 30 support for TZX files
 * Version 3.0.0
    * Now allows to run in TURBO mode when the tape is playing, and return to NORMAL mode when the tape is paused
    * Sorts the files and folders alphabetically

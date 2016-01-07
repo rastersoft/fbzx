@@ -392,4 +392,3 @@ uint8_t Screen::read_ulaplus_value() {
 	}
 	return 0;
 }
-

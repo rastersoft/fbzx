@@ -23,7 +23,7 @@ Keyboard::Keyboard() {
 	this->jk = 0x00;
 
 	this->readed = 0;
-	this->joystick = 0;
+	this->joystick = JOYSTICK_CURSOR;
 	this->mouse_x = 0;
 	this->mouse_y = 0;
 	this->mouse_left = false;

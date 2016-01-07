@@ -15,27 +15,21 @@ void Mouse::reset() {
   this->x = 0;
   this->y = 0;
   this->button = 255;
-  this->enabled = true;
   
 }
 
 Mouse::Mouse() {
+  this->enabled = false;
   this->reset();
 }
 
 void Mouse::emulate(int tstates) {
 
-  unsigned int diffx = keyboard->mouse_x - this->posx;
-  unsigned int diffy = keyboard->mouse_y - this->posy;
+  uint8_t diffx = (keyboard->mouse_x - this->posx)/2;
+  uint8_t diffy = (keyboard->mouse_y - this->posy)/2;
   this->posx = keyboard->mouse_x;
   this->posy = keyboard->mouse_y;
   
-  if (diffx < 2) {
-    diffx=0;
-  }
-  if (diffy < 2) {
-    diffy=0;
-  }
   this->x += diffx;
   this->y -= diffy;
   this->button = 255;
