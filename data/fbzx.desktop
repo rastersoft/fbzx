@@ -8,5 +8,6 @@ GenericName=A Sinclair ZX Spectrum emulator
 Comment=Play with the old, great games of the venerable ZX Spectrum
 TryExec=fbzx
 Exec=fbzx
+Keywords=emulator,sinclair,spectrum
 Categories=Game;
 Icon=fbzx

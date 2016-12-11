@@ -15,6 +15,7 @@
     <li>Supports Z80 snapshots, both loading and saving, and loading .SNA snapshots.</li>
     <li>Supports TAP (both read and write) and TZX (only read) tape files, supporting normal speed loading and fast speed loading.</li>
     <li>Emulates joysticks: kempston, cursor and sinclair.</li>
+    <li>Emulates kempston mouse</li>
     <li>Emulates the Interface I and Microdrive.</li>
     <li>Emulates the ULAPlus.</li>
     <li>Based in a new, fully free, Z80 emulator (Z80Free).</li>
@@ -26,4 +27,9 @@
  </screenshots>
  <url type="homepage">http://www.rastersoft.com/fbzx.html</url>
  <updatecontact>raster@rastersoft.com</updatecontact>
+ <keywords>
+   <keyword>sinclair</keyword>
+   <keyword>zx</keyword>
+   <keyword>spectrum</keyword>
+   <keyword>emulator</keyword>
 </application>

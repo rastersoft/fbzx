@@ -288,15 +288,17 @@ int load_z80(const char *filename) {
 		tempo[12] = 1;
 	}
 
-	if (tempo[12] & 0x01)
+	if (tempo[12] & 0x01) {
 		snap->R |= 0x80;
+	}
 
 	snap->border = (tempo[12] >> 1) & 0x07;
 
-	if (tempo[12] & 32)
+	if ((tempo[12] & 32) || (type)) {
 		compressed = 1;
-	else
+	} else {
 		compressed = 0;
+	}
 
 	snap->E = tempo[13];
 	snap->D = tempo[14];
