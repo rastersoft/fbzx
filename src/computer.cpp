@@ -170,11 +170,11 @@ void ResetComputer () {
 	break;
 	
 	case 3:		// +2A/+3
-		Z80free_Out (0x1FFD, 0);
+		Z80free_Out (0x1FFD, 0); // Here must NOT be a break, because +2A and +3 need both OUT, at 1FFD and 7FFD
 	case 1:		// 128K
 	case 2:		// +2
 	case 4:		// spanish 128K
-		Z80free_Out (0x7FFD, 0);
+		Z80free_Out (0x7FFD, 0); // set the page for 128K (both spanish and british), +2, +2A and +3
 	break;
 	}
 	spk_ay->reset();
