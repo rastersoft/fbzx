@@ -1,13 +1,11 @@
 [Desktop Entry]
 X-MultipleArgs=false
 Type=Application
-Version=2.9.0
-Encoding=UTF-8
 Name=FBZX
 GenericName=A Sinclair ZX Spectrum emulator
-Comment=Play with the old, great games of the venerable ZX Spectrum
+Comment=Play the old, great games of the venerable ZX Spectrum
 TryExec=fbzx
 Exec=fbzx
 Keywords=emulator,sinclair,spectrum
-Categories=Game;
+Categories=Game
 Icon=fbzx
