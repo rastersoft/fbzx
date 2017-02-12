@@ -205,8 +205,8 @@ void Screen::show_screen (int tstados) {
 	ordenador->cicles_counter += tstados;
 
 	if (curr_frames!=jump_frames) {
-		if (this->tstados_counter>=69888) {
-			this->tstados_counter-=69888;
+		if (this->tstados_counter >= 69888) {
+			this->tstados_counter -= 69888;
 			ordenador->interr = 1;
 			curr_frames++;
 		}
@@ -230,9 +230,7 @@ void Screen::show_screen (int tstados) {
 			} else {
 				this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
 			}
-
 			this->bus_value = 255;
-
 		} else {
 
 			// is user area. We search for ink and paper colours
@@ -260,8 +258,9 @@ void Screen::show_screen (int tstados) {
 			if(this->screen_snow) {
 				temporal = ordenador->memoria[(((*this->p_translt) + (ordenador->video_offset))&0xFFFFFF00)+(procesador.R)];	// data with snow
 				this->screen_snow = false; // no more snow for now
-			} else
+			} else {
 				temporal = ordenador->memoria[(*this->p_translt) + ordenador->video_offset];	// data
+			}
 
 			this->p_translt++;
 			this->p_translt2++;

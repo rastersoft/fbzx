@@ -1,3 +1,6 @@
+* Version 3.2.0
+   * Better memory contention
+   * Fixed pause block in TZX files
 * Version 3.1.0
    * Added Kempston Mouse emulation
    * Added block 30 support for TZX files

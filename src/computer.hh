@@ -31,6 +31,11 @@
 
 // #define MUT
 
+#define CONTENTION_RD 3
+#define CONTENTION_WR 3
+#define CONTENTION_IN 3
+#define CONTENTION_OUT 3
+
 extern char salir;
 
 extern class computer *ordenador;
@@ -52,6 +57,7 @@ public:
 
 	bool contended_zone; // 0-> no contention; 1-> contention possible
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
+	int contended_cicles; // cicles used during contention (must not be counted after ending the execution of an instruction)
 
 	// Linux joystick private global variables
 
