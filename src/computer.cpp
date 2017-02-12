@@ -133,7 +133,7 @@ void computer::do_contention() {
 		return;
 	}
 
-	int ccicles=(this->cicles_counter-14335) % 8;
+	int ccicles = (this->cicles_counter - 14335) % 8;
 
 	if (ccicles>5) {
 		return;
@@ -150,8 +150,6 @@ void ResetComputer () {
 
 	Z80free_reset (&procesador);
 	load_rom (ordenador->current_mode);
-
-
 
 	ordenador->updown=0;
 	ordenador->leftright=0;
@@ -189,6 +187,8 @@ void Z80free_Wr (word Addr, byte Value) {
 		ordenador->do_contention();
 	}
 	ordenador->write_memory(Addr,Value);
+	ordenador->emulate(1);
+	ordenador->contended_cicles += 1;
 }
 
 void computer::write_memory (uint16_t Addr, uint8_t Value) {
@@ -231,6 +231,8 @@ byte Z80free_Rd (word Addr) {
 		if ((Addr & 0xC000) == 0x4000) {
 			ordenador->do_contention();
 		}
+		ordenador->emulate(1);
+		ordenador->contended_cicles += 1;
 		return (ordenador->read_memory(Addr));
 	}
 }

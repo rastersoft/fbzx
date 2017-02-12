@@ -503,12 +503,13 @@ int main(int argc,char *argv[]) {
 	while(salir) {
 
 		do {
+			ordenador->contended_cicles = 0;
 			tstados=Z80free_ustep(&procesador);
 			if(tstados<0) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
 			}
-			ordenador->emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
+			ordenador->emulate(tstados - ordenador->contended_cicles); // execute the whole hardware emulation for that number of TSTATES
 		} while(procesador.Status!=Z80XX);
 		PC=procesador.PC;
 
@@ -524,10 +525,10 @@ int main(int argc,char *argv[]) {
 			}
 			continue;
 		}
-		
+
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
-		
+
 		if((!microdrive->mdr_paged) && ((PC==0x04C2) || (PC == 0x04C6)) && (ordenador->tape_write==1) && (ordenador->page48k == 1)) {
 
 			if(ordenador->current_tap == "") {
@@ -573,24 +574,24 @@ int main(int argc,char *argv[]) {
 			ordenador->other_ret = 1;	// next instruction must be RET
 			continue;
 		}
-		
+
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */
-		
+
 		if(microdrive->mdr_paged == 2) {
 			microdrive->mdr_paged = 0;
 		}
-		
+
 		/* if PC is 0x0008 or 0x1708, and we have a microdrive, we have to page
 		the Interface 1 ROM */
-		
+
 		if(((PC==0x0008)||(PC==0x1708))&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 1;
 		}
-		
+
 		/* if PC is 0x0700 and we have a microdrive, we have to unpage
 		the Interface 1 ROM after the last instruction */
-		
+
 		if((PC==0x0700)&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 2;
 		}
