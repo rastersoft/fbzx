@@ -1,10 +1,11 @@
-* Version 3.2.0
+## VERSIONS ##
+* Version 3.2.0 (2017-02-12)
    * Better memory contention
    * Fixed pause block in TZX files
-* Version 3.1.0
+* Version 3.1.0 (2016-12/16)
    * Added Kempston Mouse emulation
    * Added block 30 support for TZX files
-* Version 3.0.0
+* Version 3.0.0 (2015-04-01)
    * Now allows to run in TURBO mode when the tape is playing, and return to NORMAL mode when the tape is paused
    * Sorts the files and folders alphabetically
    * Allows to use fast-load with some parts of TZX files
@@ -15,7 +16,7 @@
    * Fixed an stupid bug in the FAST LD_BYTES code that avoided it to work as expected
    * Supports new TZX blocks, like "pause if 48K mode"
    * Refactorized in C++
-* Version 2.11.0
+* Version 2.11.0 (2015-03-31)
    * Allows to play and pause the tape even with the FAST LOAD mode enabled  
    * Adds some noise in the tape bit to ensure that the user knows when a program is waiting to load from tape
 * Version 2.10.0
@@ -42,7 +43,7 @@
    * ULAPlus support
    * Fixed a little bug in the ROM loading
    * Allows to go to TAP/Snapshots/etc menus from HELP menu
-* Version 2.5.0
+* Version 2.5.0 (2011-04-07)
    * Allows to set POKEs
    * Emulates B&W sets
    * Allows to load and save SCR snapshots
