@@ -153,27 +153,28 @@ void settings_menu() {
 		llscreen->clear_screen();
 
 		llscreen->print_string("Current settings",-1,0,15,0);
-		switch(ordenador->mode128k) {
-		case 0:
-			if(ordenador->issue==2)
-				sprintf(texto,"Mode: \001\01648K issue2");
-			else
+		switch(ordenador->current_mode) {
+		case MODE_48K:
+			if(ordenador->issue_3) {
 				sprintf(texto,"Mode: \001\01648K issue3");
+			} else {
+				sprintf(texto,"Mode: \001\01648K issue2");
+			}
 		break;
-		case 1:
+		case MODE_128K:
 			sprintf(texto,"Mode: \001\016Sinclair 128K");
 		break;
-		case 2:
+		case MODE_P2:
 			sprintf(texto,"Mode: \001\016Amstrad +2");
 		break;
-		case 3:
+		case MODE_P3:
 			sprintf(texto,"Mode: \001\016Amstrad +2A/+3");
 		break;
-		case 4:
+		case MODE_128K_SPA:
 			sprintf(texto,"Mode: \001\016Spanish 128K");
 		break;
 		}
-  
+
 		llscreen->print_string(texto,-1,2,15,0);
 
 		switch(keyboard->joystick) {
@@ -274,39 +275,39 @@ void settings_menu() {
 			fin=0;
 		break;
 		case SDLK_1:
-			ordenador->issue=2;
-			ordenador->mode128k=0;
+			ordenador->issue_3 = false;
+			ordenador->current_mode = MODE_48K;
 			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_2:
-			ordenador->issue=3;
-			ordenador->mode128k=0;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_48K;
 			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_3:
-			ordenador->issue=3;
-			ordenador->mode128k=1;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_128K;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_4:
-			ordenador->issue=3;
-			ordenador->mode128k=2;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_P2;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_5:
-			ordenador->issue=3;
-			ordenador->mode128k=3;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_P3;
 			spk_ay->ay_emul=1;
 			microdrive->mdr_active=0;
 			ResetComputer();
 		break;
 		case SDLK_6:
-			ordenador->issue=3;
-			ordenador->mode128k=4;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_128K_SPA;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
@@ -324,7 +325,7 @@ void settings_menu() {
 			keyboard->joystick=JOYSTICK_SINCLAIR2;
 		break;
 		case SDLK_i:
-			if(ordenador->mode128k!=3) {
+			if(ordenador->current_mode != MODE_P3) {
 				microdrive->mdr_active=1-microdrive->mdr_active;
 				ResetComputer();
 			}
@@ -390,7 +391,7 @@ void do_poke() {
 			return;
 		}
 
-		if ((address<16384) && ((ordenador->mode128k != 3) || (1 != (ordenador->mport2 & 0x01)))) {
+		if ((address<16384) && ((ordenador->current_mode != MODE_P3) || (1 != (ordenador->mport2 & 0x01)))) {
 			llscreen->print_string("That address is ROM memory.",-1,1,15,0);
 			continue;
 		}
@@ -512,7 +513,7 @@ void snapshots_menu() {
 
 	llscreen->print_string("1: \001\017load a Z80/SNA snapshot",14,4,12,0);
 
-	if(ordenador->mode128k!=3) { // not in +3 mode
+	if(ordenador->current_mode != MODE_P3) { // not in +3 mode
 		llscreen->print_string("2: \001\017make a Z80 snapshot",14,6,12,0);
 	} else {
 		llscreen->print_string("Can't make snapshots in +3 mode",14,6,15,0);
@@ -538,8 +539,9 @@ void snapshots_menu() {
 		break;
 		case SDLK_2:
 			fin=0;
-			if(ordenador->mode128k!=3) // not in +3 mode
+			if(ordenador->current_mode != MODE_P3) { // not in +3 mode
 				save_z80file();
+			}
 		break;
 		case SDLK_3:
 			fin=0;

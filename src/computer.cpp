@@ -49,8 +49,8 @@ computer::computer() {
 	this->page48k = 0;
 	this->bus_counter = 0;
 	this->port254 = 0;
-	this->issue = 3;
-	this->mode128k = 0;
+	this->issue_3 = true;
+	this->current_mode = MODE_48K;
 	this->turbo = false;
 	this->turbo_play = true;
 
@@ -81,7 +81,7 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 		return true;
 	}
 	if (signal_received == "pause_tape_48k") {
-		if ((this->mode128k == 0) || ((this->mport1 & 0x20) != 0)) {
+		if ((this->current_mode == MODE_48K) || ((this->mport1 & 0x20) != 0)) {
 			OOTape->set_pause(true);
 			llsound->set_speed(ordenador->turbo); // set speed to the desired mode
 		}
@@ -94,7 +94,7 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 
 byte computer::bus_empty () {
 
-	if (ordenador->mode128k != 3)
+	if (ordenador->current_mode != MODE_P3)
 		return (screen->bus_value);
 	else
 		return (255);	// +2A and +3 returns always 255
@@ -133,14 +133,13 @@ void computer::do_contention() {
 		return;
 	}
 
-	int ccicles=(this->cicles_counter-14335)%8;
+	int ccicles=(this->cicles_counter-14335) % 8;
 
 	if (ccicles>5) {
 		return;
 	}
 
 	this->emulate(6-ccicles);
-
 }
 
 // resets the computer and loads the right ROMs
@@ -150,7 +149,7 @@ void ResetComputer () {
 	static int bucle;
 
 	Z80free_reset (&procesador);
-	load_rom (ordenador->mode128k);
+	load_rom (ordenador->current_mode);
 
 
 
@@ -160,26 +159,26 @@ void ResetComputer () {
 	ordenador->mport1 = 0;
 	ordenador->mport2 = 0;
 	ordenador->video_offset = 0;	// video in page 9 (page 5 in 128K)
-	switch (ordenador->mode128k) {
-	case 0:		// 48K
+	switch (ordenador->current_mode) {
+	case MODE_48K:		// 48K
 		ordenador->block0 = ordenador->memoria;
 		ordenador->block1 = ordenador->memoria + 131072;	// video mem. in page 9 (page 5 in 128K)
 		ordenador->block2 = ordenador->memoria + 65536;	// 2nd block in page 6 (page 2 in 128K)
 		ordenador->block3 = ordenador->memoria + 65536;	// 3rd block in page 7 (page 3 in 128K)
 		ordenador->mport1 = 32;	// access to port 7FFD disabled
 	break;
-	
-	case 3:		// +2A/+3
+
+	case MODE_P3:		// +2A/+3
 		Z80free_Out (0x1FFD, 0); // Here must NOT be a break, because +2A and +3 need both OUT, at 1FFD and 7FFD
-	case 1:		// 128K
-	case 2:		// +2
-	case 4:		// spanish 128K
+	case MODE_128K:		// 128K
+	case MODE_P2:		// +2
+	case MODE_128K_SPA:	// spanish 128K
 		Z80free_Out (0x7FFD, 0); // set the page for 128K (both spanish and british), +2, +2A and +3
 	break;
 	}
 	spk_ay->reset();
 	keyboard->reset();
-	screen->reset(ordenador->mode128k);
+	screen->reset(ordenador->current_mode);
 	microdrive->reset();
 	mouse->reset();
 }
@@ -198,7 +197,7 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 	case 0x0000:
 	// only writes in the first 16K if we are in +3 mode and bit0 of mport2 is 1
 
-		if ((ordenador->mode128k == 3) && (1 == (ordenador->mport2 & 0x01)))
+		if ((ordenador->current_mode == MODE_P3) && (1 == (ordenador->mport2 & 0x01)))
 			*(ordenador->block0 + Addr) = (unsigned char) Value;
 	break;
 
@@ -221,7 +220,7 @@ byte Z80free_Rd (word Addr) {
 
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
-	
+
 	switch (ordenador->other_ret) {
 	case 1:
 		ordenador->other_ret = 0;
@@ -264,11 +263,13 @@ uint8_t computer::read_memory(uint16_t Addr) {
 void Z80free_Out (word Port, byte Value) {
 
 	// Microdrive access
-	
+
 	register word maskport;
-	
+
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		ordenador->do_contention();
+		if (ordenador->current_mode != MODE_P3) {
+			ordenador->do_contention();
+		}
 	}
 
 	// ULAPlus
@@ -284,7 +285,7 @@ void Z80free_Out (word Port, byte Value) {
 
 	if(((Port &0x0018)!=0x0018)&&(microdrive->mdr_active))
 		microdrive->out(Port,Value);
-	
+
 	// ULA port (A0 low)
 
 	if (!(Port & 0x0001)) {
@@ -301,12 +302,12 @@ void Z80free_Out (word Port, byte Value) {
 
 	// Memory page (7FFD & 1FFD)
 
-	if (ordenador->mode128k==3) {
+	if (ordenador->current_mode == MODE_P3) {
 		maskport=0x0FFD;
 	} else {
 		maskport=0x3FFD;
 	}
-	
+
 	if (((Port|maskport) == 0x7FFD) && (0 == (ordenador->mport1 & 0x20))) {
 		ordenador->mport1 = (unsigned char) Value;
 		screen->set_memory_pointers ();	// set the pointers
@@ -335,7 +336,9 @@ byte Z80free_In (word Port) {
 	byte pines;
 
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		ordenador->do_contention();
+		if (ordenador->current_mode != MODE_P3) {
+			ordenador->do_contention();
+		}
 	}
 
 	temporal_io = (unsigned int) Port;
@@ -365,12 +368,14 @@ byte Z80free_In (word Port) {
 			pines &= keyboard->s15;
 
 		if (OOTape->get_pause()) {
-			if (ordenador->issue == 2)	{
-				if (ordenador->port254 & 0x18)
+			if (!ordenador->issue_3)	{
+				if (ordenador->port254 & 0x18) {
 					pines |= 0x40;
+				}
 			} else {
-				if (ordenador->port254 & 0x10)
+				if (ordenador->port254 & 0x10) {
 					pines |= 0x40;
+				}
 			}
 			if (random()<(RAND_MAX/200)) { // add tape noise when paused
 				pines |= 0x40;

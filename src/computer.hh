@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef computer_h
@@ -40,6 +40,8 @@ enum tapmodes {TAP_GUIDE, TAP_DATA, TAP_PAUSE, TAP_TRASH, TAP_STOP, TAP_PAUSE2, 
 
 enum taptypes {TAP_TAP, TAP_TZX};
 
+enum CurrentMode {MODE_48K, MODE_128K, MODE_P2, MODE_P3, MODE_128K_SPA};
+
 class computer : public Signals {
 public:
 	unsigned int temporal_io;
@@ -62,8 +64,8 @@ public:
 
 	unsigned char bus_counter;
 	unsigned char bus_value;
-	unsigned char issue; // 2= 48K issue 2, 3= 48K issue 3
-	unsigned char mode128k; // 0=48K, 1=128K, 2=+2, 3=+3
+	bool issue_3; // 2= 48K issue 2, 3= 48K issue 3
+	enum CurrentMode current_mode;
 	unsigned char port254;
 
 

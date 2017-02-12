@@ -123,7 +123,7 @@ void Screen::set_memory_pointers () {
 
 	// assign ROMs and, if in special mode, RAM for the whole blocks
 
-	if ((ordenador->mode128k == 3)) {
+	if ((ordenador->current_mode == MODE_P3)) {
 		if (ordenador->mport2 & 0x01) {		// +2A/+3 special mode
 			ordenador->page48k = 0; // no 48K ROM paged in
 			ram = (unsigned int) (ordenador->mport1 & 0x06);	// bits 1&2
@@ -166,7 +166,7 @@ void Screen::set_memory_pointers () {
 			ordenador->block0 = ordenador->memoria + (16384 * rom);
 			ordenador->page48k = (rom==3) ? 1 : 0; // 48K ROM is in ROM page 3
 		}
-	} else if (ordenador->mode128k == 0) {
+	} else if (ordenador->current_mode == MODE_48K	) {
 		ordenador->block0 = ordenador->memoria;
 		ordenador->page48k = 1;
 	} else {			// ROMs for 128K/+2 mode

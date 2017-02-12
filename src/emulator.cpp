@@ -48,7 +48,7 @@ unsigned int jump_frames, curr_frames;
 string filenames[5];
 
 string load_a_rom(string *filenames) {
-	
+
 	string *pointer;
 	int offset=0;
 	ifstream *fichero;
@@ -103,7 +103,7 @@ void load_rom(char type) {
 	break;
 	case 3:
 		// first, try last version of PLUS3 roms
-		
+
 		filenames[0]="spectrum-roms/plus3-41-0.rom";
 		filenames[1]="spectrum-roms/plus3-41-1.rom";
 		filenames[2]="spectrum-roms/plus3-41-2.rom";
@@ -144,7 +144,7 @@ void load_rom(char type) {
 		}
 	break;
 	}
-  
+
 	fichero=llscreen->myfopen("spectrum-roms/if1-2.rom",ios::in|ios::binary); // load Interface1 ROM
 	if(fichero == NULL) {
 		delete fichero;
@@ -162,7 +162,7 @@ void load_rom(char type) {
 }
 
 void end_system() {
-	
+
 	delete(llsound);
 	delete(llscreen);
 
@@ -172,7 +172,7 @@ void load_main_game(const char *nombre) {
 
 	int longitud;
 	char *puntero;
-	
+
 	longitud=strlen(nombre);
 	if (longitud<5) {
 		return;
@@ -182,7 +182,7 @@ void load_main_game(const char *nombre) {
 		load_z80(nombre);
 		return;
 	}
-	
+
 	if ((0==strcasecmp(".tap",puntero))||(0==strcasecmp(".tzx",puntero))) {
 		ordenador->current_tap = nombre;
 		OOTape->load_file(nombre);
@@ -191,11 +191,11 @@ void load_main_game(const char *nombre) {
 }
 
 void save_config() {
-	
+
 	char config_path[1024];
 	int length;
 	FILE *fconfig;
-	
+
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
 	if ((length>0)&&(config_path[length-1]!='/'))
@@ -205,8 +205,8 @@ void save_config() {
 	if (fconfig==NULL) {
 		return;
 	}
-	fprintf(fconfig,"mode=%c%c",48+ordenador->mode128k,10);
-	fprintf(fconfig,"issue=%c%c",48+ordenador->issue,10);
+	fprintf(fconfig,"mode=%c%c",48+ordenador->current_mode,10);
+	fprintf(fconfig,"issue=%c%c",(ordenador->issue_3 ? 51 : 50),10);
 	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
 	fprintf(fconfig,"ay_sound=%c%c",48+spk_ay->ay_emul,10);
 	fprintf(fconfig,"interface1=%c%c",48+microdrive->mdr_active,10);
@@ -220,13 +220,13 @@ void save_config() {
 }
 
 void load_config() {
-	
+
 	char config_path[1024];
 	char line[1024],carac,done;
 	int length,pos;
 	FILE *fconfig;
 	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw=255,fast=255,turboload=255,mouse_enabled=255;
-	
+
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
 	if ((length>0)&&(config_path[length-1]!='/'))
@@ -236,7 +236,7 @@ void load_config() {
 	if (fconfig==NULL) {
 		return;
 	}
-	
+
 	done=1;
 	pos=0;
 	line[0]=0;
@@ -305,12 +305,28 @@ void load_config() {
 			continue;
 		}
 	}
-	
+
 	if (mode128k<5) {
-		ordenador->mode128k=mode128k;
+		switch (mode128k) {
+			case 0:
+				ordenador->current_mode = MODE_48K;
+				break;
+			case 1:
+				ordenador->current_mode = MODE_128K;
+				break;
+			case 2:
+				ordenador->current_mode = MODE_P2;
+				break;
+			case 3:
+				ordenador->current_mode = MODE_P3;
+				break;
+			case 4:
+				ordenador->current_mode = MODE_128K_SPA;
+				break;
+		}
 	}
 	if (issue<4) {
-		ordenador->issue=issue;
+		ordenador->issue_3 = issue == 3;
 	}
 	if (joystick<4) {
 		switch (joystick) {
@@ -352,7 +368,7 @@ void load_config() {
 	if (volume<255) {
 		llsound->set_volume(volume);
 	}
-	
+
 	fclose(fconfig);
 }
 
@@ -426,7 +442,7 @@ int main(int argc,char *argv[]) {
 	curr_frames = 0;
 
 	printf("Computer init\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	atexit(end_system);
 
@@ -451,15 +467,15 @@ int main(int argc,char *argv[]) {
 	// assign random values to the memory before start execution
 
 	printf("Reset memory\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 	for(bucle=0;bucle<196608;bucle++)
 		ordenador->memoria[bucle]=(unsigned char) rand();
 
 	printf("Memory resetted\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	salir=1;
-  
+
 	printf("Init microdrive\n");
 
 
@@ -475,10 +491,10 @@ int main(int argc,char *argv[]) {
 		osd->set_message("Running without sound (read the FAQ)",2000);
 	}
 
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 	printf("load main game\n");
 	load_main_game(parse.gamefile.c_str());
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	osd->set_message("Press F1 for help",4000);
 

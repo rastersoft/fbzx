@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "computer.hh"
@@ -23,7 +23,8 @@
 
 struct z80snapshot {
 
-  byte A,F,B,C,D,E,H,L,AA,FF,BB,CC,DD,EE,HH,LL,R,I,IFF1,IFF2,Imode,issue;
+  byte A,F,B,C,D,E,H,L,AA,FF,BB,CC,DD,EE,HH,LL,R,I,IFF1,IFF2,Imode;
+  bool issue_3;
   word PC,IX,IY,SP;
   byte type; // bit 0/1: 48K/128K/+3
   byte border; // border color
