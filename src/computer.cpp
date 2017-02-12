@@ -187,8 +187,8 @@ void Z80free_Wr (word Addr, byte Value) {
 		ordenador->do_contention();
 	}
 	ordenador->write_memory(Addr,Value);
-	ordenador->emulate(1);
-	ordenador->contended_cicles += 1;
+	ordenador->emulate(CONTENTION_WR);
+	ordenador->contended_cicles += CONTENTION_WR;
 }
 
 void computer::write_memory (uint16_t Addr, uint8_t Value) {
@@ -231,8 +231,8 @@ byte Z80free_Rd (word Addr) {
 		if ((Addr & 0xC000) == 0x4000) {
 			ordenador->do_contention();
 		}
-		ordenador->emulate(1);
-		ordenador->contended_cicles += 1;
+		ordenador->emulate(CONTENTION_RD);
+		ordenador->contended_cicles += CONTENTION_RD;
 		return (ordenador->read_memory(Addr));
 	}
 }
@@ -267,6 +267,8 @@ void Z80free_Out (word Port, byte Value) {
 	// Microdrive access
 
 	register word maskport;
+	ordenador->emulate(CONTENTION_OUT);
+	ordenador->contended_cicles += CONTENTION_OUT;
 
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
 		if (ordenador->current_mode != MODE_P3) {
@@ -337,6 +339,8 @@ byte Z80free_In (word Port) {
 	static unsigned int temporal_io;
 	byte pines;
 
+	ordenador->emulate(CONTENTION_IN);
+	ordenador->contended_cicles += CONTENTION_IN;
 	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
 		if (ordenador->current_mode != MODE_P3) {
 			ordenador->do_contention();

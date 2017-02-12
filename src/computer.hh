@@ -31,6 +31,11 @@
 
 // #define MUT
 
+#define CONTENTION_RD 3
+#define CONTENTION_WR 3
+#define CONTENTION_IN 3
+#define CONTENTION_OUT 4
+
 extern char salir;
 
 extern class computer *ordenador;

@@ -1074,7 +1074,7 @@ public:
 			return this->next->save_block(file);
 		}
 	}
-	bool read_block(ifstream *file) {
+	bool load_block(ifstream *file) {
 
 		uint16_t length;
 		// read pilot pulse duration
@@ -1424,7 +1424,6 @@ bool Tape::load_tzx(string filename) {
 		break;
 		case 0x20: // Pause block
 			block = new PauseBlock(this);
-			printf("Pause block\n");
 		break;
 		case 0x21: // group start
 			block = new GroupStartBlock();
@@ -1445,7 +1444,7 @@ bool Tape::load_tzx(string filename) {
 			block = new InfoBlock();
 		break;
 		default:
-			printf("Block unknown: %X\n",block_type);
+			printf("Unknown block number: %X\n",block_type);
 			file->close();
 			delete (file);
 			return true;
