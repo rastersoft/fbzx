@@ -1,15 +1,21 @@
+fbzx (3.5.0-Debian1) sid; urgency=low
+
+  * Even better adjusted the memory contention
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 13 Feb 2017 23:55:00 +0200
+
 fbzx (3.4.0-Debian1) sid; urgency=low
 
   * Slightly better adjusted the memory contention
 
- -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 13 Feb 2017 23:55:00 +0200
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 13 Feb 2017 23:50:00 +0200
 
 fbzx (3.3.0-Debian1) sid; urgency=low
 
   * Fixed the Fast Load
   * Now the tape is paused automatically when it reachs the end
 
- -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 13 Feb 2017 23:50:00 +0200
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 13 Feb 2017 23:45:00 +0200
 
 fbzx (3.2.0-Debian1) sid; urgency=low
 
