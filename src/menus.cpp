@@ -56,7 +56,7 @@ void help_menu() {
 
 	llscreen->clear_screen();
 
-	llscreen->print_string("FBZX (3.2.0)",-1,1,15,0);
+	llscreen->print_string("FBZX (3.3.0)",-1,1,15,0);
 	llscreen->print_string("Available keys",-1,2,14,0);
 	llscreen->print_string("Shift:Caps Shift        Ctrl:Symbol Shift",-1,4,11,0);
 

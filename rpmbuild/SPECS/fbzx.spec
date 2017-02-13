@@ -1,5 +1,5 @@
 Name: fbzx
-Version: 3.2.0
+Version: 3.3.0
 Release: 1
 License: GPL3
 Summary: A Sinclair ZX Spectrum emulator

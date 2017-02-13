@@ -1,4 +1,7 @@
 ## VERSIONS ##
+* Version 3.3.0 (2017-02-13)
+   * Fixed the Fast Load
+   * Now the tape is paused automatically when it reachs the end
 * Version 3.2.0 (2017-02-12)
    * Better memory contention
    * Fixed pause block in TZX files
