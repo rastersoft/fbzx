@@ -66,6 +66,7 @@ int Z80free_ustep(Z80FREE *processor) {
 	static byte opcode,d1;
 	int retval=0;
 
+	processor->M1 = true;
 	processor->R++;
 	if (processor->Status==Z80XX) {
 		if (processor->NMI_P) { // NMI triggered
@@ -123,15 +124,18 @@ int Z80free_ustep(Z80FREE *processor) {
 			processor->Status=Z80FD;
 			return 4;
 		} else {
+			processor->M1 = false;
 			return(Z80free_codes(processor,opcode));
 		}
 	break;
 	case Z80CB:
 		processor->Status=Z80XX;
+		processor->M1 = false;
 		return(Z80free_codesCB(processor,opcode));
 	break;
 	case Z80ED:
 		processor->Status=Z80XX;
+		processor->M1 = false;
 		return(Z80free_codesED(processor,opcode));
 	break;
 	case Z80DD:
@@ -145,8 +149,10 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->M1 = false;
 			retval+=Z80free_codesDDCB(processor,d1);
 		} else {
+			processor->M1 = false;
 			retval+=Z80free_codesDD(processor,opcode);
 		}
 		processor->IAddr_done=0;
@@ -163,8 +169,10 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->M1 = false;
 			retval+=Z80free_codesFDCB(processor,d1);
 		} else {
+			processor->M1 = false;
 			retval+=Z80free_codesFD(processor,opcode);
 		}
 		processor->IAddr_done=0;

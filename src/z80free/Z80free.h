@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 
@@ -34,7 +34,7 @@ extern int Z80free_parityBit[256];
 #define F_Z      0x40
 #define F_5      0x20
 #define F_H      0x10
-#define F_3      0x08 
+#define F_3      0x08
 #define F_PV     0x04
 #define F_N      0x02
 #define F_C      0x01
@@ -47,9 +47,9 @@ typedef union {
 	{
 		word AF, BC, DE, HL, IX, IY, SP;
 	} wr;
-	
+
 	/** Byte registers. SP can be accessed partially to simplify the load/save code. */
-	
+
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	struct
 	{
@@ -85,6 +85,7 @@ typedef struct
 	word	IAddr;			/* address with offset for IX+d and IY+d */
 	byte	IAddr_done;		/* if 1, IAddr contains a valid data */
 	enum    Z80Status Status;
+	bool    M1;             /* true if the processor is in M1 state */
 } Z80FREE;
 
 /* internal Z80 methods */
