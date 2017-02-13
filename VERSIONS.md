@@ -1,4 +1,6 @@
 ## VERSIONS ##
+* Version 3.4.0 (2017-02-13)
+   * Slightly better adjusted the memory contention
 * Version 3.3.0 (2017-02-13)
    * Fixed the Fast Load
    * Now the tape is paused automatically when it reachs the end

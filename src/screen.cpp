@@ -295,7 +295,7 @@ void Screen::show_screen (int tstados) {
 			curr_frames=0;
 			this->currline = 0;
 			ordenador->interr = 1;
-			ordenador->cicles_counter = 4;
+			ordenador->cicles_counter = 0;
 			this->pixel = this->base_pixel+this->init_line;
 			this->p_translt = this->translate;
 			this->p_translt2 = this->translate2;
