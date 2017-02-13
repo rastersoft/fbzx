@@ -188,12 +188,12 @@ void ResetComputer () {
 
 void Z80free_Wr (word Addr, byte Value) {
 
+	ordenador->emulate(CONTENTION_WR);
+	ordenador->contended_cicles += CONTENTION_WR;
 	if ((Addr & 0xC000) == 0x4000) {
 		ordenador->do_contention();
 	}
 	ordenador->write_memory(Addr,Value);
-	ordenador->emulate(CONTENTION_WR);
-	ordenador->contended_cicles += CONTENTION_WR;
 }
 
 void computer::write_memory (uint16_t Addr, uint8_t Value) {
@@ -223,6 +223,9 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 
 byte Z80free_Rd (word Addr) {
 
+	ordenador->emulate(CONTENTION_RD);
+	ordenador->contended_cicles += CONTENTION_RD;
+
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
 
@@ -236,8 +239,6 @@ byte Z80free_Rd (word Addr) {
 		if ((Addr & 0xC000) == 0x4000) {
 			ordenador->do_contention();
 		}
-		ordenador->emulate(CONTENTION_RD);
-		ordenador->contended_cicles += CONTENTION_RD;
 		return (ordenador->read_memory(Addr));
 	}
 }
