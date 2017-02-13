@@ -109,6 +109,10 @@ void computer::emulate (int tstados) {
 	spk_ay->play_ay (tstados);
 	spk_ay->play_sound (tstados);
 	OOTape->play(tstados);
+	if (OOTape->rewinded) {
+		OOTape->set_pause(true);
+		llsound->set_speed(ordenador->turbo);
+	}
 	microdrive->emulate(tstados);
 	mouse->emulate(tstados);
 
@@ -164,6 +168,7 @@ void ResetComputer () {
 		ordenador->block2 = ordenador->memoria + 65536;	// 2nd block in page 6 (page 2 in 128K)
 		ordenador->block3 = ordenador->memoria + 65536;	// 3rd block in page 7 (page 3 in 128K)
 		ordenador->mport1 = 32;	// access to port 7FFD disabled
+		screen->set_memory_pointers ();
 	break;
 
 	case MODE_P3:		// +2A/+3

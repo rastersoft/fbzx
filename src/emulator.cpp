@@ -516,7 +516,7 @@ int main(int argc,char *argv[]) {
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!microdrive->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
+		if((!microdrive->mdr_paged) && (PC == 0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
 			if(ordenador->current_tap != "") {
 				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();

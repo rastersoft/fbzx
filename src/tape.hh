@@ -54,6 +54,7 @@ class Tape : public Signals {
 	bool load_tzx(string);
 	string current_file;
 public:
+	bool rewinded;
 	Tape();
 	~Tape();
 

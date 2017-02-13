@@ -1468,6 +1468,7 @@ void Tape::play(uint32_t tstates) {
 
 	uint32_t residue = tstates;
 
+	this->rewinded = false;
 	if (this->current_block == NULL) {
 		return;
 	}
@@ -1484,6 +1485,8 @@ void Tape::play(uint32_t tstates) {
 				this->current_block = this->current_block->next_block();
 				if (this->current_block == NULL) {
 					this->current_block = this->blocks;
+					this->rewinded = true;
+					break;
 				}
 				this->current_block->reset();
 				this->block_accesed = false;
