@@ -1,3 +1,9 @@
+fbzx (3.6.0-Debian1) sid; urgency=low
+
+  * Fixed timing bug
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Tue, 14 Feb 2017 23:55:00 +0200
+
 fbzx (3.5.0-Debian1) sid; urgency=low
 
   * Even better adjusted the memory contention

@@ -1,4 +1,6 @@
 ## VERSIONS ##
+* Version 3.6.0 (2017-02-14)
+   * Fixed timing bug
 * Version 3.5.0 (2017-02-13)
    * Even better adjusted the memory contention
 * Version 3.4.0 (2017-02-13)
@@ -24,7 +26,7 @@
    * Supports new TZX blocks, like "pause if 48K mode"
    * Refactorized in C++
 * Version 2.11.0 (2015-03-31)
-   * Allows to play and pause the tape even with the FAST LOAD mode enabled  
+   * Allows to play and pause the tape even with the FAST LOAD mode enabled
    * Adds some noise in the tape bit to ensure that the user knows when a program is waiting to load from tape
 * Version 2.10.0
    * Fixed CPIR, CPDR, INI, INIR, IND, INDR, OUTI, OTIR, OUTD and OTDR instructions
