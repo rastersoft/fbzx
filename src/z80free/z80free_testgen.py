@@ -43,7 +43,7 @@ while True:
         outfile.write(linea)
         linea=infile.readline()
     outfile.write("-1\n")
-    
+
     while True:
         test_name2=expected.readline()
         if test_name2!="\n":
@@ -52,8 +52,8 @@ while True:
         continue
     if (test_name2!=test_name):
         print "error, %(entrada)s y %(salida)s no coinciden"%{"entrada":test_name,"salida":test_name2}
-        sys.exit(1) 
-    
+        sys.exit(1)
+
     port=[]
     while True: # jump over event lines
         linea=expected.readline()
@@ -80,4 +80,4 @@ while True:
 
 infile.close()
 expected.close()
-outfile.close()        
+outfile.close()

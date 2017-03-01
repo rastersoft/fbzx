@@ -70,6 +70,7 @@ public:
 
 	unsigned char bus_counter;
 	unsigned char bus_value;
+	unsigned char bus_value2;
 	bool issue_3; // 2= 48K issue 2, 3= 48K issue 3
 	enum CurrentMode current_mode;
 	unsigned char port254;

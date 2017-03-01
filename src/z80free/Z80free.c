@@ -67,6 +67,7 @@ int Z80free_ustep(Z80FREE *processor) {
 	int retval=0;
 
 	processor->M1 = true;
+	processor->subtstates = 0;
 	processor->R++;
 	if (processor->Status==Z80XX) {
 		if (processor->NMI_P) { // NMI triggered
@@ -95,7 +96,7 @@ int Z80free_ustep(Z80FREE *processor) {
 					processor->PC=0x0038;
 					return (13);
 				} else {
-					processor->PC=Z80free_read16(((((word)processor->I)<<8)&0xFF00) | ((word)processor->empty_bus));
+					processor->PC=Z80free_read16(processor, ((((word)processor->I)<<8)&0xFF00) | ((word)processor->empty_bus));
 					return (19);
 				}
 			}
@@ -106,6 +107,7 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->IFF1--;
 
 	opcode=Z80free_Rd(processor->PC);
+	processor->subtstates += 4; // 4 tstates are needed to read the opcode
 	processor->PC++;
 	switch(processor->Status) {
 	case Z80INT:
@@ -149,6 +151,7 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->subtstates += 8; // 8 tstates are needed: 3 to read the d value and 5 internal
 			processor->M1 = false;
 			retval+=Z80free_codesDDCB(processor,d1);
 		} else {
@@ -169,6 +172,7 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->subtstates += 8; // 8 tstates are needed: 3 to read the d value and 5 internal
 			processor->M1 = false;
 			retval+=Z80free_codesFDCB(processor,d1);
 		} else {
@@ -182,6 +186,27 @@ int Z80free_ustep(Z80FREE *processor) {
 	return 0;
 }
 
+byte Z80free_Rd_Internal (Z80FREE *processor,word Addr) {
+	byte value = Z80free_Rd(Addr);
+	processor->subtstates += 3;
+	return value;
+}
+
+void Z80free_Wr_Internal (Z80FREE *processor,word Addr, byte Value) {
+	Z80free_Wr(Addr,Value);
+	processor->subtstates += 3;
+}
+
+byte Z80free_In_Internal (Z80FREE *processor,word Port) {
+	byte value = Z80free_In(Port);
+	processor->subtstates += 4;
+	return value;
+}
+
+void Z80free_Out_Internal (Z80FREE *processor,word Port, byte Value) {
+	Z80free_Out(Port,Value);
+	processor->subtstates += 4;
+}
 
 /* ---------------------------------------------------------
  *  Flag operations
@@ -559,10 +584,10 @@ void Z80free_doRLD(Z80FREE *processor) {
 	static byte tmp,tmp2;
 
 	tmp=processor->Rm.br.A;
-	tmp2=Z80free_Rd(processor->Rm.wr.HL);
+	tmp2=Z80free_Rd_Internal(processor,processor->Rm.wr.HL);
 	processor->Rm.br.A&=0xF0;
 	processor->Rm.br.A|=(0x0F&(tmp2>>4));
-	Z80free_Wr(processor->Rm.wr.HL,((tmp2<<4)&0xF0)|(tmp&0x0F));
+	Z80free_Wr_Internal(processor,processor->Rm.wr.HL,((tmp2<<4)&0xF0)|(tmp&0x0F));
 
 	Z80free_resFlag(processor,F_H | F_N);
 	Z80free_adjustFlagSZP(processor, processor->Rm.br.A);
@@ -574,10 +599,10 @@ void Z80free_doRRD(Z80FREE *processor) {
 	static byte tmp,tmp2;
 
 	tmp=processor->Rm.br.A;
-	tmp2=Z80free_Rd(processor->Rm.wr.HL);
+	tmp2=Z80free_Rd_Internal(processor,processor->Rm.wr.HL);
 	processor->Rm.br.A&=0xF0;
 	processor->Rm.br.A|=(0x0F&tmp2);
-	Z80free_Wr(processor->Rm.wr.HL,((tmp2>>4)&0x0F)|((tmp<<4)&0xF0));
+	Z80free_Wr_Internal(processor,processor->Rm.wr.HL,((tmp2>>4)&0x0F)|((tmp<<4)&0xF0));
 
 	Z80free_resFlag(processor,F_H | F_N);
 	Z80free_adjustFlagSZP(processor, processor->Rm.br.A);
@@ -587,7 +612,7 @@ void Z80free_doRRD(Z80FREE *processor) {
 void Z80free_doPush (Z80FREE *processor, word val) {
 
 	processor->Rm.wr.SP-=2;
-	Z80free_write16(processor->Rm.wr.SP, val);
+	Z80free_write16(processor, processor->Rm.wr.SP, val);
 }
 
 
@@ -595,7 +620,7 @@ word Z80free_doPop (Z80FREE *processor) {
 
 	static word val;
 
-	val = Z80free_read16(processor->Rm.wr.SP);
+	val = Z80free_read16(processor, processor->Rm.wr.SP);
 	processor->Rm.wr.SP+=2;
 
 	return val;
@@ -735,7 +760,8 @@ word Z80free_addr_relative(Z80FREE *processor,word address) {
 		return (processor->IAddr);
 	}
 	processor->IAddr_done=1;
-	rel2=(word)Z80free_read_param_8(processor);
+	rel2 = (word)Z80free_read_param_8(processor);
+	processor->subtstates += 5; // 5 tstates are needed: 3 to read the d value and 5 internal
 	if (rel2&0x080) {
 			rel2|=0xFF00;
 	}
@@ -755,32 +781,33 @@ word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1) {
 	return (address+rel2);
 }
 
-void Z80free_write16 (word addr,word val) {
+void Z80free_write16 (Z80FREE *processor, word addr,word val) {
 
-	Z80free_Wr(addr, (byte)(val & 0xFF));
+	Z80free_Wr_Internal(processor,addr, (byte)(val & 0xFF));
 	val >>= 8;
 	addr++;
-	Z80free_Wr(addr, (byte)(val & 0xFF));
+	Z80free_Wr_Internal(processor,addr, (byte)(val & 0xFF));
 }
 
-word Z80free_read16 (word addr) {
+word Z80free_read16 (Z80FREE *processor, word addr) {
 
 	static word v1;
-	v1=((word)Z80free_Rd(addr))&0x00FF;
+	v1=((word)Z80free_Rd_Internal(processor,addr))&0x00FF;
 	addr++;
-	return (v1 + ((((word)Z80free_Rd(addr)) << 8)&0xFF00));
+	return (v1 + ((((word)Z80free_Rd_Internal(processor,addr)) << 8)&0xFF00));
 }
 
 byte Z80free_read_param_8(Z80FREE *processor) {
 
-	return(Z80free_Rd(processor->PC++));
+	byte data = Z80free_Rd_Internal(processor,processor->PC++);
+	return(data);
 
 }
 
 word Z80free_read_param_16(Z80FREE *processor) {
 
 	static word value;
-	value=Z80free_read16(processor->PC);
+	value = Z80free_read16(processor, processor->PC);
 	processor->PC+=2;
 	return (value);
 }

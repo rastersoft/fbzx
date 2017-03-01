@@ -188,6 +188,24 @@ void Screen::set_memory_pointers () {
 	ordenador->block3 = ordenador->memoria + (16384 * ram);	// page n minus 49152
 }
 
+uint8_t Screen::get_bus_value(int tstates) {
+
+	switch (this->tstados_counter2) {
+		case 0:
+		case 2:
+			return this->bus_value;
+		case 7:
+		case 1:
+			return this->bus_value2;
+		case 3:
+		case 4:
+		case 5: // 0
+		case 6: // 1
+			return 0xFF;
+	}
+
+}
+
 /* Paints the spectrum screen during the TSTADOS tstates that the Z80 used
 to execute last instruction */
 
@@ -201,6 +219,8 @@ void Screen::show_screen (int tstados) {
 		this->screen_snow = false;
 	}
 
+	this->tstados_counter2 += tstados;
+	this->tstados_counter2 %= 8;
 	this->tstados_counter += tstados;
 	ordenador->cicles_counter += tstados;
 
@@ -223,22 +243,29 @@ void Screen::show_screen (int tstados) {
 			|| (this->currpix < 48) || (this->currpix > 303)) {
 
 			// is border
-
 			ordenador->contended_zone = false; // no contention here
+			this->bus_value = 255;
+			this->bus_value2 = 255;
+
 			if (this->ulaplus) {
 				this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
 			} else {
 				this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
 			}
-			this->bus_value = 255;
 		} else {
 
 			// is user area. We search for ink and paper colours
 
-			ordenador->contended_zone = true; // can have contention
+			ordenador->contended_zone = true; // contention here
+			this->bus_value = ordenador->memoria[(*this->p_translt2) + ordenador->video_offset];	// attributes
+			if(this->screen_snow) {
+				this->bus_value2 = ordenador->memoria[(((*this->p_translt) + (ordenador->video_offset))&0xFFFFFF00)+(procesador.R)];	// data with snow
+				this->screen_snow = false; // no more snow for now
+			} else {
+				this->bus_value2 = ordenador->memoria[(*this->p_translt) + ordenador->video_offset];	// data
+			}
 
-			temporal = ordenador->memoria[(*this->p_translt2) + ordenador->video_offset];	// attributes
-			this->bus_value = temporal;
+			temporal = this->bus_value;
 			ink = temporal & 0x07;	// ink colour
 			paper = (temporal >> 3) & 0x07;	// paper colour
 			if (this->ulaplus) {
@@ -255,12 +282,7 @@ void Screen::show_screen (int tstados) {
 
 			// Snow Effect
 
-			if(this->screen_snow) {
-				temporal = ordenador->memoria[(((*this->p_translt) + (ordenador->video_offset))&0xFFFFFF00)+(procesador.R)];	// data with snow
-				this->screen_snow = false; // no more snow for now
-			} else {
-				temporal = ordenador->memoria[(*this->p_translt) + ordenador->video_offset];	// data
-			}
+			temporal = this->bus_value2;
 
 			this->p_translt++;
 			this->p_translt2++;
@@ -295,7 +317,7 @@ void Screen::show_screen (int tstados) {
 			curr_frames=0;
 			this->currline = 0;
 			ordenador->interr = 1;
-			ordenador->cicles_counter = 4;
+			ordenador->cicles_counter = 0;
 			this->pixel = this->base_pixel+this->init_line;
 			this->p_translt = this->translate;
 			this->p_translt2 = this->translate2;

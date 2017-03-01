@@ -47,7 +47,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 6: // RLC b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doRLC(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doRLC(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 7: // RLC A
@@ -79,7 +79,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 14: // RRC b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doRRC(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doRRC(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 15: // RRC A
@@ -111,7 +111,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 22: // RL b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doRL(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doRL(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 23: // RL A
@@ -143,7 +143,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 30: // RR b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doRR(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doRR(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 31: // RR A
@@ -175,7 +175,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 38: // SLA b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSL(processor,0,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSL(processor,0,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 39: // SLA A
@@ -207,7 +207,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 46: // SRA b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSR(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSR(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 47: // SRA A
@@ -239,7 +239,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 54: // SLL b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSL(processor,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSL(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 55: // SLL A
@@ -271,7 +271,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 62: // SRL b(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSR(processor,0,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSR(processor,0,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 63: // SRL A
@@ -303,7 +303,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 70: // BIT 0,(HL)
-		Z80free_doBIT(processor,0,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,0,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 71: // BIT 0,A
@@ -335,7 +335,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 78: // BIT 1,(HL)
-		Z80free_doBIT(processor,1,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 79: // BIT 1,A
@@ -367,7 +367,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 86: // BIT 2,(HL)
-		Z80free_doBIT(processor,2,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,2,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 87: // BIT 2,A
@@ -399,7 +399,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 94: // BIT 3,(HL)
-		Z80free_doBIT(processor,3,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,3,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 95: // BIT 3,A
@@ -431,7 +431,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 102: // BIT 4,(HL)
-		Z80free_doBIT(processor,4,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,4,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 103: // BIT 4,A
@@ -463,7 +463,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 110: // BIT 5,(HL)
-		Z80free_doBIT(processor,5,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,5,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 111: // BIT 5,A
@@ -495,7 +495,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 118: // BIT 6,(HL)
-		Z80free_doBIT(processor,6,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,6,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 119: // BIT 6,A
@@ -527,7 +527,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 126: // BIT 7,(HL)
-		Z80free_doBIT(processor,7,Z80free_Rd(processor->Rm.wr.HL));
+		Z80free_doBIT(processor,7,Z80free_Rd_Internal(processor,processor->Rm.wr.HL));
 		return (8);
 	break;
 	case 127: // BIT 7,A
@@ -559,7 +559,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 134: // RES 0,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,0,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,0,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 135: // RES 0,A
@@ -591,7 +591,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 142: // RES 1,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 143: // RES 1,A
@@ -623,7 +623,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 150: // RES 2,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,2,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,2,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 151: // RES 2,A
@@ -655,7 +655,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 158: // RES 3,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,3,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,3,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 159: // RES 3,A
@@ -687,7 +687,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 166: // RES 4,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,4,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,4,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 167: // RES 4,A
@@ -719,7 +719,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 174: // RES 5,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,5,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,5,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 175: // RES 5,A
@@ -751,7 +751,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 182: // RES 6,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,6,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,6,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 183: // RES 6,A
@@ -783,7 +783,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 190: // RES 7,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,0,7,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,0,7,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 191: // RES 7,A
@@ -815,7 +815,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 198: // SET 0,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,0,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,0,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 199: // SET 0,A
@@ -847,7 +847,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 206: // SET 1,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,1,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,1,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 207: // SET 1,A
@@ -879,7 +879,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 214: // SET 2,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,2,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,2,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 215: // SET 2,A
@@ -911,7 +911,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 222: // SET 3,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,3,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,3,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 223: // SET 3,A
@@ -943,7 +943,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 230: // SET 4,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,4,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,4,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 231: // SET 4,A
@@ -975,7 +975,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 238: // SET 5,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,5,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,5,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 239: // SET 5,A
@@ -1007,7 +1007,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 246: // SET 6,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,6,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,6,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 247: // SET 6,A
@@ -1039,7 +1039,7 @@ int Z80free_codesCB (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 254: // SET 7,(HL)
-		Z80free_Wr(processor->Rm.wr.HL,Z80free_doSetRes(processor,1,7,Z80free_Rd(processor->Rm.wr.HL)));
+		Z80free_Wr_Internal(processor,processor->Rm.wr.HL,Z80free_doSetRes(processor,1,7,Z80free_Rd_Internal(processor,processor->Rm.wr.HL)));
 		return (11);
 	break;
 	case 255: // SET 7,A

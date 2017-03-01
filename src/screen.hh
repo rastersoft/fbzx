@@ -38,17 +38,19 @@ class Screen {
 	int contador_flash;
 
 	int tstados_counter; // counts tstates leaved to the next call
+	int tstados_counter2; // counts tstates for empty bus
 	int pixancho,pixalto; // maximum pixel value for width and height
 	bool screen_snow; // 0-> no emulate snow; 1-> emulate snow
 
 	uint8_t ulaplus_reg; // contains the last selected register in the ULAPlus
 
 	void paint_pixels (uint8_t octet,uint8_t ink, uint8_t paper);
+	uint8_t bus_value;
+	uint8_t bus_value2;
 
 public:
 	uint8_t border;
 	bool ulaplus; // ULAPlus inactive or active
-	uint8_t bus_value;
 
 	Screen();
 	void set_memory_pointers ();
@@ -57,6 +59,7 @@ public:
 	void set_ulaplus_register(uint8_t);
 	void set_ulaplus_value(uint8_t);
 	uint8_t read_ulaplus_value();
+	uint8_t get_bus_value(int tstados);
 };
 
 
