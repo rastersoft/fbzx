@@ -48,9 +48,6 @@ Screen::Screen() {
 		this->next_line = 640;
 		this->next_scanline = 640;
 		this->first_line = 40;
-		this->last_line = 280;
-		this->first_pixel = 16;
-		this->last_pixel = 336;
 		this->next_pixel = 1;
 		this->jump_pixel = 16;
 		break;
@@ -59,9 +56,6 @@ Screen::Screen() {
 		this->next_line = 160;
 		this->next_scanline = 160;
 		this->first_line = 40;
-		this->last_line = 280;
-		this->first_pixel = 0;
-		this->last_pixel = 351;
 		this->next_pixel = 1;
 		this->jump_pixel = 8;
 		break;
@@ -70,9 +64,6 @@ Screen::Screen() {
 		this->next_line = -(307202);
 		this->next_scanline = -1;
 		this->first_line = 40;
-		this->last_line = 280;
-		this->first_pixel = 16;
-		this->last_pixel = 336;
 		this->next_pixel = 480;
 		this->jump_pixel = 7680;
 		break;
@@ -81,9 +72,6 @@ Screen::Screen() {
 		this->next_line = 0;
 		this->next_scanline = 0;
 		this->first_line = 40;
-		this->last_line = 280;
-		this->first_pixel = 0;
-		this->last_pixel = 319;
 		this->next_pixel = 1;
 		this->jump_pixel = 4;
 		break;
@@ -192,10 +180,11 @@ uint8_t Screen::get_bus_value(int tstates) {
 
 	switch (this->tstados_counter2) {
 		case 0:
+			return this->bus_value_old;
 		case 2:
 			return this->bus_value;
-		case 7:
 		case 1:
+		case 7:
 			return this->bus_value2;
 		case 3:
 		case 4:
@@ -238,7 +227,8 @@ void Screen::show_screen (int tstados) {
 		this->tstados_counter -= 4;
 
 		// test if current pixel is for border or for user area
-
+		this->bus_value_old = this->bus_value;
+		this->bus_value2_old = this->bus_value2;
 		if ((this->currline < 64) || (this->currline > 255)
 			|| (this->currpix < 48) || (this->currpix > 303)) {
 
@@ -247,14 +237,28 @@ void Screen::show_screen (int tstados) {
 			this->bus_value = 255;
 			this->bus_value2 = 255;
 
-			if (this->ulaplus) {
-				this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
+			if ((this->currpix == 304) && (this->currline >= 64) && (this->currline <= 255)) {
+				this->paint_pixels(this->user_pixels,this->user_ink,this->user_paper);
 			} else {
-				this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
+				if (this->ulaplus) {
+					this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
+				} else {
+					this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
+				}
 			}
 		} else {
 
 			// is user area. We search for ink and paper colours
+
+			if (this->currpix == 48) {
+				if (this->ulaplus) {
+					this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
+				} else {
+					this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
+				}
+			} else {
+				this->paint_pixels(this->user_pixels,this->user_ink,this->user_paper);
+			}
 
 			ordenador->contended_zone = true; // contention here
 			this->bus_value = ordenador->memoria[(*this->p_translt2) + ordenador->video_offset];	// attributes
@@ -286,10 +290,17 @@ void Screen::show_screen (int tstados) {
 
 			this->p_translt++;
 			this->p_translt2++;
-			if ((fflash) && (this->flash))
-				paint_pixels (temporal, paper, ink);	// if FLASH, invert PAPER and INK
-			else
-				paint_pixels (temporal, ink, paper);
+			if ((fflash) && (this->flash)) {
+				//paint_pixels (temporal, paper, ink);	// if FLASH, invert PAPER and INK
+				this->user_pixels = temporal;
+				this->user_ink = paper;
+				this->user_paper = ink;
+			} else {
+				//paint_pixels (temporal, ink, paper);
+				this->user_pixels = temporal;
+				this->user_ink = ink;
+				this->user_paper = paper;
+			}
 		}
 		this->currpix += 8;
 		if (this->currpix > this->pixancho) {
@@ -340,7 +351,7 @@ void Screen::paint_pixels (uint8_t octet,uint8_t ink,uint8_t paper) {
 	static unsigned int *p;
 	static unsigned char mask;
 
-	if ((this->currpix < 16) || (this->currpix >= 336)
+	if ((this->currpix < 24) || (this->currpix >= 344)
 	    || (this->currline < 40) || (this->currline >= 280))
 		return;
 

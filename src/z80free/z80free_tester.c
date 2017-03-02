@@ -108,7 +108,7 @@ int compare_processors() {
 	if (emulator.IM!=emulator2.IM) {
 		printf("IM should be %X but is %X\n",emulator2.IM,emulator.IM);
 	}
-	if ((emulator.IFF1 == 0) != (emulator2.IFF1 == 0)) {
+	if ((emulator.IFF1 == 1) != (emulator2.IFF1 == 1)) {
 		printf("IFF1 should be %X but is %X\n",emulator2.IFF1,emulator.IFF1);
 	}
 	if (emulator.IFF2!=emulator2.IFF2) {

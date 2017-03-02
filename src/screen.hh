@@ -29,9 +29,6 @@ class Screen {
 	int next_line; // cuantity to add when we reach the end of line to go to next line
 	int next_scanline; // cuantity to add to pass to the next scanline
 	int first_line; // first line to start to paint
-	int last_line; // last line to paint
-	int first_pixel; // first pixel of a line to paint
-	int last_pixel; // last pixel of a line to paint
 	int next_pixel; // next pixel
 	int jump_pixel;
 
@@ -47,6 +44,11 @@ class Screen {
 	void paint_pixels (uint8_t octet,uint8_t ink, uint8_t paper);
 	uint8_t bus_value;
 	uint8_t bus_value2;
+	uint8_t bus_value_old;
+	uint8_t bus_value2_old;
+	uint8_t user_ink;
+	uint8_t user_paper;
+	uint8_t user_pixels;
 
 public:
 	uint8_t border;

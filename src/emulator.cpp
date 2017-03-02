@@ -505,7 +505,7 @@ int main(int argc,char *argv[]) {
 		do {
 			ordenador->contended_cicles = 0;
 			tstados=Z80free_ustep(&procesador);
-			if(tstados<0) {
+			if((tstados - ordenador->contended_cicles)<0) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
 			}

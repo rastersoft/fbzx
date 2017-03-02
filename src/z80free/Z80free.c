@@ -76,9 +76,10 @@ int Z80free_ustep(Z80FREE *processor) {
 				processor->PC++;
 			}
 			processor->NMI_P=0;
+			processor->subtstates += 5;
+			processor->IFF1=0; // disable INTs
 			Z80free_doPush(processor,processor->PC);
 			processor->PC=0x0066;
-			processor->IFF1=0; // disable INTs
 			processor->Status=Z80INT;
 			return(11); // we use 11 tstates for attending a NMI
 		}
@@ -91,9 +92,11 @@ int Z80free_ustep(Z80FREE *processor) {
 				}
 				processor->Status=Z80INT;
 				processor->IFF1=0;
+				processor->IFF2=0;
+				processor->subtstates += 7;
 				Z80free_doPush(processor,processor->PC);
-				if (processor->IM!=2) { // we will forget IM0 mode for now; maybe in the future...
-					processor->PC=0x0038;
+				if (processor->IM != 2) { // we will forget IM0 mode for now; maybe in the future...
+					processor->PC = 0x0038;
 					return (13);
 				} else {
 					processor->PC=Z80free_read16(processor, ((((word)processor->I)<<8)&0xFF00) | ((word)processor->empty_bus));
@@ -611,8 +614,10 @@ void Z80free_doRRD(Z80FREE *processor) {
 
 void Z80free_doPush (Z80FREE *processor, word val) {
 
-	processor->Rm.wr.SP-=2;
-	Z80free_write16(processor, processor->Rm.wr.SP, val);
+	processor->Rm.wr.SP--;
+	Z80free_Wr_Internal(processor,processor->Rm.wr.SP, (byte)((val>>8) & 0xFF));
+	processor->Rm.wr.SP--;
+	Z80free_Wr_Internal(processor,processor->Rm.wr.SP, (byte)(val & 0xFF));
 }
 
 
