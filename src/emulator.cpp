@@ -500,6 +500,7 @@ int main(int argc,char *argv[]) {
 
 	printf("BPP: %d\n",llscreen->bpp);
 	debug_var = false;
+
 	while(salir) {
 
 		do {
@@ -596,9 +597,8 @@ int main(int argc,char *argv[]) {
 			microdrive->mdr_paged = 2;
 		}
 
-		if(ordenador->interr==1) {
+		if(ordenador->interr>=1) {
 			keyboard->read_keyboard (NULL);	// read the physical keyboard
-			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->interr=0;
 		}
 	}

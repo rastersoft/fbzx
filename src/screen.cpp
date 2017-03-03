@@ -91,6 +91,7 @@ Screen::Screen() {
 	this->init_line *= llscreen->bpp;
 	this->next_pixel *= llscreen->bpp;
 	this->jump_pixel *= llscreen->bpp;
+	this->int_counter = 0;
 
 	llscreen->set_paletes(ordenador->bw);
 
@@ -210,6 +211,13 @@ void Screen::show_screen (int tstados) {
 
 	this->tstados_counter2 += tstados;
 	this->tstados_counter2 %= 8;
+	if (this->int_counter > 0) {
+		this->int_counter -= tstados;
+		if (this->int_counter <= 0) {
+			Z80free_INTserved(&procesador);
+			this->int_counter = 0;
+		}
+	}
 	this->tstados_counter += tstados;
 	ordenador->cicles_counter += tstados;
 
@@ -328,6 +336,8 @@ void Screen::show_screen (int tstados) {
 			curr_frames=0;
 			this->currline = 0;
 			ordenador->interr = 1;
+			this->int_counter = 32;
+			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->cicles_counter = 0;
 			this->pixel = this->base_pixel+this->init_line;
 			this->p_translt = this->translate;

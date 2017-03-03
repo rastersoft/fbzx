@@ -36,6 +36,7 @@ class Screen {
 
 	int tstados_counter; // counts tstates leaved to the next call
 	int tstados_counter2; // counts tstates for empty bus
+	int int_counter; // counts the interrupt duration
 	int pixancho,pixalto; // maximum pixel value for width and height
 	bool screen_snow; // 0-> no emulate snow; 1-> emulate snow
 
