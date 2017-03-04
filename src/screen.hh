@@ -21,6 +21,7 @@ class Screen {
 	unsigned int translate[6144],translate2[6144];
 	unsigned int *p_translt,*p_translt2;
 	unsigned char *pixel; // current address
+	unsigned char *max_pixel; // max address
 	unsigned char *base_pixel;
 	char flash;
 	int currline,currpix;
@@ -29,6 +30,9 @@ class Screen {
 	int next_line; // cuantity to add when we reach the end of line to go to next line
 	int next_scanline; // cuantity to add to pass to the next scanline
 	int first_line; // first line to start to paint
+	int last_line;
+	int first_column;
+	int last_column;
 	int next_pixel; // next pixel
 	int jump_pixel;
 
@@ -38,15 +42,18 @@ class Screen {
 	int tstados_counter2; // counts tstates for empty bus
 	int int_counter; // counts the interrupt duration
 	int pixancho,pixalto; // maximum pixel value for width and height
+	int pixborde_top; // number of scanlines in border top
+	int tstates_bordertop;
+	int tstates_borderbottom;
+	int tstate_contention;
+	int tstate_contention2;
+	int tstates_screen;
 	bool screen_snow; // 0-> no emulate snow; 1-> emulate snow
 
 	uint8_t ulaplus_reg; // contains the last selected register in the ULAPlus
 
 	void paint_pixels (uint8_t octet,uint8_t ink, uint8_t paper);
 	uint8_t bus_value;
-	uint8_t bus_value2;
-	uint8_t bus_value_old;
-	uint8_t bus_value2_old;
 	uint8_t user_ink;
 	uint8_t user_paper;
 	uint8_t user_pixels;

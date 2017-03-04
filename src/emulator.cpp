@@ -44,7 +44,6 @@ char salir;
 char path_snaps[2049];
 char path_taps[2049];
 char path_mdrs[2049];
-unsigned int jump_frames, curr_frames;
 string filenames[5];
 
 string load_a_rom(string *filenames) {
@@ -437,9 +436,6 @@ int main(int argc,char *argv[]) {
 	screen = new Screen();
 
 	gamefile = "";
-
-	jump_frames = parse.jump;
-	curr_frames = 0;
 
 	printf("Computer init\n");
 	printf("Modo: %d\n",ordenador->current_mode);

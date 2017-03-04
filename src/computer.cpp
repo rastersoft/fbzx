@@ -130,7 +130,7 @@ void computer::emulate (int tstados) {
 
 void computer::do_contention() {
 
-	if (!this->contended_zone) {
+	/*if (!this->contended_zone) {
 		return;
 	}
 
@@ -142,9 +142,12 @@ void computer::do_contention() {
 
 	if (ccicles>5) {
 		return;
-	}
+	}*/
 
-	this->emulate(6-ccicles);
+	while(this->contended_zone) {
+		this->emulate(1);
+	}
+	//this->emulate(6-ccicles);
 }
 
 // resets the computer and loads the right ROMs
@@ -351,7 +354,7 @@ byte Z80free_In (word Port) {
 	byte pines;
 
 	extra_contention();
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
+	if (((Port&0x0001)==0) || ((Port>=0x4000)&&(Port<0x8000))) {
 		if (ordenador->current_mode != MODE_P3) {
 			ordenador->do_contention();
 		}
@@ -423,13 +426,15 @@ byte Z80free_In (word Port) {
 		}
 	}
 
-	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul))
+	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul)) {
 		return (spk_ay->get_value());
+	}
 
 	// Microdrive access
 
-	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active))
+	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active)) {
 		return(microdrive->in(Port));
+	}
 
 	pines=ordenador->bus_empty();
 
