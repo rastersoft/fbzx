@@ -188,6 +188,7 @@ void ResetComputer () {
 	screen->reset(ordenador->current_mode);
 	microdrive->reset();
 	mouse->reset();
+	OOTape->rewind();
 }
 
 void extra_contention() {

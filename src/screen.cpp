@@ -41,6 +41,8 @@ Screen::Screen() {
 	this->flash = 0;
 	this->screen_snow = false;
 	this->bus_value = 255;
+	int height;
+	int width;
 
 	switch (ordenador->zaurus_mini) {
 	case 0:
@@ -50,31 +52,34 @@ Screen::Screen() {
 		this->first_line = 40;
 		this->last_line = 278;
 		this->first_column = 140;
-		this->last_column = 20;
 		this->next_pixel = 1;
 		this->jump_pixel = 16;
+		width = 640;
+		height = 480;
 		break;
 	case 1:
-		this->init_line = 65;
+		this->init_line = 280;
 		this->next_line = 160;
 		this->next_scanline = 160;
 		this->first_line = 40;
-		this->last_line = 278;
+		this->last_line = 348;
 		this->first_column = 140;
-		this->last_column = 20;
 		this->next_pixel = 1;
 		this->jump_pixel = 8;
+		width = 480;
+		height = 240;
 		break;
 	case 2:
-		this->init_line = 479;
+		this->init_line = 480*640;
 		this->next_line = -(307202);
 		this->next_scanline = -1;
 		this->first_line = 40;
 		this->last_line = 278;
 		this->first_column = 24;
-		this->last_column = 344;
 		this->next_pixel = 480;
 		this->jump_pixel = 7680;
+		width = 480;
+		height = 640;
 		break;
 	case 3:
 		this->init_line = 0;
@@ -83,12 +88,14 @@ Screen::Screen() {
 		this->first_line = 40;
 		this->last_line = 278;
 		this->first_column = 24;
-		this->last_column = 344;
 		this->next_pixel = 1;
 		this->jump_pixel = 4;
+		width = 480;
+		height = 240;
 		break;
 	}
 
+	this->last_column = 160 - this->first_column;
 	this->p_translt = this->translate;
 	this->p_translt2 = this->translate2;
 
@@ -108,7 +115,7 @@ Screen::Screen() {
 	llscreen->set_paletes(ordenador->bw);
 
 	this->base_pixel = ((unsigned char *) (llscreen->llscreen->pixels));
-	this->max_pixel = this->base_pixel + (479 * this->next_scanline);
+	this->max_pixel = this->base_pixel + ((height - 1) * width * llscreen->bpp);
 	this->pixel = this->base_pixel + this->init_line;
 }
 
@@ -245,7 +252,7 @@ void Screen::show_screen (int tstados) {
 		} else {
 			int p;
 			if (((this->tstados_counter - this->tstate_contention) % this->pixancho) < 128) {
-				switch((this->tstados_counter - this->tstate_contention) % 8) {
+				switch(((this->tstados_counter - this->tstate_contention)% this->pixancho) % 8) {
 					case 0:
 					case 5:
 						this->bus_value = 0xFF;
@@ -389,9 +396,9 @@ void Screen::reset(uint8_t model) {
 	case MODE_P2:
 	case MODE_P3:
 	case MODE_128K_SPA:
-		this->pixborde_top = 64;
-		this->pixancho = 224;
-		this->pixalto = 312;
+		this->pixborde_top = 63;
+		this->pixancho = 228;
+		this->pixalto = 311;
 	break;
 	}
 	printf("Reset\n");
