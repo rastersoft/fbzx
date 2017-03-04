@@ -223,7 +223,7 @@ void Screen::show_screen (int tstados) {
 				Z80free_INTserved(&procesador);
 			}
 		}
-		if ((this->tstados_counter % 4) == 2) {
+		if ((this->tstados_counter % 4) == 0) {
 			if ((this->tstados_counter < (this->tstates_bordertop)) || (this->tstados_counter >= this->tstates_borderbottom) || ((this->tstados_counter % this->pixancho) >= 128)) {
 				// is border
 				this->bus_value = 255;
@@ -245,22 +245,22 @@ void Screen::show_screen (int tstados) {
 		} else {
 			int p;
 			if (((this->tstados_counter - this->tstate_contention) %224) < 128) {
-				switch((this->tstados_counter-this->tstate_contention) % 8) {
-					case 1:
-					case 6:
+				switch((this->tstados_counter - this->tstate_contention) % 8) {
+					case 0:
+					case 5:
 						this->bus_value = 0xFF;
 						ordenador->contended_zone = true;
 						break;
-					case 2:
-					case 4:
+					case 1:
+					case 3:
 						ordenador->contended_zone = true;
 						p = *this->p_translt;
 						this->bus_value = ordenador->memoria[p + ordenador->video_offset];
 						this->p_translt++;
 						this->user_pixels = this->bus_value;
 						break;
-					case 3:
-					case 5:
+					case 2:
+					case 4:
 						p = *this->p_translt2;
 						this->bus_value = ordenador->memoria[p + ordenador->video_offset];	// attributes
 						this->p_translt2++;
@@ -298,56 +298,13 @@ void Screen::show_screen (int tstados) {
 			}
 		}
 
-
-/*			ordenador->contended_zone = true; // contention here
-			this->bus_value = ordenador->memoria[(*this->p_translt2) + ordenador->video_offset];	// attributes
-			if(this->screen_snow) {
-				this->bus_value2 = ordenador->memoria[(((*this->p_translt) + (ordenador->video_offset))&0xFFFFFF00)+(procesador.R)];	// data with snow
-				this->screen_snow = false; // no more snow for now
-			} else {
-				this->bus_value2 = ordenador->memoria[(*this->p_translt) + ordenador->video_offset];	// data
-			}
-
-			temporal = this->bus_value;
-			ink = temporal & 0x07;	// ink colour
-			paper = (temporal >> 3) & 0x07;	// paper colour
-			if (this->ulaplus) {
-				tmp2=0x10+((temporal>>2)&0x30);
-				ink+=tmp2;
-				paper+=8+tmp2;
-			} else {
-				if (temporal & 0x40) {	// bright flag?
-					ink += 8;
-					paper += 8;
-				}
-				fflash = temporal & 0x80;	// flash flag
-			}
-
-			// Snow Effect
-
-			temporal = this->bus_value2;
-
-			this->p_translt++;
-			this->p_translt2++;
-			if ((fflash) && (this->flash)) {
-				//paint_pixels (temporal, paper, ink);	// if FLASH, invert PAPER and INK
-				this->user_pixels = temporal;
-				this->user_ink = paper;
-				this->user_paper = ink;
-			} else {
-				//paint_pixels (temporal, ink, paper);
-				this->user_pixels = temporal;
-				this->user_ink = ink;
-				this->user_paper = paper;
-			}
-		}*/
 		this->currpix = this->tstados_counter % this->pixancho;
 		this->currline = this->tstados_counter / this->pixancho;
 		if ((this->currline > this->first_line)&&(this->currpix == this->first_column)) {
 			this->pixel += this->next_line;
 		}
 
-		if (this->tstados_counter >= this->tstates_screen) {
+		if (this->tstados_counter == this->tstates_screen) {
 			this->currline = 0;
 			if (osd->get_time() != 0) {
 				uint8_t lines;
@@ -369,11 +326,11 @@ void Screen::show_screen (int tstados) {
 			this->p_translt = this->translate;
 			this->p_translt2 = this->translate2;
 			this->contador_flash++;
-			if (this->contador_flash == 16) {
+			if (this->contador_flash >= 16) {
 				this->flash = 1 - this->flash;
 				this->contador_flash = 0;
 			}
-			this->tstados_counter-=this->tstates_screen;
+			this->tstados_counter = 0;
 		} else {
 			this->tstados_counter++;
 		}
@@ -427,7 +384,7 @@ void Screen::reset(uint8_t model) {
 		this->pixancho = 224;
 		this->pixalto = 312;
 		this->pixborde_top = 64;
-		this->tstate_contention = 14335;
+		this->tstate_contention = 14333;
 	break;
 	case MODE_128K:
 	case MODE_P2:
@@ -436,13 +393,21 @@ void Screen::reset(uint8_t model) {
 		this->pixborde_top = 63;
 		this->pixancho = 228;
 		this->pixalto = 311;
-		this->tstate_contention = 14361;
+		this->tstate_contention = 14359;
 	break;
 	}
+	printf("Reset\n");
+	this->tstados_counter = 0;
+	ordenador->cicles_counter = 0;
+	this->pixel = this->base_pixel + this->init_line;
+	this->p_translt = this->translate;
+	this->p_translt2 = this->translate2;
+	this->currpix = 0;
+	this->currline = 0;
 	this->tstate_contention2 = this->tstate_contention + 192 * this->pixancho;
 	this->tstates_bordertop = this->pixancho * this->pixborde_top;
 	this->tstates_borderbottom = this->tstates_bordertop + 192 * this->pixancho;
-	this->tstates_screen = this->pixancho * this->pixalto;
+	this->tstates_screen = this->pixancho * this->pixalto - 1;
 }
 
 void Screen::set_ulaplus_register(uint8_t reg) {
