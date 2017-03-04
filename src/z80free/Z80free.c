@@ -52,6 +52,10 @@ void Z80free_INT(Z80FREE *processor,byte value) {
 
 }
 
+void Z80free_INTserved(Z80FREE *processor) {
+	processor->INT_P=0;
+}
+
 int Z80free_step(Z80FREE *processor) {
 
 	int retval=0;
@@ -82,14 +86,15 @@ int Z80free_ustep(Z80FREE *processor) {
 			return(11); // we use 11 tstates for attending a NMI
 		}
 		if (processor->INT_P) {
-			processor->INT_P=0;
 			if (processor->IFF1==1) { // allow INTs only in this case
 				if (processor->HALT) {
 					processor->HALT=0;
 					processor->PC++;
 				}
+				processor->INT_P=0;
 				processor->Status=Z80INT;
 				processor->IFF1=0;
+				processor->IFF2=0;
 				Z80free_doPush(processor,processor->PC);
 				if (processor->IM!=2) { // we will forget IM0 mode for now; maybe in the future...
 					processor->PC=0x0038;
