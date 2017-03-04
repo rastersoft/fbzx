@@ -1,3 +1,10 @@
+fbzx (3.7.0-Debian1) sid; urgency=low
+
+  * Now the interrupt line is kept low exactly 32tstates
+  * Now the EI as prefix works fine
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Sat, 04 Mar 2017 23:55:00 +0200
+
 fbzx (3.6.0-Debian1) sid; urgency=low
 
   * Fixed timing bug

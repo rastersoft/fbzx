@@ -1,4 +1,7 @@
 ## VERSIONS ##
+* Version 3.7.0 (2017-03-04)
+   * Now the interrupt line is kept low exactly 32tstates
+   * Now the EI as prefix works fine
 * Version 3.6.0 (2017-02-14)
    * Fixed timing bug
 * Version 3.5.0 (2017-02-13)
