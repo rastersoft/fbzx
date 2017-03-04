@@ -598,7 +598,6 @@ int main(int argc,char *argv[]) {
 
 		if(ordenador->interr==1) {
 			keyboard->read_keyboard (NULL);	// read the physical keyboard
-			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->interr=0;
 		}
 	}
