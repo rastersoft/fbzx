@@ -59,7 +59,7 @@ Screen::Screen() {
 		this->next_line = 160;
 		this->next_scanline = 160;
 		this->first_line = 40;
-		this->last_line = 280;
+		this->last_line = 278;
 		this->first_column = 140;
 		this->last_column = 20;
 		this->next_pixel = 1;
@@ -70,7 +70,7 @@ Screen::Screen() {
 		this->next_line = -(307202);
 		this->next_scanline = -1;
 		this->first_line = 40;
-		this->last_line = 280;
+		this->last_line = 278;
 		this->first_column = 24;
 		this->last_column = 344;
 		this->next_pixel = 480;
@@ -81,7 +81,7 @@ Screen::Screen() {
 		this->next_line = 0;
 		this->next_scanline = 0;
 		this->first_line = 40;
-		this->last_line = 280;
+		this->last_line = 278;
 		this->first_column = 24;
 		this->last_column = 344;
 		this->next_pixel = 1;
@@ -244,7 +244,7 @@ void Screen::show_screen (int tstados) {
 			this->bus_value = 0xFF;
 		} else {
 			int p;
-			if (((this->tstados_counter - this->tstate_contention) %224) < 128) {
+			if (((this->tstados_counter - this->tstate_contention) % this->pixancho) < 128) {
 				switch((this->tstados_counter - this->tstate_contention) % 8) {
 					case 0:
 					case 5:
@@ -384,19 +384,18 @@ void Screen::reset(uint8_t model) {
 		this->pixancho = 224;
 		this->pixalto = 312;
 		this->pixborde_top = 64;
-		this->tstate_contention = 14333;
 	break;
 	case MODE_128K:
 	case MODE_P2:
 	case MODE_P3:
 	case MODE_128K_SPA:
-		this->pixborde_top = 63;
-		this->pixancho = 228;
-		this->pixalto = 311;
-		this->tstate_contention = 14359;
+		this->pixborde_top = 64;
+		this->pixancho = 224;
+		this->pixalto = 312;
 	break;
 	}
 	printf("Reset\n");
+	this->tstate_contention = this->pixborde_top * this->pixancho - 3;
 	this->tstados_counter = 0;
 	ordenador->cicles_counter = 0;
 	this->pixel = this->base_pixel + this->init_line;
@@ -404,6 +403,7 @@ void Screen::reset(uint8_t model) {
 	this->p_translt2 = this->translate2;
 	this->currpix = 0;
 	this->currline = 0;
+
 	this->tstate_contention2 = this->tstate_contention + 192 * this->pixancho;
 	this->tstates_bordertop = this->pixancho * this->pixborde_top;
 	this->tstates_borderbottom = this->tstates_bordertop + 192 * this->pixancho;
