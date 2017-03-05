@@ -62,7 +62,7 @@ computer::computer() {
 	this->sound_bit = 0;
 
 	this->memcontended_zone = 0;
-	this->iocontended_zone = 0;
+
 	this->cicles_counter=0;
 
 	this->interr = 0;
@@ -131,17 +131,16 @@ void computer::emulate (int tstados) {
 
 void computer::do_contention(bool io, word addr) {
 
+	if (this->memcontended_zone == 0) {
+		return;
+	}
 	if (ordenador->current_mode == MODE_P3) {
-		if (((addr & 0xC000) == 0x4000) && (this->memcontended_zone != 0)) {
+		if ((addr & 0xC000) == 0x4000) {
 			this->emulate(this->memcontended_zone);
 		}
 	} else {
-		if (io && (this->iocontended_zone != 0) && ((addr & 0x0001) == 0)) {
-			this->emulate(this->iocontended_zone);
-		} else {
-			if (((addr & 0xC000) == 0x4000) && (this->memcontended_zone != 0)) {
-				this->emulate(this->memcontended_zone);
-			}
+		if ((io && ((addr & 0x0001) == 0)) || ((addr & 0xC000) == 0x4000)) {
+			this->emulate(this->memcontended_zone);
 		}
 	}
 }

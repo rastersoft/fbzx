@@ -47,6 +47,8 @@ class Screen {
 	int tstates_borderbottom;
 	int tstate_contention;
 	int tstate_contention2;
+	int offset;
+	int offset_p3;
 	int tstates_screen;
 	bool screen_snow; // 0-> no emulate snow; 1-> emulate snow
 

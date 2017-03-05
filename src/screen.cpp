@@ -230,10 +230,11 @@ void Screen::show_screen (int tstados) {
 				Z80free_INTserved(&procesador);
 			}
 		}
-		if ((this->tstados_counter % 4) == 0) {
-			if ((this->tstados_counter < (this->tstates_bordertop)) || (this->tstados_counter >= this->tstates_borderbottom) || ((this->tstados_counter % this->pixancho) >= 128)) {
+		this->bus_value = 0xFF;
+		ordenador->memcontended_zone = 0; // no contention here
+		if ((this->tstados_counter % 4) == this->offset) {
+			if ((this->tstados_counter < this->tstates_bordertop) || (this->tstados_counter >= this->tstates_borderbottom) || ((this->tstados_counter % this->pixancho) >= 128)) {
 				// is border
-				this->bus_value = 255;
 				if (this->ulaplus) {
 					this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
 				} else {
@@ -246,41 +247,24 @@ void Screen::show_screen (int tstados) {
 			}
 		}
 
-		if ((this->tstados_counter < this->tstate_contention) || (this->tstados_counter >= this->tstate_contention2)) {
-			ordenador->memcontended_zone = 0; // no contention here
-			ordenador->iocontended_zone = 0;
-			this->bus_value = 0xFF;
-		} else {
+		if ((this->tstados_counter >= this->tstate_contention) && (this->tstados_counter < this->tstate_contention2)) {
 			int p;
 			if (((this->tstados_counter - this->tstate_contention) % this->pixancho) < 128) {
 				int zone = ((this->tstados_counter - this->tstate_contention)% this->pixancho) % 8;
 				switch(zone) {
 					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 4:
 					case 5:
-						ordenador->iocontended_zone = 6 - zone;
-						break;
-					case 6:
-						ordenador->iocontended_zone = 0;
-						break;
-					case 7:
-						ordenador->iocontended_zone = 0;
-						break;
-				}
-				switch(zone) {
-					case 0:
-					case 5:
-						this->bus_value = 0xFF;
 						ordenador->memcontended_zone = 6 - zone;
 						break;
 					case 1:
 					case 3:
 						ordenador->memcontended_zone = 6 - zone;
 						p = *this->p_translt;
-						this->bus_value = ordenador->memoria[p + ordenador->video_offset];
+						if ((!this->screen_snow) || (rand() % 8)) {
+							this->bus_value = ordenador->memoria[p + ordenador->video_offset];
+						} else {
+							this->bus_value = ordenador->memoria[p + ordenador->video_offset - 1];
+						}
 						this->p_translt++;
 						this->user_pixels = this->bus_value;
 						break;
@@ -313,16 +297,10 @@ void Screen::show_screen (int tstados) {
 							}
 						}
 						break;
-					default:
-						this->bus_value = 0xFF;
-						ordenador->memcontended_zone = 0;
-						ordenador->iocontended_zone = 0;
-						break;
 				}
-			} else {
-				ordenador->memcontended_zone = 0; // no contention here
-				ordenador->iocontended_zone = 0;
-				this->bus_value = 0xFF;
+				if (this->offset_p3 != 0) {
+					ordenador->memcontended_zone = (15 - (zone + this->offset_p3)) % 8;
+				}
 			}
 		}
 
@@ -412,18 +390,30 @@ void Screen::reset(uint8_t model) {
 		this->pixancho = 224;
 		this->pixalto = 312;
 		this->pixborde_top = 64;
-	break;
+		this->tstate_contention = 14335;
+		this->offset = 2;
+		this->offset_p3 = 0;
+		break;
 	case MODE_128K:
 	case MODE_P2:
-	case MODE_P3:
 	case MODE_128K_SPA:
 		this->pixborde_top = 63;
 		this->pixancho = 228;
 		this->pixalto = 311;
-	break;
+		this->tstate_contention = 14361;
+		this->offset = 0;
+		this->offset_p3 = 0;
+		break;
+	case MODE_P3:
+		this->pixborde_top = 63;
+		this->pixancho = 228;
+		this->pixalto = 311;
+		this->tstate_contention = 14359;
+		this->offset = 2;
+		this->offset_p3 = 6;
+		break;
 	}
 	printf("Reset\n");
-	this->tstate_contention = this->pixborde_top * this->pixancho - 3;
 	this->tstados_counter = 0;
 	ordenador->cicles_counter = 0;
 	this->pixel = this->base_pixel + this->init_line;

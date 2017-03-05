@@ -56,7 +56,6 @@ public:
 	bool bw;
 
 	int memcontended_zone; // memory contended tstates from this instant up to the next non-contended block
-	int iocontended_zone; // I/O contended tstates from this instant up to the next non-contended block
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 	int contended_cicles; // cicles used during contention (must not be counted after ending the execution of an instruction)
 
