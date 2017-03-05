@@ -46,24 +46,24 @@ Screen::Screen() {
 
 	switch (ordenador->zaurus_mini) {
 	case 0:
-		this->init_line = 80;
+		this->init_line = 0;
 		this->next_line = 640;
 		this->next_scanline = 640;
 		this->first_line = 40;
 		this->last_line = 278;
-		this->first_column = 140;
+		this->first_column = 12;
 		this->next_pixel = 1;
 		this->jump_pixel = 16;
 		width = 640;
 		height = 480;
 		break;
 	case 1:
-		this->init_line = 280;
+		this->init_line = 80;
 		this->next_line = 160;
 		this->next_scanline = 160;
 		this->first_line = 40;
 		this->last_line = 348;
-		this->first_column = 140;
+		this->first_column = 12;
 		this->next_pixel = 1;
 		this->jump_pixel = 8;
 		width = 480;
@@ -95,7 +95,7 @@ Screen::Screen() {
 		break;
 	}
 
-	this->last_column = 160 - this->first_column;
+	this->last_column = 160;
 	this->p_translt = this->translate;
 	this->p_translt2 = this->translate2;
 
@@ -223,6 +223,7 @@ void Screen::show_screen (int tstados) {
 
 
 	fflash = 0; // flash flag
+
 	for(loop = 0; loop < tstados; loop++) {
 		if (this->int_counter > 0) {
 			this->int_counter --;
@@ -230,10 +231,15 @@ void Screen::show_screen (int tstados) {
 				Z80free_INTserved(&procesador);
 			}
 		}
+		this->currpix = (this->tstados_counter + this->first_column + this->offset + this->hoffset) % this->pixancho;
+		this->currline = (this->tstados_counter + this->first_column + this->offset + this->hoffset) / this->pixancho;
+		if ((this->currline > this->first_line)&&(this->currpix == 0)) {
+			this->pixel += this->next_line;
+		}
 		this->bus_value = 0xFF;
 		ordenador->memcontended_zone = 0; // no contention here
-		if ((this->tstados_counter % 4) == this->offset) {
-			if ((this->tstados_counter < this->tstates_bordertop) || (this->tstados_counter >= this->tstates_borderbottom) || ((this->tstados_counter % this->pixancho) >= 128)) {
+		if (((this->tstados_counter + this->offset) %4) == 0) {
+			if (((this->tstados_counter + this->offset + this->offset2) < this->tstate_contention) || ((this->tstados_counter + this->offset + this->offset2) >= this->tstate_contention2) || (((this->tstados_counter + this->offset + this->offset2) % this->pixancho) >= 128)) {
 				// is border
 				if (this->ulaplus) {
 					this->paint_pixels(255, this->border+24, 0);	// paint 8 pixels with BORDER color
@@ -241,7 +247,6 @@ void Screen::show_screen (int tstados) {
 					this->paint_pixels(255, this->border, 0);	// paint 8 pixels with BORDER color
 				}
 			} else {
-
 				// is user area. We search for ink and paper colours
 				this->paint_pixels(this->user_pixels,this->user_ink,this->user_paper);
 			}
@@ -304,12 +309,6 @@ void Screen::show_screen (int tstados) {
 			}
 		}
 
-		this->currpix = this->tstados_counter % this->pixancho;
-		this->currline = this->tstados_counter / this->pixancho;
-		if ((this->currline > this->first_line)&&(this->currpix == this->first_column)) {
-			this->pixel += this->next_line;
-		}
-
 		if (this->tstados_counter == this->tstates_screen) {
 			this->currline = 0;
 			if (osd->get_time() != 0) {
@@ -353,7 +352,7 @@ void Screen::paint_pixels (uint8_t octet, uint8_t ink, uint8_t paper) {
 	static unsigned int *p;
 	static unsigned char mask;
 
-	if (((this->currpix >= this->first_column) && (this->currpix < (this->pixancho-this->last_column))) || (this->currline < this->first_line) || (this->pixel>=this->max_pixel)) {
+	if (((this->currpix >= (this->last_column))) || (this->currline < this->first_line) || (this->pixel>=this->max_pixel)) {
 		return;
 	}
 
@@ -392,7 +391,9 @@ void Screen::reset(uint8_t model) {
 		this->pixborde_top = 64;
 		this->tstate_contention = 14335;
 		this->offset = 2;
+		this->offset2 = -4;
 		this->offset_p3 = 0;
+		this->hoffset = 0;
 		break;
 	case MODE_128K:
 	case MODE_P2:
@@ -402,7 +403,9 @@ void Screen::reset(uint8_t model) {
 		this->pixalto = 311;
 		this->tstate_contention = 14361;
 		this->offset = 0;
+		this->offset2 = 0;
 		this->offset_p3 = 0;
+		this->hoffset = 4;
 		break;
 	case MODE_P3:
 		this->pixborde_top = 63;
@@ -410,7 +413,9 @@ void Screen::reset(uint8_t model) {
 		this->pixalto = 311;
 		this->tstate_contention = 14359;
 		this->offset = 2;
+		this->offset2 = 0;
 		this->offset_p3 = 6;
+		this->hoffset = 4;
 		break;
 	}
 	printf("Reset\n");
@@ -423,8 +428,6 @@ void Screen::reset(uint8_t model) {
 	this->currline = 0;
 
 	this->tstate_contention2 = this->tstate_contention + 192 * this->pixancho;
-	this->tstates_bordertop = this->pixancho * this->pixborde_top;
-	this->tstates_borderbottom = this->tstates_bordertop + 192 * this->pixancho;
 	this->tstates_screen = this->pixancho * this->pixalto - 1;
 }
 
