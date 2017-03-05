@@ -7,5 +7,5 @@ Comment=Play the old, great games of the venerable ZX Spectrum
 TryExec=fbzx
 Exec=fbzx
 Keywords=emulator,sinclair,spectrum
-Categories=Game
+Categories=Game;
 Icon=fbzx
