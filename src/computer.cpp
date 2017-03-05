@@ -130,24 +130,9 @@ void computer::emulate (int tstados) {
 
 void computer::do_contention() {
 
-	/*if (!this->contended_zone) {
-		return;
-	}
-
-	if (this->cicles_counter<14334) {
-		return;
-	}
-
-	int ccicles = (this->cicles_counter - 14334) % 8;
-
-	if (ccicles>5) {
-		return;
-	}*/
-
 	while(this->contended_zone) {
 		this->emulate(1);
 	}
-	//this->emulate(6-ccicles);
 }
 
 // resets the computer and loads the right ROMs
