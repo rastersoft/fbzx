@@ -134,14 +134,44 @@ void computer::do_contention(bool io, word addr) {
 	if (this->memcontended_zone == 0) {
 		return;
 	}
-	if (ordenador->current_mode == MODE_P3) {
-		if ((addr & 0xC000) == 0x4000) {
-			this->emulate(this->memcontended_zone);
+	if (!io) {
+		switch (ordenador->current_mode) {
+			case MODE_128K:
+			case MODE_P2:
+			case MODE_128K_SPA:
+				if (((this->mport1 & 0x01) == 1) && (addr >= 0xC000)) { // pages 1, 3, 5 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
+			case MODE_P3:
+				if (this->mport2 & 0x01) {
+					if ((this->mport2 & 0x06) == 0x00) { // 0, 1, 2 and 3, which are not contended
+						return;
+					}
+					if ((this->mport2 & 0x06) == 0x02) { // 4, 5, 6 and 7, which are all contended
+						this->emulate(this->memcontended_zone);
+						return;
+					}
+					// here it can be 4, 5, 6 and 3, or 4, 7, 6 and 3. In both cases, there is contention only in the first 48K
+					if (addr < 0xC000) {
+						this->emulate(this->memcontended_zone); // are contended
+					}
+					return;
+				}
+				if (((this->mport1 & 0x04) == 4) && (addr >= 0xC000)) { // pages 4, 5, 6 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
 		}
-	} else {
-		if ((io && ((addr & 0x0001) == 0)) || ((addr & 0xC000) == 0x4000)) {
-			this->emulate(this->memcontended_zone);
-		}
+	}
+	if ((addr & 0xC000) == 0x4000) {
+		this->emulate(this->memcontended_zone);
+		return;
+	}
+	if ((ordenador->current_mode != MODE_P3) && io){
+		this->emulate(this->memcontended_zone);
 	}
 }
 
