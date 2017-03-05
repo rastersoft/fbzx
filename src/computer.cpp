@@ -61,7 +61,8 @@ computer::computer() {
 
 	this->sound_bit = 0;
 
-	this->contended_zone = false;
+	this->memcontended_zone = 0;
+	this->iocontended_zone = 0;
 	this->cicles_counter=0;
 
 	this->interr = 0;
@@ -128,10 +129,20 @@ void computer::emulate (int tstados) {
 
 // check if there's contention and waits the right number of tstates
 
-void computer::do_contention() {
+void computer::do_contention(bool io, word addr) {
 
-	while(this->contended_zone) {
-		this->emulate(1);
+	if (ordenador->current_mode == MODE_P3) {
+		if (((addr & 0xC000) == 0x4000) && (this->memcontended_zone != 0)) {
+			this->emulate(this->memcontended_zone);
+		}
+	} else {
+		if (io && (this->iocontended_zone != 0) && ((addr & 0x0001) == 0)) {
+			this->emulate(this->iocontended_zone);
+		} else {
+			if (((addr & 0xC000) == 0x4000) && (this->memcontended_zone != 0)) {
+				this->emulate(this->memcontended_zone);
+			}
+		}
 	}
 }
 
@@ -186,9 +197,7 @@ void extra_contention() {
 void Z80free_Wr (word Addr, byte Value) {
 
 	extra_contention();
-	if ((Addr & 0xC000) == 0x4000) {
-		ordenador->do_contention();
-	}
+	ordenador->do_contention(false, Addr);
 	ordenador->write_memory(Addr,Value);
 }
 
@@ -214,7 +223,6 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 		*(ordenador->block3 + Addr) = (unsigned char) Value;
 	break;
 	}
-
 }
 
 byte Z80free_Rd (word Addr) {
@@ -231,9 +239,7 @@ byte Z80free_Rd (word Addr) {
 	break;
 
 	default:
-		if ((Addr & 0xC000) == 0x4000) {
-			ordenador->do_contention();
-		}
+		ordenador->do_contention(false, Addr);
 		return (ordenador->read_memory(Addr));
 	}
 }
@@ -270,20 +276,17 @@ void Z80free_Out (word Port, byte Value) {
 	register word maskport;
 	extra_contention();
 
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		if (ordenador->current_mode != MODE_P3) {
-			ordenador->do_contention();
-		}
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
+
 
 	// ULAPlus
 	if (Port == 0xBF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_register(Value);
 		return;
 	}
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_value(Value);
 	}
 
@@ -340,16 +343,13 @@ byte Z80free_In (word Port) {
 	byte pines;
 
 	extra_contention();
-	if (((Port&0x0001)==0) || ((Port>=0x4000)&&(Port<0x8000))) {
-		if (ordenador->current_mode != MODE_P3) {
-			ordenador->do_contention();
-		}
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
 
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		return (screen->read_ulaplus_value());
 	}
 

@@ -247,20 +247,38 @@ void Screen::show_screen (int tstados) {
 		}
 
 		if ((this->tstados_counter < this->tstate_contention) || (this->tstados_counter >= this->tstate_contention2)) {
-			ordenador->contended_zone = false; // no contention here
+			ordenador->memcontended_zone = 0; // no contention here
+			ordenador->iocontended_zone = 0;
 			this->bus_value = 0xFF;
 		} else {
 			int p;
 			if (((this->tstados_counter - this->tstate_contention) % this->pixancho) < 128) {
-				switch(((this->tstados_counter - this->tstate_contention)% this->pixancho) % 8) {
+				int zone = ((this->tstados_counter - this->tstate_contention)% this->pixancho) % 8;
+				switch(zone) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+					case 5:
+						ordenador->iocontended_zone = 6 - zone;
+						break;
+					case 6:
+						ordenador->iocontended_zone = 0;
+						break;
+					case 7:
+						ordenador->iocontended_zone = 0;
+						break;
+				}
+				switch(zone) {
 					case 0:
 					case 5:
 						this->bus_value = 0xFF;
-						ordenador->contended_zone = true;
+						ordenador->memcontended_zone = 6 - zone;
 						break;
 					case 1:
 					case 3:
-						ordenador->contended_zone = true;
+						ordenador->memcontended_zone = 6 - zone;
 						p = *this->p_translt;
 						this->bus_value = ordenador->memoria[p + ordenador->video_offset];
 						this->p_translt++;
@@ -268,6 +286,7 @@ void Screen::show_screen (int tstados) {
 						break;
 					case 2:
 					case 4:
+						ordenador->memcontended_zone = 6 - zone;
 						p = *this->p_translt2;
 						this->bus_value = ordenador->memoria[p + ordenador->video_offset];	// attributes
 						this->p_translt2++;
@@ -296,11 +315,13 @@ void Screen::show_screen (int tstados) {
 						break;
 					default:
 						this->bus_value = 0xFF;
-						ordenador->contended_zone = false;
+						ordenador->memcontended_zone = 0;
+						ordenador->iocontended_zone = 0;
 						break;
 				}
 			} else {
-				ordenador->contended_zone = false; // no contention here
+				ordenador->memcontended_zone = 0; // no contention here
+				ordenador->iocontended_zone = 0;
 				this->bus_value = 0xFF;
 			}
 		}

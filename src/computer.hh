@@ -55,7 +55,8 @@ public:
 	bool dblscan;
 	bool bw;
 
-	bool contended_zone; // 0-> no contention; 1-> contention possible
+	int memcontended_zone; // memory contended tstates from this instant up to the next non-contended block
+	int iocontended_zone; // I/O contended tstates from this instant up to the next non-contended block
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 	int contended_cicles; // cicles used during contention (must not be counted after ending the execution of an instruction)
 
@@ -104,7 +105,7 @@ public:
 	bool callback_receiver(string, class Signals *);
 	byte bus_empty();
 	void emulate(int);
-	void do_contention();
+	void do_contention(bool io, word addr);
 	uint8_t read_memory(uint16_t Addr);
 	void write_memory (uint16_t Addr, uint8_t Value);
 };
