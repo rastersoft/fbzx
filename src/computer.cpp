@@ -172,6 +172,7 @@ void computer::do_contention(bool io, word addr) {
 	}
 	if (((addr & 0x0001) == 0) && io){
 		this->emulate(this->memcontended_zone);
+		return;
 	}
 }
 
