@@ -170,7 +170,7 @@ void computer::do_contention(bool io, word addr) {
 		this->emulate(this->memcontended_zone);
 		return;
 	}
-	if ((ordenador->current_mode != MODE_P3) && io){
+	if (((addr & 0x0001) == 0) && io){
 		this->emulate(this->memcontended_zone);
 	}
 }
@@ -261,16 +261,13 @@ byte Z80free_Rd (word Addr) {
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
 
-	switch (ordenador->other_ret) {
-	case 1:
+	if (ordenador->other_ret == 1) {
 		ordenador->other_ret = 0;
 		return (201);	// RET instruction
-	break;
-
-	default:
-		ordenador->do_contention(false, Addr);
-		return (ordenador->read_memory(Addr));
 	}
+
+	ordenador->do_contention(false, Addr);
+	return (ordenador->read_memory(Addr));
 }
 
 uint8_t computer::read_memory(uint16_t Addr) {
