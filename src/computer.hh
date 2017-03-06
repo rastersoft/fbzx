@@ -55,7 +55,7 @@ public:
 	bool dblscan;
 	bool bw;
 
-	bool contended_zone; // 0-> no contention; 1-> contention possible
+	int memcontended_zone; // memory contended tstates from this instant up to the next non-contended block
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
 	int contended_cicles; // cicles used during contention (must not be counted after ending the execution of an instruction)
 
@@ -70,6 +70,7 @@ public:
 
 	unsigned char bus_counter;
 	unsigned char bus_value;
+	unsigned char bus_value2;
 	bool issue_3; // 2= 48K issue 2, 3= 48K issue 3
 	enum CurrentMode current_mode;
 	unsigned char port254;
@@ -103,7 +104,7 @@ public:
 	bool callback_receiver(string, class Signals *);
 	byte bus_empty();
 	void emulate(int);
-	void do_contention();
+	void do_contention(bool io, word addr);
 	uint8_t read_memory(uint16_t Addr);
 	void write_memory (uint16_t Addr, uint8_t Value);
 };

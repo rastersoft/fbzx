@@ -1,4 +1,7 @@
 ## VERSIONS ##
+* Version 3.8.0 (2017-03-06)
+   * Updated the Z80 emulator and the screen emulation, which now is so precise that can run flawlessly the SHOCK demo both in 48K and +3 mode
+   * Removed the code that removed the DC in the audio output, because the sound was really ugly
 * Version 3.7.0 (2017-03-04)
    * Now the interrupt line is kept low exactly 32tstates
    * Now the EI as prefix works fine

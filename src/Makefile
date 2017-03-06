@@ -1,13 +1,13 @@
-CC=g++ -c -O2
-CPP=g++ -c -O2
-LN=g++ -O2
+CC=g++ -c -O2 -g
+CPP=g++ -c -O2 -g
+LN=g++ -O2 -g
 
 CFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 CPPFLAGS += `pkg-config --cflags sdl libpulse-simple alsa` -D D_SOUND_PULSE -D D_SOUND_ALSA -D D_SOUND_OSS
 LDFLAGS += `pkg-config --libs sdl libpulse-simple alsa`
 
 
-fbzx: cargador.o cmdline.o computer.o emulator.o keyboard.o llscreen.o llsound.o menus.o microdrive.o mouse.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o 
+fbzx: cargador.o cmdline.o computer.o emulator.o keyboard.o llscreen.o llsound.o menus.o microdrive.o mouse.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o
 	$(LN) -o fbzx cargador.o cmdline.o computer.o emulator.o keyboard.o llscreen.o llsound.o menus.o microdrive.o mouse.o osd.o screen.o signals.o spk_ay.o tape.o Z80free.o Z80free_codes.o Z80free_codesCB.o Z80free_codesED.o Z80free_codesDD.o Z80free_codesFD.o Z80free_codesDDCB.o Z80free_codesFDCB.o  $(LDFLAGS)
 
 Z80free.o: z80free/Z80free.c z80free/Z80free.h
@@ -78,4 +78,3 @@ spk_ay.o: spk_ay.cpp spk_ay.hh llsound.hh computer.hh screen.hh signals.hh llscr
 
 tape.o: tape.cpp z80free/Z80free.h tape.hh signals.hh emulator.hh screen.hh osd.hh computer.hh llscreen.hh
 	$(CPP) $(CPPFLAGS) -o tape.o tape.cpp
-

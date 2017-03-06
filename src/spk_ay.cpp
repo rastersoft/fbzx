@@ -104,108 +104,105 @@ void SPK_AY::play_ay (int tstados) {
 		this->tst_ay2 -= 128;
 
 		env_period=2*(((unsigned int) this->ay_registers[11]) + 256 * ((unsigned int) (this->ay_registers[12])));
-		if (!env_period) env_period = 1;
+		if (!env_period) {
+			env_period = 1;
+		}
 
-			if (this->aych_envel<env_period) // to check
-				this->aych_envel++;
-			else {
-				this->aych_envel = 0;
-				if (this->ay_envel_way & 0x02)	// start cycle?
-					switch ((this->
-						 ay_registers[13]) & 0x0F)
-					{
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-						this->ay_envel_way = 4;	// cycle started and decrementing
-						this->ay_envel_value = 16;
-						break;
-					default:
-						this->ay_envel_way = 5;	// cycle started and incrementing
-						this->ay_envel_value = -1;
-					}
-				if (this->ay_envel_way & 0x04) // cycle started?
+		if (this->aych_envel<env_period) { // to check
+			this->aych_envel++;
+		} else {
+			this->aych_envel = 0;
+			if (this->ay_envel_way & 0x02)	// start cycle?
+				switch ((this->
+					 ay_registers[13]) & 0x0F)
 				{
-					switch ((this->
-						 ay_registers[13]) & 0x0F)
-					{
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 9:
-						this->ay_envel_value--;
-						if (this->
-						    ay_envel_value == 0)
-							this->ay_envel_way = 0;	// end
-						break;
-
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 15:
-						this->ay_envel_value++;
-						if (this->
-						    ay_envel_value == 16)
-						{
-							this->
-								ay_envel_value
-								= 0;
-							this->ay_envel_way = 0;	// end
-						}
-						break;
-
-					case 8:
-						this->ay_envel_value--;
-						if (this->ay_envel_value == -1)
-							this->ay_envel_value = 15;	// repeat
-						break;
-
-					case 10:
-					case 14:
-						if (this->ay_envel_way & 0x01) //incrementing?
-							this->ay_envel_value++;
-						else
-							this->ay_envel_value--;
-						if (this->ay_envel_value == 16) {
-							this->ay_envel_value = 15;
-							this->ay_envel_way =4;
-						}
-						if (this->ay_envel_value == -1) {
-							this->ay_envel_value = 0;
-							this->ay_envel_way = 5;
-						}
-						break;
-
-					case 11:
-						this->ay_envel_value--;
-						if (this->ay_envel_value == -1) {
-							this->ay_envel_value = 15;
-							this->ay_envel_way = 0;	// end
-						}
-						break;
-
-					case 12:
-						this->ay_envel_value++;
-						if (this->ay_envel_value == 16)
-							this->ay_envel_value = 0;
-						break;
-
-					case 13:
-						this->ay_envel_value++;
-						if (this->ay_envel_value == 15)
-							this->ay_envel_way = 0;	// end
-						break;
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+					this->ay_envel_way = 4;	// cycle started and decrementing
+					this->ay_envel_value = 16;
+					break;
+				default:
+					this->ay_envel_way = 5;	// cycle started and incrementing
+					this->ay_envel_value = -1;
+				}
+			if (this->ay_envel_way & 0x04) { // cycle started?
+				switch ((this->ay_registers[13]) & 0x0F) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 9:
+					this->ay_envel_value--;
+					if (this->ay_envel_value == 0) {
+						this->ay_envel_way = 0;	// end
 					}
+					break;
+
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 15:
+					this->ay_envel_value++;
+					if (this->ay_envel_value == 16) {
+						this->ay_envel_value = 0;
+						this->ay_envel_way = 0;	// end
+					}
+					break;
+				case 8:
+					this->ay_envel_value--;
+					if (this->ay_envel_value == -1) {
+						this->ay_envel_value = 15;	// repeat
+					}
+					break;
+
+				case 10:
+				case 14:
+					if (this->ay_envel_way & 0x01) { //incrementing?
+						this->ay_envel_value++;
+					} else {
+						this->ay_envel_value--;
+					}
+					if (this->ay_envel_value == 16) {
+						this->ay_envel_value = 15;
+						this->ay_envel_way =4;
+					}
+					if (this->ay_envel_value == -1) {
+						this->ay_envel_value = 0;
+						this->ay_envel_way = 5;
+					}
+					break;
+
+				case 11:
+					this->ay_envel_value--;
+					if (this->ay_envel_value == -1) {
+						this->ay_envel_value = 15;
+						this->ay_envel_way = 0;	// end
+					}
+					break;
+
+				case 12:
+					this->ay_envel_value++;
+					if (this->ay_envel_value == 16) {
+						this->ay_envel_value = 0;
+					}
+					break;
+
+				case 13:
+					this->ay_envel_value++;
+					if (this->ay_envel_value == 15) {
+						this->ay_envel_way = 0;	// end
+					}
+					break;
 				}
 			}
-
+		}
 	}
 
 	//Tone and noise
@@ -224,47 +221,41 @@ void SPK_AY::play_ay (int tstados) {
 			noise_period = 1;
 
 		if (tone_period_a * llsound->freq < 110841) { //Freq_camp > cpufreq/(2*16*tone_period)
-			this->aych_a =1;
+			this->aych_a = 1;
 		} else {
-			if (this->aych_a<tone_period_a)
+			if (this->aych_a<tone_period_a) {
 				this->aych_a++;
-			else
-			{
+			} else {
 				this->ayval_a = !this->ayval_a;
-				this->aych_a =0;
+				this->aych_a = 0;
 			}
 		}
 
-		if (tone_period_b * llsound->freq < 110841)  //Freq_camp > cpufreq/(2*16*tone_period)
-			this->aych_b =1;
-		else
-		{
-			if (this->aych_b<tone_period_b)
+		if (tone_period_b * llsound->freq < 110841) { //Freq_camp > cpufreq/(2*16*tone_period)
+			this->aych_b = 1;
+		} else {
+			if (this->aych_b<tone_period_b) {
 				this->aych_b++;
-			else
-			{
+			} else {
 				this->ayval_b = !this->ayval_b;
 				this->aych_b =0;
 			}
 		}
 
-		if (tone_period_c * llsound->freq < 110841)  //Freq_camp > cpufreq/(2*16*tone_period)
-			this->aych_c =1;
-		else
-		{
-		if (this->aych_c<tone_period_c)
-			this->aych_c++;
-		else
-		{
-			this->ayval_c = !this->ayval_c;
-			this->aych_c =0;
-		}
+		if (tone_period_c * llsound->freq < 110841) { //Freq_camp > cpufreq/(2*16*tone_period)
+			this->aych_c = 1;
+		} else {
+			if (this->aych_c<tone_period_c) {
+				this->aych_c++;
+			} else {
+				this->ayval_c = !this->ayval_c;
+				this->aych_c =0;
+			}
 		}
 
-		if (this->aych_n<noise_period)
+		if (this->aych_n<noise_period) {
 			this->aych_n++;
-		else
-		{
+		} else {
 
 			//from FUSE
 
@@ -302,23 +293,22 @@ void SPK_AY::play_ay (int tstados) {
 
 		// Volume
 		//Each channel max 51
-
 		if (this->ay_registers[8] & 0x10) {
 			this->vol_a = (unsigned char) (levels[this->ay_envel_value]*(unsigned int) llsound->volume/80);
 		} else {
 			this->vol_a = (unsigned char) (levels[this->ay_registers[8] &0x0F]*(unsigned int) llsound->volume/80);
 		}
 
-		if (this->ay_registers[10] & 0x10) {
-			this->vol_c = (unsigned char) (levels[this->ay_envel_value] *(unsigned int) llsound->volume/80);
-		} else {
-			this->vol_c = (unsigned char) (levels[this->ay_registers[10] & 0x0F] *(unsigned int) llsound->volume/80);
-		}
-
 		if (this->ay_registers[9] & 0x10) {
 			this->vol_b = (unsigned char) (levels[this->ay_envel_value] *(unsigned int) llsound->volume/80);
 		} else {
 			this->vol_b = (unsigned char)(levels[this->ay_registers[9] &0x0F] *(unsigned int) llsound->volume/80);
+		}
+
+		if (this->ay_registers[10] & 0x10) {
+			this->vol_c = (unsigned char) (levels[this->ay_envel_value] *(unsigned int) llsound->volume/80);
+		} else {
+			this->vol_c = (unsigned char) (levels[this->ay_registers[10] & 0x0F] *(unsigned int) llsound->volume/80);
 		}
 	}
 }

@@ -30,21 +30,21 @@ for linea in fichero1:
 		contador+=1
 		if contador==8:
 			contador=0
-	
+
 	if len(nlinea)<49:
 		nlinea+=" "*(49-len(nlinea))
-		
+
 	p1=nlinea[:9]
 	p2=nlinea[16:40]
 	p3=nlinea[40:48]
-	
+
 	while (p1!="") and (p1[-1]==" "):
 		p1=p1[:-1]
 	while (p2!="") and (p2[-1]==" "):
 		p2=p2[:-1]
 	while (p3!="") and (p3[-1]==" "):
 		p3=p3[:-1]
-	
+
 	try:
 		if ((p1[:4].upper()=="FDCB") or (p1[:4].upper()=="DDCB")) and (len(p1)>8):
 			nlinea=int(p1[7:],16)
@@ -54,7 +54,7 @@ for linea in fichero1:
 			nlinea=int(p1[:2],16)
 	except:
 		print p1
-	
+
 	while contador2<nlinea:
 		escribe_linea(fichero2,contador2,"","")
 		contador2+=1
@@ -62,6 +62,6 @@ for linea in fichero1:
 		p3="*"
 	escribe_linea(fichero2,nlinea,p3,p2)
 	contador2+=1
-	
+
 fichero2.close()
 fichero1.close()

@@ -61,7 +61,8 @@ computer::computer() {
 
 	this->sound_bit = 0;
 
-	this->contended_zone = false;
+	this->memcontended_zone = 0;
+
 	this->cicles_counter=0;
 
 	this->interr = 0;
@@ -94,10 +95,11 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 
 byte computer::bus_empty () {
 
-	if (ordenador->current_mode != MODE_P3)
-		return (screen->bus_value);
-	else
+	if (ordenador->current_mode != MODE_P3) {
+		return (screen->get_bus_value(this->cicles_counter));
+	} else {
 		return (255);	// +2A and +3 returns always 255
+	}
 }
 
 /* calls all the routines that emulates the computer, runing them for 'tstados'
@@ -127,23 +129,51 @@ void computer::emulate (int tstados) {
 
 // check if there's contention and waits the right number of tstates
 
-void computer::do_contention() {
+void computer::do_contention(bool io, word addr) {
 
-	if (!this->contended_zone) {
+	if (this->memcontended_zone == 0) {
 		return;
 	}
-
-	if (this->cicles_counter<14335) {
+	if (!io) {
+		switch (ordenador->current_mode) {
+			case MODE_128K:
+			case MODE_P2:
+			case MODE_128K_SPA:
+				if (((this->mport1 & 0x01) == 1) && (addr >= 0xC000)) { // pages 1, 3, 5 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
+			case MODE_P3:
+				if (this->mport2 & 0x01) {
+					if ((this->mport2 & 0x06) == 0x00) { // 0, 1, 2 and 3, which are not contended
+						return;
+					}
+					if ((this->mport2 & 0x06) == 0x02) { // 4, 5, 6 and 7, which are all contended
+						this->emulate(this->memcontended_zone);
+						return;
+					}
+					// here it can be 4, 5, 6 and 3, or 4, 7, 6 and 3. In both cases, there is contention only in the first 48K
+					if (addr < 0xC000) {
+						this->emulate(this->memcontended_zone); // are contended
+					}
+					return;
+				}
+				if (((this->mport1 & 0x04) == 4) && (addr >= 0xC000)) { // pages 4, 5, 6 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
+		}
+	}
+	if ((addr & 0xC000) == 0x4000) {
+		this->emulate(this->memcontended_zone);
 		return;
 	}
-
-	int ccicles = (this->cicles_counter - 14335) % 8;
-
-	if (ccicles>5) {
+	if (((addr & 0x0001) == 0) && io){
+		this->emulate(this->memcontended_zone);
 		return;
 	}
-
-	this->emulate(6-ccicles);
 }
 
 // resets the computer and loads the right ROMs
@@ -184,28 +214,20 @@ void ResetComputer () {
 	screen->reset(ordenador->current_mode);
 	microdrive->reset();
 	mouse->reset();
+	OOTape->rewind();
 }
 
-void extra_contention(bool IO) {
+void extra_contention() {
 
-	int tstates;
-	if (IO) {
-		tstates = 3;
-	} else if (procesador.M1) {
-		tstates = 4;
-	} else {
-		tstates = 3;
-	}
-	ordenador->emulate(tstates);
-	ordenador->contended_cicles += tstates;
+	ordenador->emulate(procesador.subtstates);
+	ordenador->contended_cicles += procesador.subtstates;
+	procesador.subtstates = 0;
 }
 
 void Z80free_Wr (word Addr, byte Value) {
 
-	extra_contention(false);
-	if ((Addr & 0xC000) == 0x4000) {
-		ordenador->do_contention();
-	}
+	extra_contention();
+	ordenador->do_contention(false, Addr);
 	ordenador->write_memory(Addr,Value);
 }
 
@@ -231,28 +253,22 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 		*(ordenador->block3 + Addr) = (unsigned char) Value;
 	break;
 	}
-
 }
 
 byte Z80free_Rd (word Addr) {
 
-	extra_contention(false);
+	extra_contention();
 
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
 
-	switch (ordenador->other_ret) {
-	case 1:
+	if (ordenador->other_ret == 1) {
 		ordenador->other_ret = 0;
 		return (201);	// RET instruction
-	break;
-
-	default:
-		if ((Addr & 0xC000) == 0x4000) {
-			ordenador->do_contention();
-		}
-		return (ordenador->read_memory(Addr));
 	}
+
+	ordenador->do_contention(false, Addr);
+	return (ordenador->read_memory(Addr));
 }
 
 uint8_t computer::read_memory(uint16_t Addr) {
@@ -285,22 +301,19 @@ void Z80free_Out (word Port, byte Value) {
 	// Microdrive access
 
 	register word maskport;
-	extra_contention(true);
+	extra_contention();
 
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		if (ordenador->current_mode != MODE_P3) {
-			ordenador->do_contention();
-		}
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
+
 
 	// ULAPlus
 	if (Port == 0xBF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_register(Value);
 		return;
 	}
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_value(Value);
 	}
 
@@ -356,17 +369,14 @@ byte Z80free_In (word Port) {
 	static unsigned int temporal_io;
 	byte pines;
 
-	extra_contention(true);
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		if (ordenador->current_mode != MODE_P3) {
-			ordenador->do_contention();
-		}
+	extra_contention();
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
 
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		return (screen->read_ulaplus_value());
 	}
 
@@ -429,15 +439,15 @@ byte Z80free_In (word Port) {
 		}
 	}
 
-	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul))
+	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul)) {
 		return (spk_ay->get_value());
+	}
 
 	// Microdrive access
-	
-	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active))
-		return(microdrive->in(Port));
 
-	
+	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active)) {
+		return(microdrive->in(Port));
+	}
 
 	pines=ordenador->bus_empty();
 
