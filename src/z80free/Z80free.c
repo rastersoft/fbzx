@@ -92,11 +92,9 @@ int Z80free_ustep(Z80FREE *processor) {
 					processor->HALT=0;
 					processor->PC++;
 				}
-				processor->INT_P=0;
 				processor->Status=Z80INT;
 				processor->IFF1=0;
 				processor->IFF2=0;
-
 				processor->subtstates += 7;
 				Z80free_doPush(processor,processor->PC);
 				if (processor->IM != 2) { // we will forget IM0 mode for now; maybe in the future...
