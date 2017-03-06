@@ -1,3 +1,10 @@
+fbzx (3.8.0-Debian1) sid; urgency=low
+
+  * Updated the Z80 emulator and the screen emulation, which now is so precise that can run flawlessly the SHOCK demo both in 48K and +3 mode
+  * Removed the code that removed the DC in the audio output, because the sound was really ugly
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Mon, 06 Mar 2017 23:55:00 +0200
+
 fbzx (3.7.0-Debian1) sid; urgency=low
 
   * Now the interrupt line is kept low exactly 32tstates
