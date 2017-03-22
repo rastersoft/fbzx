@@ -1681,6 +1681,7 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 				read=1; // and redisplay all the files
 			break;
 			case 2: // upper directory
+				read=1;
 				delete_filelist(filelist); // frees the memory
 				longitud=strlen(path);
 				if(longitud<2) // there's no upper directory
@@ -1697,7 +1698,6 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 					longitud--;
 					path[longitud]=0; // delete the final '/'
 				}
-				read=1;
 			break;
 			default:
 			break;
