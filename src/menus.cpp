@@ -692,10 +692,10 @@ void create_tapfile(bool tzx) {
 
 	if (tzx) {
 		llscreen->print_string("Choose a name for the TZX file",-1,2,14,0);
-		retorno=ask_filename(nombre2,5,"tzx");
+		retorno=ask_filename(nombre2,5,"tzx", path_taps);
 	} else {
 		llscreen->print_string("Choose a name for the TAP file",-1,2,14,0);
-		retorno=ask_filename(nombre2,5,"tap");
+		retorno=ask_filename(nombre2,5,"tap", path_taps);
 	}
 
 	llscreen->clear_screen();
@@ -846,7 +846,7 @@ void create_mdrfile() {
 	llscreen->print_string("MDR file will be saved in:",-1,10,12,0);
 	llscreen->print_string(path_mdrs,0,11,12,0);
 
-	retorno=ask_filename(nombre2,7,"mdr");
+	retorno=ask_filename(nombre2,7,"mdr", path_mdrs);
 
 	llscreen->clear_screen();
 
@@ -888,7 +888,7 @@ void create_scrfile() {
 	llscreen->print_string("SCR file will be saved in:",-1,10,12,0);
 	llscreen->print_string(path_mdrs,0,11,12,0);
 
-	retorno=ask_filename(nombre2,7,"scr");
+	retorno=ask_filename(nombre2,7,"scr", path_snaps);
 
 	llscreen->clear_screen();
 
@@ -937,7 +937,7 @@ void create_scrfile() {
 }
 
 
-int ask_filename(char *nombre_final,int y_coord,string extension) {
+int ask_filename(char *nombre_final,int y_coord,string extension, char *path) {
 
 	int longitud,retorno;
 	char nombre[37],nombre2[38];
@@ -1228,11 +1228,11 @@ int ask_filename(char *nombre_final,int y_coord,string extension) {
 
 	nombre[longitud]=0; // erase cursor
 
-	longitud=strlen(path_snaps);
-	if((path_snaps[longitud-1]!='/')&&(longitud>1))
-		sprintf(nombre_final,"%s/%s.%s",path_snaps,nombre,extension.c_str()); // name
+	longitud=strlen(path);
+	if((path[longitud-1]!='/')&&(longitud>1))
+		sprintf(nombre_final,"%s/%s.%s",path,nombre,extension.c_str()); // name
 	else
-		sprintf(nombre_final,"%s%s.%s",path_snaps,nombre,extension.c_str());
+		sprintf(nombre_final,"%s%s.%s",path,nombre,extension.c_str());
 
 	return (retorno);
 }
@@ -1347,7 +1347,7 @@ void save_z80file() {
 	llscreen->print_string(path_snaps,0,11,12,0);
 
 
-	retorno=ask_filename(nombre2,7,"z80");
+	retorno=ask_filename(nombre2,7,"z80", path_snaps);
 
 	llscreen->clear_screen();
 
@@ -1681,6 +1681,7 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 				read=1; // and redisplay all the files
 			break;
 			case 2: // upper directory
+				read=1;
 				delete_filelist(filelist); // frees the memory
 				longitud=strlen(path);
 				if(longitud<2) // there's no upper directory
@@ -1697,7 +1698,6 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 					longitud--;
 					path[longitud]=0; // delete the final '/'
 				}
-				read=1;
 			break;
 			default:
 			break;
