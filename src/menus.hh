@@ -53,7 +53,7 @@ void create_mdrfile();
 void microdrive_menu();
 void keyboard_menu();
 void load_scrfile();
-int ask_filename(char *nombre,int y_coord,string extension);
+int ask_filename(char *nombre,int y_coord,string extension, char*path);
 void create_scrfile();
 void do_poke();
 int ask_value(int *final_value,int y_coord,int max_value);
