@@ -171,22 +171,22 @@ Of course, if you don't want to complicate things, just use Z80FREE_STEP.
 Finally, you must implement the following functions in order to emulate the
 hardware itself:
 
-	byte Z80free_Rd (register word Addr);
+	byte Z80free_Rd (word Addr);
 
 When Z80Free needs to read a byte from memory, it will call this function.
 It must return the value contained in the possition ADDR.
 
-	void Z80free_Wr (register word Addr, register byte Value);
+	void Z80free_Wr (word Addr, byte Value);
 
 When Z80Free needs to write a byte to memory, it will call this funcion.
 It must store the data VALUE at the position ADDR.
 
-	byte Z80free_In (register word Port);
+	byte Z80free_In (word Port);
 
 When Z80Free needs to access to an input port, it will call this function.
 PORT contains the 16bit port being accessed.
 
-	void Z80free_Out (register word Port, register byte Value);
+	void Z80free_Out (word Port, byte Value);
 
 When Z80Free needs to access to an output port, it will call this function.
 PORT contains the 16bit port being accessed, and VALUE the data to be

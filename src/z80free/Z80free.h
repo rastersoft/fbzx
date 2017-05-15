@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 
@@ -23,6 +23,7 @@
 #define Z80FREE_H
 
 #include <endian.h>
+#include <stdbool.h>
 #ifndef Z80_H
 typedef unsigned short int word;
 typedef unsigned char byte;
@@ -34,7 +35,7 @@ extern int Z80free_parityBit[256];
 #define F_Z      0x40
 #define F_5      0x20
 #define F_H      0x10
-#define F_3      0x08 
+#define F_3      0x08
 #define F_PV     0x04
 #define F_N      0x02
 #define F_C      0x01
@@ -47,9 +48,9 @@ typedef union {
 	{
 		word AF, BC, DE, HL, IX, IY, SP;
 	} wr;
-	
+
 	/** Byte registers. SP can be accessed partially to simplify the load/save code. */
-	
+
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 	struct
 	{
@@ -85,6 +86,8 @@ typedef struct
 	word	IAddr;			/* address with offset for IX+d and IY+d */
 	byte	IAddr_done;		/* if 1, IAddr contains a valid data */
 	enum    Z80Status Status;
+	bool    M1;             /* true if the processor is in M1 state */
+	word    subtstates;     /* counts the number of tstates since the starting of the instruction */
 } Z80FREE;
 
 /* internal Z80 methods */
@@ -125,8 +128,8 @@ word Z80free_addr_relative(Z80FREE *processor,word address);
 word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1);
 byte Z80free_read_param_8(Z80FREE *z80);
 word Z80free_read_param_16(Z80FREE *z80);
-word Z80free_read16 (register word addr);
-void Z80free_write16 (register word addr,register word val);
+word Z80free_read16 (Z80FREE *processor, word addr);
+void Z80free_write16 (Z80FREE *processor, word addr,word val);
 
 /* external Z80 methods */
 
@@ -134,11 +137,17 @@ void Z80free_reset(Z80FREE *);
 int Z80free_step(Z80FREE *);
 int Z80free_ustep(Z80FREE *);
 void Z80free_INT(Z80FREE *,byte);
+void Z80free_INTserved(Z80FREE *);
 
-byte Z80free_Rd (register word Addr);
-void Z80free_Wr (register word Addr, register byte Value);
-byte Z80free_In (register word Port);
-void Z80free_Out (register word Port, register byte Value);
+byte Z80free_Rd_Internal (Z80FREE *processor,word Addr);
+void Z80free_Wr_Internal (Z80FREE *processor,word Addr, byte Value);
+byte Z80free_In_Internal (Z80FREE *processor,word Port);
+void Z80free_Out_Internal (Z80FREE *processor,word Port, byte Value);
+
+byte Z80free_Rd (word Addr);
+void Z80free_Wr (word Addr, byte Value);
+byte Z80free_In (word Port);
+void Z80free_Out (word Port, byte Value);
 
 /* Opcode functions */
 

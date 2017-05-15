@@ -12,6 +12,7 @@ WHAT EMULATES RIGHT IN FBZX?
 -Priority of joystick over keyboard.
 -Snow efect when I register points between 64 and 127.
 -Emulation of Interface I and Microdrive (only one drive).
+-Kempston Mouse
 -Memory contention
 -Emulates Spanish 128K from Investronica/Sinclair
 -Allows to insert POKE values in memory (inmunity, infinite lives...)

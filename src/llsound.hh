@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef SOUND_H
@@ -27,6 +27,8 @@
 #define D_SOUND_ALSA
 #define D_SOUND_OSS
 #endif
+
+#define FILTER_SAMPLES 8
 
 enum e_soundtype {SOUND_NO, SOUND_OSS, SOUND_ALSA, SOUND_PULSEAUDIO, SOUND_AUTOMATIC};
 

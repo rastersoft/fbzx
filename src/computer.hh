@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #ifndef computer_h
@@ -31,6 +31,11 @@
 
 // #define MUT
 
+#define CONTENTION_RD 3
+#define CONTENTION_WR 3
+#define CONTENTION_IN 3
+#define CONTENTION_OUT 3
+
 extern char salir;
 
 extern class computer *ordenador;
@@ -40,6 +45,8 @@ enum tapmodes {TAP_GUIDE, TAP_DATA, TAP_PAUSE, TAP_TRASH, TAP_STOP, TAP_PAUSE2, 
 
 enum taptypes {TAP_TAP, TAP_TZX};
 
+enum CurrentMode {MODE_48K, MODE_128K, MODE_P2, MODE_P3, MODE_128K_SPA};
+
 class computer : public Signals {
 public:
 	unsigned int temporal_io;
@@ -48,8 +55,9 @@ public:
 	bool dblscan;
 	bool bw;
 
-	bool contended_zone; // 0-> no contention; 1-> contention possible
+	int memcontended_zone; // memory contended tstates from this instant up to the next non-contended block
 	int cicles_counter; // counts how many pixel clock cicles passed since las interrupt
+	int contended_cicles; // cicles used during contention (must not be counted after ending the execution of an instruction)
 
 	// Linux joystick private global variables
 
@@ -62,8 +70,9 @@ public:
 
 	unsigned char bus_counter;
 	unsigned char bus_value;
-	unsigned char issue; // 2= 48K issue 2, 3= 48K issue 3
-	unsigned char mode128k; // 0=48K, 1=128K, 2=+2, 3=+3
+	unsigned char bus_value2;
+	bool issue_3; // 2= 48K issue 2, 3= 48K issue 3
+	enum CurrentMode current_mode;
 	unsigned char port254;
 
 
@@ -95,7 +104,7 @@ public:
 	bool callback_receiver(string, class Signals *);
 	byte bus_empty();
 	void emulate(int);
-	void do_contention();
+	void do_contention(bool io, word addr);
 	uint8_t read_memory(uint16_t Addr);
 	void write_memory (uint16_t Addr, uint8_t Value);
 };

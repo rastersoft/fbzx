@@ -1074,7 +1074,7 @@ public:
 			return this->next->save_block(file);
 		}
 	}
-	bool read_block(ifstream *file) {
+	bool load_block(ifstream *file) {
 
 		uint16_t length;
 		// read pilot pulse duration
@@ -1242,6 +1242,61 @@ public:
 	}
 };
 
+class TextBlock : public TapeBlock {
+
+
+	uint8_t *data;
+	uint8_t size;
+
+public:
+
+	TextBlock() {
+		this->data = NULL;
+		this->size = 0;
+		this->has_data = false;
+	}
+	~TextBlock() {
+		if (this->data != NULL) {
+			delete[](this->data);
+		}
+	}
+
+	bool save_block(ofstream *file) {
+
+		if (this->write_8bit(file,0x30)) { // block ID
+			return true;
+		}
+		if (this->write_8bit(file, this->size)) {
+			return true;
+		}
+		file->write((char*)this->data,this->size);
+		if (this->next == NULL) {
+			return false;
+		} else {
+			return this->next->save_block(file);
+		}
+	}
+
+	bool load_block(ifstream *file) {
+
+		size_t retval;
+
+		if (this->read_8bit(file,this->size)) {
+			return true;
+		}
+		this->data = new uint8_t[this->size];
+		file->read((char*)this->data,this->size);
+		if (file->eof()) {
+			return true;
+		}
+		return false;
+	}
+
+	bool next_bit() {
+		return false;
+	}
+};
+
 Tape::Tape() {
 	this->blocks = NULL;
 	this->current_block = NULL;
@@ -1382,11 +1437,14 @@ bool Tape::load_tzx(string filename) {
 		case 0x25: // Loop End
 			block = new EndLoopBlock();
 		break;
+		case 0x30: // Text block
+			block = new TextBlock();
+		break;
 		case 0x32: // Archive Info block
 			block = new InfoBlock();
 		break;
 		default:
-			printf("Block unknown: %X\n",block_type);
+			printf("Unknown block number: %X\n",block_type);
 			file->close();
 			delete (file);
 			return true;
@@ -1410,6 +1468,7 @@ void Tape::play(uint32_t tstates) {
 
 	uint32_t residue = tstates;
 
+	this->rewinded = false;
 	if (this->current_block == NULL) {
 		return;
 	}
@@ -1426,6 +1485,8 @@ void Tape::play(uint32_t tstates) {
 				this->current_block = this->current_block->next_block();
 				if (this->current_block == NULL) {
 					this->current_block = this->blocks;
+					this->rewinded = true;
+					break;
 				}
 				this->current_block->reset();
 				this->block_accesed = false;

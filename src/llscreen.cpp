@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <string.h>
@@ -77,6 +77,7 @@ LLScreen::LLScreen(int16_t resx,int16_t resy,uint8_t depth,bool fullscreen,bool 
 		exit(1);
 	}
 
+	this->set_mouse();
 	this->bpp = this->llscreen->format->BytesPerPixel;
 	this->width = this->llscreen->w;
 	this->memory = (unsigned char *)this->llscreen->pixels;
@@ -91,9 +92,9 @@ LLScreen::LLScreen(int16_t resx,int16_t resy,uint8_t depth,bool fullscreen,bool 
 	// we filter all the events, except keyboard events
 
 	SDL_EventState(SDL_ACTIVEEVENT,SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEMOTION,SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONDOWN,SDL_IGNORE);
-	SDL_EventState(SDL_MOUSEBUTTONUP,SDL_IGNORE);
+	SDL_EventState(SDL_MOUSEMOTION,SDL_ENABLE);
+	SDL_EventState(SDL_MOUSEBUTTONDOWN,SDL_ENABLE);
+	SDL_EventState(SDL_MOUSEBUTTONUP,SDL_ENABLE);
 	SDL_EventState(SDL_JOYAXISMOTION,SDL_ENABLE);
 	SDL_EventState(SDL_JOYBALLMOTION,SDL_ENABLE);
 	SDL_EventState(SDL_JOYHATMOTION,SDL_ENABLE);
@@ -226,6 +227,18 @@ void LLScreen::fullscreen_switch() {
 		flags |= SDL_FULLSCREEN;
 
 	this->llscreen = SDL_SetVideoMode(this->llscreen->w, this->llscreen->h, this->llscreen->format->BitsPerPixel,flags);
+	this->set_mouse();
+}
+
+void LLScreen::set_mouse() {
+
+	Uint32 flags = this->llscreen->flags;
+
+	if ( flags & SDL_FULLSCREEN ) {
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	} else {
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
 }
 
 void LLScreen::set_paletes(bool bw) {
@@ -521,7 +534,7 @@ void LLScreen::clear_screen() {
 
 // prints the string CADENA in X,Y (centered if X=-1), with colors COLOR and BACK
 
-void LLScreen::print_string(string o_cadena, int16_t x, int16_t y, uint8_t ink, uint8_t paper) {
+void LLScreen::print_string(string o_cadena, int16_t x, float y, uint8_t ink, uint8_t paper) {
 
 	int length, ncarac, bucle, xx;
 	uint16_t xxx, yyy;

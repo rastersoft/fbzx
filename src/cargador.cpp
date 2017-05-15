@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "cargador.hh"
@@ -90,11 +90,11 @@ int save_z80(char *filename) {
 			procesador.Rm.br.C, procesador.Rm.br.B, procesador.Rm.br.L,
 			procesador.Rm.br.H); // AF, BC and HL
 
-	if (ordenador->mode128k == 0) // 48K
-		fprintf(fichero, "%c%c", (byte) (procesador.PC & 0x0FF),
-				(byte) ((procesador.PC >> 8) & 0xFF)); // PC
-	else
+	if (ordenador->current_mode == MODE_48K) {// 48K
+		fprintf(fichero, "%c%c", (byte) (procesador.PC & 0x0FF), (byte) ((procesador.PC >> 8) & 0xFF)); // PC
+	} else {
 		fprintf(fichero, "%c%c", 0, 0); // 128K
+	}
 
 	fprintf(fichero, "%c%c", procesador.Rm.br.P, procesador.Rm.br.S); // SP
 	fprintf(fichero, "%c%c%c", procesador.I, procesador.R,
@@ -118,22 +118,23 @@ int save_z80(char *filename) {
 		value = 0;
 	fprintf(fichero, "%c", value);
 	value = procesador.IM;
-	if (ordenador->issue == 2)
+	if (!ordenador->issue_3) {
 		value |= 4;
+	}
 	switch (keyboard->joystick) {
-	case 1:
+	case JOYSTICK_KEMPSTON:
 		value |= 64;
 		break;
-	case 2:
+	case JOYSTICK_SINCLAIR1:
 		value |= 128;
 		break;
-	case 3:
+	case JOYSTICK_SINCLAIR2:
 		value |= 192;
 		break;
 	}
 	fprintf(fichero, "%c", value);
 
-	if (ordenador->mode128k == 0) { // 48K
+	if (ordenador->current_mode == MODE_48K) { // 48K
 		fwrite((ordenador->memoria + 147456), 16384, 1, fichero); // video memory
 		fwrite((ordenador->memoria + 98304), 32768, 1, fichero); // memory pages 2 & 3
 		fclose(fichero);
@@ -258,10 +259,10 @@ int load_z80(const char *filename) {
 
 	if (tempo[29] & 0x04) {
 		printf("Issue 2\n");
-		snap->issue = 2; // issue2
+		snap->issue_3= false; // issue2
 	} else {
 		printf("Issue 3\n");
-		snap->issue = 3; // issue3
+		snap->issue_3 = true; // issue3
 	}
 
 	snap->A = tempo[0];
@@ -288,15 +289,17 @@ int load_z80(const char *filename) {
 		tempo[12] = 1;
 	}
 
-	if (tempo[12] & 0x01)
+	if (tempo[12] & 0x01) {
 		snap->R |= 0x80;
+	}
 
 	snap->border = (tempo[12] >> 1) & 0x07;
 
-	if (tempo[12] & 32)
+	if ((tempo[12] & 32) || (type)) {
 		compressed = 1;
-	else
+	} else {
 		compressed = 0;
+	}
 
 	snap->E = tempo[13];
 	snap->D = tempo[14];
@@ -486,7 +489,7 @@ int load_sna(const char *filename) {
 	for (loop = 0; loop < 16; loop++)
 		snap->ay_regs[loop] = 0;
 	snap->ay_latch = 0;
-	snap->issue = 3;
+	snap->issue_3 = true;
 	snap->joystick = 1; //kempston
 
 	snap->I = tempo[0];
@@ -587,14 +590,14 @@ void load_snap(struct z80snapshot *snap) {
 	switch (snap->type) {
 	case 0: // 48k
 		printf("Mode 48K\n");
-		ordenador->mode128k = 0; // 48K mode
-		ordenador->issue = snap->issue;
+		ordenador->current_mode = MODE_48K; // 48K mode
+		ordenador->issue_3 = snap->issue_3;
 		ResetComputer();
 		break;
 	case 1: // 128k
 		printf("Mode 128K\n");
-		ordenador->mode128k = 2; // +2 mode
-		ordenador->issue = 3;
+		ordenador->current_mode = MODE_P2; // +2 mode
+		ordenador->issue_3 = true;
 		ResetComputer();
 		printf("Pager: %X\n", snap->pager);
 		Z80free_Out(0x7FFD, snap->pager);
@@ -603,7 +606,20 @@ void load_snap(struct z80snapshot *snap) {
 		break;
 	}
 
-	keyboard->joystick = snap->joystick;
+	switch (snap->joystick) {
+	case 0:
+		keyboard->joystick = JOYSTICK_CURSOR;
+	break;
+	case 1:
+		keyboard->joystick = JOYSTICK_KEMPSTON;
+	break;
+	case 2:
+		keyboard->joystick = JOYSTICK_SINCLAIR1;
+	break;
+	case 3:
+		keyboard->joystick = JOYSTICK_SINCLAIR2;
+	break;
+	}
 
 	procesador.Rm.br.A = snap->A;
 	procesador.Rm.br.F = snap->F;

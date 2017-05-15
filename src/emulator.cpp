@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <stdio.h>
@@ -35,6 +35,7 @@
 #include "llsound.hh"
 #include "keyboard.hh"
 #include "spk_ay.hh"
+#include "mouse.hh"
 
 bool debug_var = false;
 
@@ -43,11 +44,10 @@ char salir;
 char path_snaps[2049];
 char path_taps[2049];
 char path_mdrs[2049];
-unsigned int jump_frames, curr_frames;
 string filenames[5];
 
 string load_a_rom(string *filenames) {
-	
+
 	string *pointer;
 	int offset=0;
 	ifstream *fichero;
@@ -102,7 +102,7 @@ void load_rom(char type) {
 	break;
 	case 3:
 		// first, try last version of PLUS3 roms
-		
+
 		filenames[0]="spectrum-roms/plus3-41-0.rom";
 		filenames[1]="spectrum-roms/plus3-41-1.rom";
 		filenames[2]="spectrum-roms/plus3-41-2.rom";
@@ -143,7 +143,7 @@ void load_rom(char type) {
 		}
 	break;
 	}
-  
+
 	fichero=llscreen->myfopen("spectrum-roms/if1-2.rom",ios::in|ios::binary); // load Interface1 ROM
 	if(fichero == NULL) {
 		delete fichero;
@@ -161,7 +161,7 @@ void load_rom(char type) {
 }
 
 void end_system() {
-	
+
 	delete(llsound);
 	delete(llscreen);
 
@@ -171,7 +171,7 @@ void load_main_game(const char *nombre) {
 
 	int longitud;
 	char *puntero;
-	
+
 	longitud=strlen(nombre);
 	if (longitud<5) {
 		return;
@@ -181,7 +181,7 @@ void load_main_game(const char *nombre) {
 		load_z80(nombre);
 		return;
 	}
-	
+
 	if ((0==strcasecmp(".tap",puntero))||(0==strcasecmp(".tzx",puntero))) {
 		ordenador->current_tap = nombre;
 		OOTape->load_file(nombre);
@@ -190,11 +190,11 @@ void load_main_game(const char *nombre) {
 }
 
 void save_config() {
-	
+
 	char config_path[1024];
 	int length;
 	FILE *fconfig;
-	
+
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
 	if ((length>0)&&(config_path[length-1]!='/'))
@@ -204,8 +204,8 @@ void save_config() {
 	if (fconfig==NULL) {
 		return;
 	}
-	fprintf(fconfig,"mode=%c%c",48+ordenador->mode128k,10);
-	fprintf(fconfig,"issue=%c%c",48+ordenador->issue,10);
+	fprintf(fconfig,"mode=%c%c",48+ordenador->current_mode,10);
+	fprintf(fconfig,"issue=%c%c",(ordenador->issue_3 ? 51 : 50),10);
 	fprintf(fconfig,"joystick=%c%c",48+keyboard->joystick,10);
 	fprintf(fconfig,"ay_sound=%c%c",48+spk_ay->ay_emul,10);
 	fprintf(fconfig,"interface1=%c%c",48+microdrive->mdr_active,10);
@@ -214,17 +214,18 @@ void save_config() {
 	fprintf(fconfig,"bw=%c%c",ordenador->bw ? '1' : '0',10);
 	fprintf(fconfig,"fast=%c%c",ordenador->tape_fast_load ? '1' : '0',10);
 	fprintf(fconfig,"turboload=%c%c",ordenador->turbo_play ? '1' : '0',10);
+	fprintf(fconfig,"mouse=%c%c",mouse->enabled ? '1' : '0',10);
 	fclose(fconfig);
 }
 
 void load_config() {
-	
+
 	char config_path[1024];
 	char line[1024],carac,done;
 	int length,pos;
 	FILE *fconfig;
-	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw,fast,turboload=255;
-	
+	unsigned char volume=255,mode128k=255,issue=255,joystick=255,ay_emul=255,mdr_active=255,dblscan=255,bw=255,fast=255,turboload=255,mouse_enabled=255;
+
 	strcpy(config_path,getenv("HOME"));
 	length=strlen(config_path);
 	if ((length>0)&&(config_path[length-1]!='/'))
@@ -234,7 +235,7 @@ void load_config() {
 	if (fconfig==NULL) {
 		return;
 	}
-	
+
 	done=1;
 	pos=0;
 	line[0]=0;
@@ -298,16 +299,49 @@ void load_config() {
 			turboload=(line[10]-'0');
 			continue;
 		}
+		if (!strncmp(line,"mouse=",6)) {
+			mouse_enabled=(line[6]-'0');
+			continue;
+		}
 	}
-	
+
 	if (mode128k<5) {
-		ordenador->mode128k=mode128k;
+		switch (mode128k) {
+			case 0:
+				ordenador->current_mode = MODE_48K;
+				break;
+			case 1:
+				ordenador->current_mode = MODE_128K;
+				break;
+			case 2:
+				ordenador->current_mode = MODE_P2;
+				break;
+			case 3:
+				ordenador->current_mode = MODE_P3;
+				break;
+			case 4:
+				ordenador->current_mode = MODE_128K_SPA;
+				break;
+		}
 	}
 	if (issue<4) {
-		ordenador->issue=issue;
+		ordenador->issue_3 = issue == 3;
 	}
 	if (joystick<4) {
-		keyboard->joystick=joystick;
+		switch (joystick) {
+		case 0:
+			keyboard->joystick = JOYSTICK_CURSOR;
+		break;
+		case 1:
+			keyboard->joystick = JOYSTICK_KEMPSTON;
+		break;
+		case 2:
+			keyboard->joystick = JOYSTICK_SINCLAIR1;
+		break;
+		case 3:
+			keyboard->joystick = JOYSTICK_SINCLAIR2;
+		break;
+		}
 	}
 	if (ay_emul<2) {
 		spk_ay->ay_emul=ay_emul;
@@ -327,10 +361,13 @@ void load_config() {
 	if (turboload<2) {
 		ordenador->turbo_play = turboload==0 ? false : true;
 	}
+	if (mouse_enabled<2) {
+		mouse->enabled = mouse_enabled==0 ? false : true;
+	}
 	if (volume<255) {
 		llsound->set_volume(volume);
 	}
-	
+
 	fclose(fconfig);
 }
 
@@ -372,6 +409,7 @@ int main(int argc,char *argv[]) {
 	ordenador = new computer();
 	microdrive = new Microdrive();
 	spk_ay = new SPK_AY();
+	mouse = new Mouse();
 
 	load_config();
 
@@ -399,11 +437,8 @@ int main(int argc,char *argv[]) {
 
 	gamefile = "";
 
-	jump_frames = parse.jump;
-	curr_frames = 0;
-
 	printf("Computer init\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	atexit(end_system);
 
@@ -428,15 +463,15 @@ int main(int argc,char *argv[]) {
 	// assign random values to the memory before start execution
 
 	printf("Reset memory\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 	for(bucle=0;bucle<196608;bucle++)
 		ordenador->memoria[bucle]=(unsigned char) rand();
 
 	printf("Memory resetted\n");
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	salir=1;
-  
+
 	printf("Init microdrive\n");
 
 
@@ -452,31 +487,33 @@ int main(int argc,char *argv[]) {
 		osd->set_message("Running without sound (read the FAQ)",2000);
 	}
 
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 	printf("load main game\n");
 	load_main_game(parse.gamefile.c_str());
-	printf("Modo: %d\n",ordenador->mode128k);
+	printf("Modo: %d\n",ordenador->current_mode);
 
 	osd->set_message("Press F1 for help",4000);
 
 	printf("BPP: %d\n",llscreen->bpp);
 	debug_var = false;
+
 	while(salir) {
 
 		do {
+			ordenador->contended_cicles = 0;
 			tstados=Z80free_ustep(&procesador);
-			if(tstados<0) {
+			if((tstados - ordenador->contended_cicles)<0) {
 				printf("Error %X\n",procesador.PC);
 				exit(1);
 			}
-			ordenador->emulate(tstados); // execute the whole hardware emulation for that number of TSTATES
+			ordenador->emulate(tstados - ordenador->contended_cicles); // execute the whole hardware emulation for that number of TSTATES
 		} while(procesador.Status!=Z80XX);
 		PC=procesador.PC;
 
 		/* if PC is 0x0556, a call to LD_BYTES has been made, so if
 		FAST_LOAD is 1, we must load the block in memory and return */
 
-		if((!microdrive->mdr_paged) && (PC==0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
+		if((!microdrive->mdr_paged) && (PC == 0x0556) && (ordenador->tape_fast_load) && (ordenador->page48k == 1)) {
 			if(ordenador->current_tap != "") {
 				//procesador.Rm.br.F &= ~F_Z;
 				do_fast_load();
@@ -485,10 +522,10 @@ int main(int argc,char *argv[]) {
 			}
 			continue;
 		}
-		
+
 		/* if PC is 0x04C2, a call to SA_BYTES has been made, so if
 		we want to save to the TAP file, we do it */
-		
+
 		if((!microdrive->mdr_paged) && ((PC==0x04C2) || (PC == 0x04C6)) && (ordenador->tape_write==1) && (ordenador->page48k == 1)) {
 
 			if(ordenador->current_tap == "") {
@@ -534,31 +571,30 @@ int main(int argc,char *argv[]) {
 			ordenador->other_ret = 1;	// next instruction must be RET
 			continue;
 		}
-		
+
 		/* if ordenador->mdr_paged is 2, we have executed the RET at 0x0700, so
 		we have to return to the classic ROM */
-		
+
 		if(microdrive->mdr_paged == 2) {
 			microdrive->mdr_paged = 0;
 		}
-		
+
 		/* if PC is 0x0008 or 0x1708, and we have a microdrive, we have to page
 		the Interface 1 ROM */
-		
+
 		if(((PC==0x0008)||(PC==0x1708))&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 1;
 		}
-		
+
 		/* if PC is 0x0700 and we have a microdrive, we have to unpage
 		the Interface 1 ROM after the last instruction */
-		
+
 		if((PC==0x0700)&&(microdrive->mdr_active)) {
 			microdrive->mdr_paged = 2;
 		}
 
-		if(ordenador->interr==1) {
+		if(ordenador->interr>=1) {
 			keyboard->read_keyboard (NULL);	// read the physical keyboard
-			Z80free_INT(&procesador,ordenador->bus_empty());
 			ordenador->interr=0;
 		}
 	}

@@ -15,13 +15,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include "Z80free.h"
 
 void Z80free_reset(Z80FREE *processor) {
-	
+
 	processor->PC=0;
 	processor->IFF1=0;
 	processor->IFF2=0;
@@ -49,11 +49,14 @@ void Z80free_INT(Z80FREE *processor,byte value) {
 
 	processor->INT_P=1;
 	processor->empty_bus=value;
-	
+}
+
+void Z80free_INTserved(Z80FREE *processor) {
+	processor->INT_P=0;
 }
 
 int Z80free_step(Z80FREE *processor) {
-	
+
 	int retval=0;
 	do {
 		retval+=Z80free_ustep(processor);
@@ -62,10 +65,12 @@ int Z80free_step(Z80FREE *processor) {
 }
 
 int Z80free_ustep(Z80FREE *processor) {
-	
+
 	static byte opcode,d1;
 	int retval=0;
 
+	processor->M1 = true;
+	processor->subtstates = 0;
 	processor->R++;
 	if (processor->Status==Z80XX) {
 		if (processor->NMI_P) { // NMI triggered
@@ -74,14 +79,14 @@ int Z80free_ustep(Z80FREE *processor) {
 				processor->PC++;
 			}
 			processor->NMI_P=0;
+			processor->subtstates += 5;
+			processor->IFF1=0; // disable INTs
 			Z80free_doPush(processor,processor->PC);
 			processor->PC=0x0066;
-			processor->IFF1=0; // disable INTs
 			processor->Status=Z80INT;
 			return(11); // we use 11 tstates for attending a NMI
 		}
 		if (processor->INT_P) {
-			processor->INT_P=0;
 			if (processor->IFF1==1) { // allow INTs only in this case
 				if (processor->HALT) {
 					processor->HALT=0;
@@ -89,22 +94,25 @@ int Z80free_ustep(Z80FREE *processor) {
 				}
 				processor->Status=Z80INT;
 				processor->IFF1=0;
+				processor->IFF2=0;
+				processor->subtstates += 7;
 				Z80free_doPush(processor,processor->PC);
-				if (processor->IM!=2) { // we will forget IM0 mode for now; maybe in the future...
-					processor->PC=0x0038;
+				if (processor->IM != 2) { // we will forget IM0 mode for now; maybe in the future...
+					processor->PC = 0x0038;
 					return (13);
 				} else {
-					processor->PC=Z80free_read16(((((word)processor->I)<<8)&0xFF00) | ((word)processor->empty_bus));
+					processor->PC=Z80free_read16(processor, ((((word)processor->I)<<8)&0xFF00) | ((word)processor->empty_bus));
 					return (19);
 				}
 			}
 		}
 	}
-	
+
 	if (processor->IFF1>1) // set the right status for interrupts
 		processor->IFF1--;
 
 	opcode=Z80free_Rd(processor->PC);
+	processor->subtstates += 4; // 4 tstates are needed to read the opcode
 	processor->PC++;
 	switch(processor->Status) {
 	case Z80INT:
@@ -123,15 +131,18 @@ int Z80free_ustep(Z80FREE *processor) {
 			processor->Status=Z80FD;
 			return 4;
 		} else {
+			processor->M1 = false;
 			return(Z80free_codes(processor,opcode));
 		}
 	break;
 	case Z80CB:
 		processor->Status=Z80XX;
+		processor->M1 = false;
 		return(Z80free_codesCB(processor,opcode));
 	break;
 	case Z80ED:
 		processor->Status=Z80XX;
+		processor->M1 = false;
 		return(Z80free_codesED(processor,opcode));
 	break;
 	case Z80DD:
@@ -145,8 +156,11 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->subtstates += 8; // 8 tstates are needed: 3 to read the d value and 5 internal
+			processor->M1 = false;
 			retval+=Z80free_codesDDCB(processor,d1);
 		} else {
+			processor->M1 = false;
 			retval+=Z80free_codesDD(processor,opcode);
 		}
 		processor->IAddr_done=0;
@@ -163,8 +177,11 @@ int Z80free_ustep(Z80FREE *processor) {
 		processor->Status=Z80XX;
 		if (opcode==0xCB) {
 			d1=Z80free_Rd(processor->PC++);
+			processor->subtstates += 8; // 8 tstates are needed: 3 to read the d value and 5 internal
+			processor->M1 = false;
 			retval+=Z80free_codesFDCB(processor,d1);
 		} else {
+			processor->M1 = false;
 			retval+=Z80free_codesFD(processor,opcode);
 		}
 		processor->IAddr_done=0;
@@ -174,12 +191,33 @@ int Z80free_ustep(Z80FREE *processor) {
 	return 0;
 }
 
+byte Z80free_Rd_Internal (Z80FREE *processor,word Addr) {
+	byte value = Z80free_Rd(Addr);
+	processor->subtstates += 3;
+	return value;
+}
+
+void Z80free_Wr_Internal (Z80FREE *processor,word Addr, byte Value) {
+	Z80free_Wr(Addr,Value);
+	processor->subtstates += 3;
+}
+
+byte Z80free_In_Internal (Z80FREE *processor,word Port) {
+	byte value = Z80free_In(Port);
+	processor->subtstates += 4;
+	return value;
+}
+
+void Z80free_Out_Internal (Z80FREE *processor,word Port, byte Value) {
+	Z80free_Out(Port,Value);
+	processor->subtstates += 4;
+}
 
 /* ---------------------------------------------------------
  *  Flag operations
- * --------------------------------------------------------- 
+ * ---------------------------------------------------------
  */
- 
+
 /** Sets a flag */
 void  Z80free_setFlag(Z80FREE *processor, byte flag) {
 
@@ -210,25 +248,25 @@ int Z80free_getFlag(Z80FREE *processor, byte flag) {
 
 /* ---------------------------------------------------------
  *  Flag adjustments
- * --------------------------------------------------------- 
+ * ---------------------------------------------------------
  */
 
 int Z80free_parityBit[256] = {
-	
-	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 
+
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 
 	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
-	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
-	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 
+	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
+	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1,
+	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
 	0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0,
 	1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1 };
 
@@ -264,9 +302,9 @@ void Z80free_adjustLogicFlag (Z80FREE *processor, int flagH) {
 
 /* ---------------------------------------------------------
  *  Generic operations
- * --------------------------------------------------------- 
+ * ---------------------------------------------------------
  */
- 
+
 byte Z80free_readR(Z80FREE *processor) {
 	Z80free_adjustFlagSZP(processor,(0x7F&processor->R)|(0x80&processor->R2));
 	Z80free_valFlag(processor,F_PV,processor->IFF2);
@@ -275,14 +313,14 @@ byte Z80free_readR(Z80FREE *processor) {
 	Z80free_adjustFlags(processor,(0x7F&processor->R)|(0x80&processor->R2));
 	return ((0x7F&processor->R)|(0x80&processor->R2));
 }
- 
+
 void Z80free_setR(Z80FREE *processor,byte value) {
 	processor->R=value;
 	processor->R2=value;
 }
 
 byte Z80free_readI(Z80FREE *processor) {
-	
+
 	Z80free_adjustFlagSZP(processor,processor->I);
 	Z80free_valFlag(processor,F_PV,processor->IFF2);
 	Z80free_valFlag(processor,F_N, 0);
@@ -290,24 +328,24 @@ byte Z80free_readI(Z80FREE *processor) {
 	Z80free_adjustFlags(processor,processor->I);
 	return (processor->I);
 }
- 
+
 
 /** Do an arithmetic operation (ADD, SUB, ADC, SBC y CP) */
 byte Z80free_doArithmetic (Z80FREE *processor, byte value1,byte value2, int withCarry, int isSub) {
 
 	static word res; /* To detect carry */
 	static byte carry;
-	
+
 	if (withCarry && Z80free_getFlag(processor,F_C))
 		carry=1;
 	else
 		carry=0;
-	
+
 	if (isSub) {
 		Z80free_setFlag(processor,F_N);
 		res = ((word)value1) - ((word)value2) - ((word)carry);
 		Z80free_valFlag(processor,F_H, ((value1 ^ value2 ^ res) & 0x10) != 0);
-		Z80free_valFlag(processor,F_PV, (((value1 ^ value2)&0x080) && (((res^value1)&0x080))));	
+		Z80free_valFlag(processor,F_PV, (((value1 ^ value2)&0x080) && (((res^value1)&0x080))));
 	} else {
 		Z80free_resFlag(processor,F_N);
 		res = ((word)value1) + ((word)value2) + ((word)carry);
@@ -325,12 +363,12 @@ byte Z80free_doArithmetic (Z80FREE *processor, byte value1,byte value2, int with
 }
 
 word Z80free_doArithmetic16 (Z80FREE *processor, word value1,word value2, int withCarry, int isSub) {
-	
+
 	static word tmp;
 	static byte Ftmp;
 
 	Ftmp=processor->Rm.br.F; // store the F register to restore the unchanged bits when doing operations without carry
-	
+
 	tmp=(word)Z80free_doArithmetic(processor,(byte)(value1&0x00FF),(byte)(value2&0x00FF),withCarry,isSub);
 	tmp|=((word)Z80free_doArithmetic(processor,(byte)((value1>>8)&0x00FF),(byte)((value2>>8)&0x00FF),1,isSub))<<8;
 	if (tmp) {
@@ -344,13 +382,13 @@ word Z80free_doArithmetic16 (Z80FREE *processor, word value1,word value2, int wi
 	} else {
 		Z80free_resFlag(processor,F_S);
 	}
-	
+
 	if (!(withCarry|isSub)) {
 		processor->Rm.br.F &= 0x3B; // preserve the new values of C, N, 3, H and 5
 		processor->Rm.br.F |= (Ftmp & 0xC4); // set the old values of P/V, Z and S
 	}
 
-	return (tmp);	
+	return (tmp);
 }
 
 void Z80free_doAND (Z80FREE *processor, byte value) {
@@ -384,7 +422,6 @@ void Z80free_doBIT (Z80FREE *processor, int b, byte val) {
 	Z80free_setFlag(processor,F_H);
 	Z80free_resFlag(processor,F_N);
 
-	
 	if ((b == 7) && !Z80free_getFlag(processor,F_Z))
 		Z80free_setFlag(processor,F_S);
 	else
@@ -531,7 +568,7 @@ byte Z80free_doSL (Z80FREE *processor, int isArith, byte val) {
 byte Z80free_doSR (Z80FREE *processor, int isArith, byte val) {
 
 	static int b;
-	
+
 	b = (val & 0x80);
 
 	Z80free_valFlag(processor,F_C, (val & 0x01) != 0);
@@ -548,47 +585,49 @@ byte Z80free_doSR (Z80FREE *processor, int isArith, byte val) {
 }
 
 void Z80free_doRLD(Z80FREE *processor) {
-	
+
 	static byte tmp,tmp2;
-	
+
 	tmp=processor->Rm.br.A;
-	tmp2=Z80free_Rd(processor->Rm.wr.HL);
+	tmp2=Z80free_Rd_Internal(processor,processor->Rm.wr.HL);
 	processor->Rm.br.A&=0xF0;
 	processor->Rm.br.A|=(0x0F&(tmp2>>4));
-	Z80free_Wr(processor->Rm.wr.HL,((tmp2<<4)&0xF0)|(tmp&0x0F));
+	Z80free_Wr_Internal(processor,processor->Rm.wr.HL,((tmp2<<4)&0xF0)|(tmp&0x0F));
 
 	Z80free_resFlag(processor,F_H | F_N);
 	Z80free_adjustFlagSZP(processor, processor->Rm.br.A);
-	
+
 }
 
 void Z80free_doRRD(Z80FREE *processor) {
-	
+
 	static byte tmp,tmp2;
-	
+
 	tmp=processor->Rm.br.A;
-	tmp2=Z80free_Rd(processor->Rm.wr.HL);
+	tmp2=Z80free_Rd_Internal(processor,processor->Rm.wr.HL);
 	processor->Rm.br.A&=0xF0;
 	processor->Rm.br.A|=(0x0F&tmp2);
-	Z80free_Wr(processor->Rm.wr.HL,((tmp2>>4)&0x0F)|((tmp<<4)&0xF0));
+	Z80free_Wr_Internal(processor,processor->Rm.wr.HL,((tmp2>>4)&0x0F)|((tmp<<4)&0xF0));
 
 	Z80free_resFlag(processor,F_H | F_N);
 	Z80free_adjustFlagSZP(processor, processor->Rm.br.A);
-	
+
 }
 
 void Z80free_doPush (Z80FREE *processor, word val) {
 
-	processor->Rm.wr.SP-=2;
-	Z80free_write16(processor->Rm.wr.SP, val);
+	processor->Rm.wr.SP--;
+	Z80free_Wr_Internal(processor,processor->Rm.wr.SP, (byte)((val>>8) & 0xFF));
+	processor->Rm.wr.SP--;
+	Z80free_Wr_Internal(processor,processor->Rm.wr.SP, (byte)(val & 0xFF));
 }
 
 
 word Z80free_doPop (Z80FREE *processor) {
 
 	static word val;
-	
-	val = Z80free_read16(processor->Rm.wr.SP);
+
+	val = Z80free_read16(processor, processor->Rm.wr.SP);
 	processor->Rm.wr.SP+=2;
 
 	return val;
@@ -598,50 +637,50 @@ word Z80free_doPop (Z80FREE *processor) {
 /* The DAA opcode
  * According to the value in A and the flags set, add a value to A
  *
- * Flags set   Byte (0..9)(0..9) 
- * -------------------------------------------- 
- * (None)   + &00 
- * Carry:+ &60 
- * Subtract:+ &00 
- * Subtract+Carry:+ &A0 
- * Half-carry:+ &06 
- * Half-carry+Carry:+ &66 
- * Half-carry+Subtract:+ &FA 
- * Half-carry+Subtract+Carry:+ &9A 
- * 
- * Flags set   Byte (0..9)(A..F) 
- * -------------------------------------------- 
- * (None)   + &06 
- * Carry:+ &66 
- * Subtract:+ &00 
- * Subtract+Carry:+ &a0 
- * Half-carry:+ &06 
- * Half-carry+Carry:+ &66 
- * Half-carry+Subtract:+ &fa 
- * Half-carry+Subtract+Carry:+ &9A 
- * 
- * Flags set   Byte (A..F)(0..9) 
- * -------------------------------------------- 
- * (None)   + &60 
- * Carry:+ &60 
- * Subtract:+ &00 
- * Subtract+Carry:+ &A0 
- * Half-carry:+ &66 
- * Half-carry+Carry:+ &66 
- * Half-carry+Subtract:+ &fa 
- * Half-carry+Subtract+Carry:+ &9A 
- * 
- * Flags set   Byte (A..F)(A..F) 
- * -------------------------------------------- 
- * (None)   + &66 
- * Carry:+ &66 
- * Subtract:+ &00 
- * Subtract+Carry:+ &a0 
- * Half-carry:+ &66 
- * Half-carry+Carry:+ &66 
- * Half-carry+Subtract:+ &fa 
- * Half-carry+Subtract+Carry:+ &9A 
- */	
+ * Flags set   Byte (0..9)(0..9)
+ * --------------------------------------------
+ * (None)   + &00
+ * Carry:+ &60
+ * Subtract:+ &00
+ * Subtract+Carry:+ &A0
+ * Half-carry:+ &06
+ * Half-carry+Carry:+ &66
+ * Half-carry+Subtract:+ &FA
+ * Half-carry+Subtract+Carry:+ &9A
+ *
+ * Flags set   Byte (0..9)(A..F)
+ * --------------------------------------------
+ * (None)   + &06
+ * Carry:+ &66
+ * Subtract:+ &00
+ * Subtract+Carry:+ &a0
+ * Half-carry:+ &06
+ * Half-carry+Carry:+ &66
+ * Half-carry+Subtract:+ &fa
+ * Half-carry+Subtract+Carry:+ &9A
+ *
+ * Flags set   Byte (A..F)(0..9)
+ * --------------------------------------------
+ * (None)   + &60
+ * Carry:+ &60
+ * Subtract:+ &00
+ * Subtract+Carry:+ &A0
+ * Half-carry:+ &66
+ * Half-carry+Carry:+ &66
+ * Half-carry+Subtract:+ &fa
+ * Half-carry+Subtract+Carry:+ &9A
+ *
+ * Flags set   Byte (A..F)(A..F)
+ * --------------------------------------------
+ * (None)   + &66
+ * Carry:+ &66
+ * Subtract:+ &00
+ * Subtract+Carry:+ &a0
+ * Half-carry:+ &66
+ * Half-carry+Carry:+ &66
+ * Half-carry+Subtract:+ &fa
+ * Half-carry+Subtract+Carry:+ &9A
+ */
 
 static int Z80free_DAA_BYTETYPE1[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1 };
 static int Z80free_DAA_BYTETYPE2[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2, 2 };
@@ -651,13 +690,13 @@ static byte Z80free_DAA_ADJUSTMENT[4][6] = {
 	{0x06,0x06,0x06,0x66,0x66,0x66},
 	{0x60,0x66,0x60,0x66,0x60,0x66},
 	{0x66,0x66,0x66,0x66,0x66,0x66} };
-		
+
 void Z80free_doDAA (Z80FREE *processor) {
-	
+
 	byte oldval;
 	int byteType;
 	int flagMask = 0;
-	
+
 	/* (0..8)(0..9) = 0 */
 	/* (0..8)(A..F) = 1 */
 	/*  (9)  (0..9) = 2 */
@@ -665,13 +704,13 @@ void Z80free_doDAA (Z80FREE *processor) {
 	/* (A..F)(0..9) = 4 */
 	/* (A..F)(A..F) = 5 */
 	byteType = Z80free_DAA_BYTETYPE1[(processor->Rm.br.A&0x0F)] | ((Z80free_DAA_BYTETYPE2[(processor->Rm.br.A >> 4)&0x0F]) << 1);
-	oldval=(processor->Rm.br.A&0x0F);	
-	
+	oldval=(processor->Rm.br.A&0x0F);
+
 	if (Z80free_getFlag(processor,F_C))
 		flagMask |= 2;
 	if (Z80free_getFlag(processor,F_H))
 		flagMask |= 1;
-	
+
 	if (processor->Rm.br.F&F_N) {
 		processor->Rm.br.A -= Z80free_DAA_ADJUSTMENT[flagMask][byteType];
 	} else {
@@ -682,7 +721,7 @@ void Z80free_doDAA (Z80FREE *processor) {
 	} else {
 		Z80free_setFlag(processor,F_C);
 	}
-	
+
 	if ((processor->Rm.br.F&F_N)==0) {
 		if (oldval>9) {
 			Z80free_setFlag(processor,F_H);
@@ -707,13 +746,12 @@ void Z80free_doDAA (Z80FREE *processor) {
 		Z80free_setFlag(processor,F_Z);
 	}
 	Z80free_valFlag(processor,F_PV, Z80free_parityBit[processor->Rm.br.A]);
-	
 }
 
 void Z80free_jump_relative(Z80FREE *processor,byte relvar) {
 
 	static word rel2;
-	
+
 	rel2=(word)relvar;
 	if (relvar&0x080) {
 			rel2|=0xFF00;
@@ -724,12 +762,13 @@ void Z80free_jump_relative(Z80FREE *processor,byte relvar) {
 word Z80free_addr_relative(Z80FREE *processor,word address) {
 
 	static word rel2;
-	
+
 	if (processor->IAddr_done) {
 		return (processor->IAddr);
 	}
 	processor->IAddr_done=1;
-	rel2=(word)Z80free_read_param_8(processor);
+	rel2 = (word)Z80free_read_param_8(processor);
+	processor->subtstates += 5; // 5 tstates are needed: 3 to read the d value and 5 internal
 	if (rel2&0x080) {
 			rel2|=0xFF00;
 	}
@@ -740,7 +779,7 @@ word Z80free_addr_relative(Z80FREE *processor,word address) {
 word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1) {
 
 	static word rel2;
-	
+
 	rel2=(word)d1;
 	if (rel2&0x080) {
 			rel2|=0xFF00;
@@ -749,34 +788,33 @@ word Z80free_addr_relativeXDCB(Z80FREE *processor,word address,byte d1) {
 	return (address+rel2);
 }
 
-void Z80free_write16 (register word addr,register word val) {
+void Z80free_write16 (Z80FREE *processor, word addr,word val) {
 
-	Z80free_Wr(addr, (byte)(val & 0xFF));
+	Z80free_Wr_Internal(processor,addr, (byte)(val & 0xFF));
 	val >>= 8;
 	addr++;
-	Z80free_Wr(addr, (byte)(val & 0xFF));
+	Z80free_Wr_Internal(processor,addr, (byte)(val & 0xFF));
 }
 
-word Z80free_read16 (register word addr) {
+word Z80free_read16 (Z80FREE *processor, word addr) {
 
 	static word v1;
-	v1=((word)Z80free_Rd(addr))&0x00FF;
+	v1=((word)Z80free_Rd_Internal(processor,addr))&0x00FF;
 	addr++;
-	return (v1 + ((((word)Z80free_Rd(addr)) << 8)&0xFF00));
+	return (v1 + ((((word)Z80free_Rd_Internal(processor,addr)) << 8)&0xFF00));
 }
 
 byte Z80free_read_param_8(Z80FREE *processor) {
 
-	return(Z80free_Rd(processor->PC++));
+	byte data = Z80free_Rd_Internal(processor,processor->PC++);
+	return(data);
 
 }
-	
-	
+
 word Z80free_read_param_16(Z80FREE *processor) {
 
 	static word value;
-	value=Z80free_read16(processor->PC);
+	value = Z80free_read16(processor, processor->PC);
 	processor->PC+=2;
 	return (value);
 }
-

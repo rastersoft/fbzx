@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <inttypes.h>
@@ -34,7 +34,6 @@ extern Z80FREE procesador;
 extern char path_snaps[2049];
 extern char path_taps[2049];
 extern char path_mdrs[2049];
-extern unsigned int jump_frames,curr_frames;
 
 void load_rom(char);
 void load_main_game(const char *nombre);

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -32,6 +32,7 @@
 #include "tape.hh"
 #include "computer.hh"
 #include "keyboard.hh"
+#include "mouse.hh"
 
 #include "llsound.hh"
 #include "z80free/Z80free.h"
@@ -48,8 +49,8 @@ computer::computer() {
 	this->page48k = 0;
 	this->bus_counter = 0;
 	this->port254 = 0;
-	this->issue = 3;
-	this->mode128k = 0;
+	this->issue_3 = true;
+	this->current_mode = MODE_48K;
 	this->turbo = false;
 	this->turbo_play = true;
 
@@ -60,7 +61,8 @@ computer::computer() {
 
 	this->sound_bit = 0;
 
-	this->contended_zone = false;
+	this->memcontended_zone = 0;
+
 	this->cicles_counter=0;
 
 	this->interr = 0;
@@ -80,7 +82,7 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 		return true;
 	}
 	if (signal_received == "pause_tape_48k") {
-		if ((this->mode128k == 0) || ((this->mport1 & 0x20) != 0)) {
+		if ((this->current_mode == MODE_48K) || ((this->mport1 & 0x20) != 0)) {
 			OOTape->set_pause(true);
 			llsound->set_speed(ordenador->turbo); // set speed to the desired mode
 		}
@@ -93,10 +95,11 @@ bool computer::callback_receiver(string signal_received, class Signals *object) 
 
 byte computer::bus_empty () {
 
-	if (ordenador->mode128k != 3)
-		return (screen->bus_value);
-	else
+	if (ordenador->current_mode != MODE_P3) {
+		return (screen->get_bus_value(this->cicles_counter));
+	} else {
 		return (255);	// +2A and +3 returns always 255
+	}
 }
 
 /* calls all the routines that emulates the computer, runing them for 'tstados'
@@ -108,7 +111,12 @@ void computer::emulate (int tstados) {
 	spk_ay->play_ay (tstados);
 	spk_ay->play_sound (tstados);
 	OOTape->play(tstados);
+	if (OOTape->rewinded) {
+		OOTape->set_pause(true);
+		llsound->set_speed(ordenador->turbo);
+	}
 	microdrive->emulate(tstados);
+	mouse->emulate(tstados);
 
 	if (!OOTape->get_pause()) {
 		if (OOTape->read_signal() != 0) {
@@ -121,24 +129,51 @@ void computer::emulate (int tstados) {
 
 // check if there's contention and waits the right number of tstates
 
-void computer::do_contention() {
+void computer::do_contention(bool io, word addr) {
 
-	if (!this->contended_zone) {
+	if (this->memcontended_zone == 0) {
 		return;
 	}
-
-	if (this->cicles_counter<14335) {
+	if (!io) {
+		switch (ordenador->current_mode) {
+			case MODE_128K:
+			case MODE_P2:
+			case MODE_128K_SPA:
+				if (((this->mport1 & 0x01) == 1) && (addr >= 0xC000)) { // pages 1, 3, 5 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
+			case MODE_P3:
+				if (this->mport2 & 0x01) {
+					if ((this->mport2 & 0x06) == 0x00) { // 0, 1, 2 and 3, which are not contended
+						return;
+					}
+					if ((this->mport2 & 0x06) == 0x02) { // 4, 5, 6 and 7, which are all contended
+						this->emulate(this->memcontended_zone);
+						return;
+					}
+					// here it can be 4, 5, 6 and 3, or 4, 7, 6 and 3. In both cases, there is contention only in the first 48K
+					if (addr < 0xC000) {
+						this->emulate(this->memcontended_zone); // are contended
+					}
+					return;
+				}
+				if (((this->mport1 & 0x04) == 4) && (addr >= 0xC000)) { // pages 4, 5, 6 and 7 and access to upper 16K block
+					this->emulate(this->memcontended_zone); // are contended
+					return;
+				}
+				break;
+		}
+	}
+	if ((addr & 0xC000) == 0x4000) {
+		this->emulate(this->memcontended_zone);
 		return;
 	}
-
-	int ccicles=(this->cicles_counter-14335)%8;
-
-	if (ccicles>5) {
+	if (((addr & 0x0001) == 0) && io){
+		this->emulate(this->memcontended_zone);
 		return;
 	}
-
-	this->emulate(6-ccicles);
-
 }
 
 // resets the computer and loads the right ROMs
@@ -148,9 +183,7 @@ void ResetComputer () {
 	static int bucle;
 
 	Z80free_reset (&procesador);
-	load_rom (ordenador->mode128k);
-
-
+	load_rom (ordenador->current_mode);
 
 	ordenador->updown=0;
 	ordenador->leftright=0;
@@ -158,34 +191,43 @@ void ResetComputer () {
 	ordenador->mport1 = 0;
 	ordenador->mport2 = 0;
 	ordenador->video_offset = 0;	// video in page 9 (page 5 in 128K)
-	switch (ordenador->mode128k) {
-	case 0:		// 48K
+	switch (ordenador->current_mode) {
+	case MODE_48K:		// 48K
 		ordenador->block0 = ordenador->memoria;
 		ordenador->block1 = ordenador->memoria + 131072;	// video mem. in page 9 (page 5 in 128K)
 		ordenador->block2 = ordenador->memoria + 65536;	// 2nd block in page 6 (page 2 in 128K)
 		ordenador->block3 = ordenador->memoria + 65536;	// 3rd block in page 7 (page 3 in 128K)
 		ordenador->mport1 = 32;	// access to port 7FFD disabled
+		screen->set_memory_pointers ();
 	break;
-	
-	case 3:		// +2A/+3
-		Z80free_Out (0x1FFD, 0);
-	case 1:		// 128K
-	case 2:		// +2
-	case 4:		// spanish 128K
-		Z80free_Out (0x7FFD, 0);
+
+	case MODE_P3:		// +2A/+3
+		Z80free_Out (0x1FFD, 0); // Here must NOT be a break, because +2A and +3 need both OUT, at 1FFD and 7FFD
+	case MODE_128K:		// 128K
+	case MODE_P2:		// +2
+	case MODE_128K_SPA:	// spanish 128K
+		Z80free_Out (0x7FFD, 0); // set the page for 128K (both spanish and british), +2, +2A and +3
 	break;
 	}
 	spk_ay->reset();
 	keyboard->reset();
-	screen->reset(ordenador->mode128k);
+	screen->reset(ordenador->current_mode);
 	microdrive->reset();
+	mouse->reset();
+	OOTape->rewind();
 }
 
-void Z80free_Wr (register word Addr, register byte Value) {
+void extra_contention() {
 
-	if ((Addr & 0xC000) == 0x4000) {
-		ordenador->do_contention();
-	}
+	ordenador->emulate(procesador.subtstates);
+	ordenador->contended_cicles += procesador.subtstates;
+	procesador.subtstates = 0;
+}
+
+void Z80free_Wr (word Addr, byte Value) {
+
+	extra_contention();
+	ordenador->do_contention(false, Addr);
 	ordenador->write_memory(Addr,Value);
 }
 
@@ -195,7 +237,7 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 	case 0x0000:
 	// only writes in the first 16K if we are in +3 mode and bit0 of mport2 is 1
 
-		if ((ordenador->mode128k == 3) && (1 == (ordenador->mport2 & 0x01)))
+		if ((ordenador->current_mode == MODE_P3) && (1 == (ordenador->mport2 & 0x01)))
 			*(ordenador->block0 + Addr) = (unsigned char) Value;
 	break;
 
@@ -211,26 +253,22 @@ void computer::write_memory (uint16_t Addr, uint8_t Value) {
 		*(ordenador->block3 + Addr) = (unsigned char) Value;
 	break;
 	}
-
 }
 
-byte Z80free_Rd (register word Addr) {
+byte Z80free_Rd (word Addr) {
+
+	extra_contention();
 
 	if((microdrive->mdr_active)&&(microdrive->mdr_paged)&&(Addr<8192)) // Interface I
 		return((byte)ordenador->shadowrom[Addr]);
-	
-	switch (ordenador->other_ret) {
-	case 1:
+
+	if (ordenador->other_ret == 1) {
 		ordenador->other_ret = 0;
 		return (201);	// RET instruction
-	break;
-
-	default:
-		if ((Addr & 0xC000) == 0x4000) {
-			ordenador->do_contention();
-		}
-		return (ordenador->read_memory(Addr));
 	}
+
+	ordenador->do_contention(false, Addr);
+	return (ordenador->read_memory(Addr));
 }
 
 uint8_t computer::read_memory(uint16_t Addr) {
@@ -258,30 +296,30 @@ uint8_t computer::read_memory(uint16_t Addr) {
 	}
 }
 
-void Z80free_Out (register word Port, register byte Value) {
+void Z80free_Out (word Port, byte Value) {
 
 	// Microdrive access
-	
+
 	register word maskport;
-	
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		ordenador->do_contention();
+	extra_contention();
+
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
+
 
 	// ULAPlus
 	if (Port == 0xBF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_register(Value);
 		return;
 	}
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		screen->set_ulaplus_value(Value);
 	}
 
 	if(((Port &0x0018)!=0x0018)&&(microdrive->mdr_active))
 		microdrive->out(Port,Value);
-	
+
 	// ULA port (A0 low)
 
 	if (!(Port & 0x0001)) {
@@ -298,12 +336,12 @@ void Z80free_Out (register word Port, register byte Value) {
 
 	// Memory page (7FFD & 1FFD)
 
-	if (ordenador->mode128k==3) {
+	if (ordenador->current_mode == MODE_P3) {
 		maskport=0x0FFD;
 	} else {
 		maskport=0x3FFD;
 	}
-	
+
 	if (((Port|maskport) == 0x7FFD) && (0 == (ordenador->mport1 & 0x20))) {
 		ordenador->mport1 = (unsigned char) Value;
 		screen->set_memory_pointers ();	// set the pointers
@@ -326,19 +364,19 @@ void Z80free_Out (register word Port, register byte Value) {
 }
 
 
-byte Z80free_In (register word Port) {
+byte Z80free_In (word Port) {
 
 	static unsigned int temporal_io;
 	byte pines;
 
-	if (((Port&0x0001)==0)||((Port>=0x4000)&&(Port<0x8000))) {
-		ordenador->do_contention();
+	extra_contention();
+	if (ordenador->current_mode != MODE_P3) {
+		ordenador->do_contention(true, Port);
 	}
 
 	temporal_io = (unsigned int) Port;
 
 	if (Port == 0xFF3B) {
-		ordenador->do_contention();
 		return (screen->read_ulaplus_value());
 	}
 
@@ -362,12 +400,14 @@ byte Z80free_In (register word Port) {
 			pines &= keyboard->s15;
 
 		if (OOTape->get_pause()) {
-			if (ordenador->issue == 2)	{
-				if (ordenador->port254 & 0x18)
+			if (!ordenador->issue_3)	{
+				if (ordenador->port254 & 0x18) {
 					pines |= 0x40;
+				}
 			} else {
-				if (ordenador->port254 & 0x10)
+				if (ordenador->port254 & 0x10) {
 					pines |= 0x40;
+				}
 			}
 			if (random()<(RAND_MAX/200)) { // add tape noise when paused
 				pines |= 0x40;
@@ -386,20 +426,30 @@ byte Z80free_In (register word Port) {
 		if (keyboard->joystick == 1) {
 			return (keyboard->js);
 		} else {
+			if(((Port&0xFF00) == 0xFA00) && (mouse->enabled)) {
+				return(mouse->button);
+			}
+			if(((Port&0xFF00) == 0xFB00) && (mouse->enabled)) {
+				return(mouse->x);
+			}
+			if(((Port&0xFF00) == 0xFF00) && (mouse->enabled)) {
+				return(mouse->y);
+			}
 			return 0; // if Kempston is not selected, emulate it, but always 0
 		}
 	}
 
-	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul))
+	if ((temporal_io == 0xFFFD)&&(spk_ay->ay_emul)) {
 		return (spk_ay->get_value());
+	}
 
 	// Microdrive access
-	
-	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active))
+
+	if(((Port & 0x0018) != 0x0018) && (microdrive->mdr_active)) {
 		return(microdrive->in(Port));
-	
+	}
+
 	pines=ordenador->bus_empty();
 
 	return (pines);
 }
-

@@ -130,7 +130,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (10);
 	break;
 	case 34: // LD (nn),IX
-		Z80free_write16(Z80free_read_param_16(processor),processor->Rm.wr.IX);
+		Z80free_write16(processor, Z80free_read_param_16(processor),processor->Rm.wr.IX);
 		return (16);
 	break;
 	case 35: // INC IX
@@ -160,7 +160,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (11);
 	break;
 	case 42: // LD IX,(nn)
-		processor->Rm.wr.IX=Z80free_read16(Z80free_read_param_16(processor));
+		processor->Rm.wr.IX=Z80free_read16(processor, Z80free_read_param_16(processor));
 		return (16);
 	break;
 	case 43: // DEC IX
@@ -195,16 +195,16 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (Z80free_codes(processor,opcode));
 	break;
 	case 52: // INC b(IX+d)
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),Z80free_doIncDec(processor,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),0));
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),Z80free_doIncDec(processor,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),0));
 		return (19);
 	break;
 	case 53: // DEC b(IX+d)
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),Z80free_doIncDec(processor,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),1));
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),Z80free_doIncDec(processor,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),1));
 		return (19);
 	break;
 	case 54: // LD2 IX+d,n
 		tmp2=Z80free_addr_relative(processor,processor->Rm.wr.IX);
-		Z80free_Wr(tmp2,Z80free_read_param_8(processor));
+		Z80free_Wr_Internal(processor,tmp2,Z80free_read_param_8(processor));
 		return (15);
 	break;
 	case 55: // DEFAULT
@@ -256,7 +256,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 70: // LD B,(IX+d)
-		processor->Rm.br.B=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.B=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 71: // DEFAULT
@@ -283,7 +283,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 78: // LD C,(IX+d)
-		processor->Rm.br.C=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.C=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 79: // DEFAULT
@@ -310,7 +310,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 86: // LD D,(IX+d)
-		processor->Rm.br.D=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.D=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 87: // DEFAULT
@@ -337,7 +337,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 94: // LD E,(IX+d)
-		processor->Rm.br.E=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.E=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 95: // DEFAULT
@@ -368,7 +368,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 102: // LD H,(IX+d)
-		processor->Rm.br.H=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.H=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 103: // LD IXH,A
@@ -400,7 +400,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 110: // LD L,(IX+d)
-		processor->Rm.br.L=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.L=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 111: // LD IXL,A
@@ -408,34 +408,34 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 112: // LD (IX+d),B
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.B);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.B);
 		return (15);
 	break;
 	case 113: // LD (IX+d),C
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.C);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.C);
 		return (15);
 	break;
 	case 114: // LD (IX+d),D
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.D);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.D);
 		return (15);
 	break;
 	case 115: // LD (IX+d),E
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.E);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.E);
 		return (15);
 	break;
 	case 116: // LD (IX+d),H
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.H);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.H);
 		return (15);
 	break;
 	case 117: // LD (IX+d),L
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.L);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.L);
 		return (15);
 	break;
 	case 118: // DEFAULT
 		return (Z80free_codes(processor,opcode));
 	break;
 	case 119: // LD (IX+d),A
-		Z80free_Wr(Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.A);
+		Z80free_Wr_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX),processor->Rm.br.A);
 		return (15);
 	break;
 	case 120: // DEFAULT
@@ -459,7 +459,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 126: // LD A,(IX+d)
-		processor->Rm.br.A=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		processor->Rm.br.A=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		return (15);
 	break;
 	case 127: // DEFAULT
@@ -486,7 +486,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 134: // ADD A,(IX+d)
-		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),0,0);
+		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),0,0);
 		return (15);
 	break;
 	case 135: // DEFAULT
@@ -513,7 +513,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 142: // ADC A,(IX+d)
-		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),1,0);
+		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),1,0);
 		return (15);
 	break;
 	case 143: // DEFAULT
@@ -540,7 +540,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 150: // SUB b(IX+d)
-		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),0,1);
+		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),0,1);
 		return (15);
 	break;
 	case 151: // DEFAULT
@@ -567,7 +567,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 158: // SBC A,(IX+d)
-		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)),1,1);
+		processor->Rm.br.A=Z80free_doArithmetic(processor,processor->Rm.br.A,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)),1,1);
 		return (15);
 	break;
 	case 159: // DEFAULT
@@ -594,7 +594,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 166: // AND b(IX+d)
-		Z80free_doAND(processor,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)));
+		Z80free_doAND(processor,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)));
 		return (15);
 	break;
 	case 167: // DEFAULT
@@ -621,7 +621,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 174: // XOR b(IX+d)
-		Z80free_doXOR(processor,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)));
+		Z80free_doXOR(processor,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)));
 		return (15);
 	break;
 	case 175: // DEFAULT
@@ -648,7 +648,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 182: // OR b(IX+d)
-		Z80free_doOR(processor,Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX)));
+		Z80free_doOR(processor,Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX)));
 		return (15);
 	break;
 	case 183: // DEFAULT
@@ -679,7 +679,7 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (4);
 	break;
 	case 190: // CP b(IX+d)
-		tmp1=Z80free_Rd(Z80free_addr_relative(processor,processor->Rm.wr.IX));
+		tmp1=Z80free_Rd_Internal(processor,Z80free_addr_relative(processor,processor->Rm.wr.IX));
 		Z80free_doArithmetic(processor,processor->Rm.br.A,tmp1,0,1);
 		Z80free_adjustFlags(processor,tmp1);
 		return (15);
@@ -791,8 +791,8 @@ int Z80free_codesDD (Z80FREE *processor,byte opcode) {
 		return (Z80free_codes(processor,opcode));
 	break;
 	case 227: // EX (SP),IX
-		tmp2=Z80free_read16(processor->Rm.wr.SP);
-		Z80free_write16(processor->Rm.wr.SP,processor->Rm.wr.IX);
+		tmp2=Z80free_read16(processor, processor->Rm.wr.SP);
+		Z80free_write16(processor, processor->Rm.wr.SP,processor->Rm.wr.IX);
 		processor->Rm.wr.IX=tmp2;
 		return (19);
 	break;

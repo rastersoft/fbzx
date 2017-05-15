@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 
 #include <stdio.h>
@@ -38,13 +38,14 @@
 #include "keyboard.hh"
 #include "microdrive.hh"
 #include "spk_ay.hh"
+#include "mouse.hh"
 
 // shows the settings menu
 
 void print_copy() {
 
 	llscreen->print_string("(C) 2012 Fabio Olimpieri",-1,-1,13,0);
-	llscreen->print_string("(C) 2003-2015 Raster Software Vigo",-1,-2,13,0);
+	llscreen->print_string("(C) 2003-2017 Raster Software Vigo",-1,-2,13,0);
 }
 
 // shows the help menu
@@ -55,7 +56,7 @@ void help_menu() {
 
 	llscreen->clear_screen();
 
-	llscreen->print_string("FBZX (3.0.0)",-1,1,15,0);
+	llscreen->print_string("FBZX (3.6.0)",-1,1,15,0);
 	llscreen->print_string("Available keys",-1,2,14,0);
 	llscreen->print_string("Shift:Caps Shift        Ctrl:Symbol Shift",-1,4,11,0);
 
@@ -152,109 +153,119 @@ void settings_menu() {
 		llscreen->clear_screen();
 
 		llscreen->print_string("Current settings",-1,0,15,0);
-		switch(ordenador->mode128k) {
-		case 0:
-			if(ordenador->issue==2)
-				sprintf(texto,"Mode: 48K issue2");
-			else
-				sprintf(texto,"Mode: 48K issue3");
+		switch(ordenador->current_mode) {
+		case MODE_48K:
+			if(ordenador->issue_3) {
+				sprintf(texto,"Mode: \001\01648K issue3");
+			} else {
+				sprintf(texto,"Mode: \001\01648K issue2");
+			}
 		break;
-		case 1:
-			sprintf(texto,"Mode: Sinclair 128K");
+		case MODE_128K:
+			sprintf(texto,"Mode: \001\016Sinclair 128K");
 		break;
-		case 2:
-			sprintf(texto,"Mode: Amstrad +2");
+		case MODE_P2:
+			sprintf(texto,"Mode: \001\016Amstrad +2");
 		break;
-		case 3:
-			sprintf(texto,"Mode: Amstrad +2A/+3");
+		case MODE_P3:
+			sprintf(texto,"Mode: \001\016Amstrad +2A/+3");
 		break;
-		case 4:
-			sprintf(texto,"Mode: Spanish 128K");
+		case MODE_128K_SPA:
+			sprintf(texto,"Mode: \001\016Spanish 128K");
 		break;
 		}
-  
-		llscreen->print_string(texto,-1,2,14,0);
+
+		llscreen->print_string(texto,-1,2,15,0);
 
 		switch(keyboard->joystick) {
 		case 0:
-			sprintf(texto,"Joystick emulation: Cursor");
+			sprintf(texto,"Joystick emulation: \001\016Cursor");
 			break;
 		case 1:
-			sprintf(texto,"Joystick emulation: Kempston");
+			sprintf(texto,"Joystick emulation: \001\016Kempston");
 			break;
 		case 2:
-			sprintf(texto,"Joystick emulation: Sinclair (1)");
+			sprintf(texto,"Joystick emulation: \001\016Sinclair (1)");
 			break;
 		case 3:
-			sprintf(texto,"Joystick emulation: Sinclair (2)");
+			sprintf(texto,"Joystick emulation: \001\016Sinclair (2)");
 			break;
 		}
-		llscreen->print_string(texto,-1,3,13,0);
+		llscreen->print_string(texto,-1,3.2,15,0);
 
 		if(spk_ay->ay_emul)
-			sprintf(texto,"AY-3-8912 Emulation: enabled");
+			sprintf(texto,"AY-3-8912 Emulation: \001\014enabled");
 		else
-			sprintf(texto,"AY-3-8912 Emulation: disabled");
+			sprintf(texto,"AY-3-8912 Emulation: \001\013disabled");
 
-		llscreen->print_string(texto,-1,4,11,0);
+		llscreen->print_string(texto,-1,4.4,15,0);
 
 		if(microdrive->mdr_active)
-			sprintf(texto,"Interface I Emulation: enabled");
+			sprintf(texto,"Interface I Emulation: \001\014enabled");
 		else
-			sprintf(texto,"Interface I Emulation: disabled");
+			sprintf(texto,"Interface I Emulation: \001\013disabled");
 
-		llscreen->print_string(texto,-1,5,15,0);
+		llscreen->print_string(texto,-1,5.6,15,0);
 
 		if(ordenador->dblscan)
-			sprintf(texto,"Double scan: enabled");
+			sprintf(texto,"Double scan: \001\014enabled");
 		else
-			sprintf(texto,"Double scan: disabled");
+			sprintf(texto,"Double scan: \001\013disabled");
 
-		llscreen->print_string(texto,-1,6,12,0);
+		llscreen->print_string(texto,-1,6.8,15,0);
 
 		if(ordenador->turbo)
-			sprintf(texto,"TURBO mode: enabled");
+			sprintf(texto,"TURBO mode: \001\014enabled");
 		else
-			sprintf(texto,"TURBO mode: disabled");
-		llscreen->print_string(texto,-1,7,14,0);
+			sprintf(texto,"TURBO mode: \001\013disabled");
+		llscreen->print_string(texto,-1,8,15,0);
 
 		if (ordenador->bw) {
-			llscreen->print_string("TV Set: \001\011B\001\012&\001\014W",-1,8,15,0);
+			llscreen->print_string("TV Set: \001\011B\001\012&\001\014W",-1,9.2,15,0);
 		} else {
-			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,8,15,0);
+			llscreen->print_string("TV Set: \001\012C\001\014o\001\015l\001\016o\001\013r",-1,9.2,15,0);
 		}
 
-		llscreen->print_string("1: \001\01748K issue2",30,10,12,0);
+		if(mouse->enabled) {
+			sprintf(texto,"Kempston Mouse: \001\014enabled");
+		} else {
+			sprintf(texto,"Kempston Mouse: \001\013disabled");
+		}
+		llscreen->print_string(texto,-1,10.4,15,0);
 
-		llscreen->print_string("2: \001\01748K issue3",213,10,12,0);
+		llscreen->print_string("1: \001\01748K issue2",30,15,12,0);
 
-		llscreen->print_string("3: \001\017Sinclair 128K",426,10,12,0);
+		llscreen->print_string("2: \001\01748K issue3",213,15,12,0);
 
-		llscreen->print_string("4: \001\017Amstrad +2",30,12,12,0);
+		llscreen->print_string("3: \001\017Sinclair 128K",426,15,12,0);
 
-		llscreen->print_string("5: \001\017Amstrad +2A/+3",213,12,12,0);
+		llscreen->print_string("4: \001\017Amstrad +2",30,16.5,12,0);
 
-		llscreen->print_string("6: \001\017Spanish 128K",426,12,12,0);
+		llscreen->print_string("5: \001\017Amstrad +2A/+3",213,16.5,12,0);
 
-		llscreen->print_string("7: \001\017Cursor",30,14,12,0);
+		llscreen->print_string("6: \001\017Spanish 128K",426,16.5,12,0);
 
-		llscreen->print_string("8: \001\017Kempston",213,14,12,0);
+		llscreen->print_string("7: \001\017Cursor",30,18,12,0);
 
-		llscreen->print_string("9: \001\017Sinclair (1)",426,14,12,0);
+		llscreen->print_string("8: \001\017Kempston",213,18,12,0);
 
-		llscreen->print_string("0: \001\017Sinclair (2)",30,16,12,0);
+		llscreen->print_string("9: \001\017Sinclair (1)",426,18,12,0);
 
-		llscreen->print_string("I: \001\017Interface I",213,16,12,0);
+		llscreen->print_string("0: \001\017Sinclair (2)",30,19.5,12,0);
 
-		llscreen->print_string("A: \001\017AY emulation",426,16,12,0);
+		llscreen->print_string("I: \001\017Interface I",213,19.5,12,0);
 
-		llscreen->print_string("T: \001\017TURBO mode",30,18,12,0);
+		llscreen->print_string("A: \001\017AY emulation",426,19.5,12,0);
 
-		llscreen->print_string("D: \001\017Double Scan",213,18,12,0);
+		llscreen->print_string("T: \001\017TURBO mode",30,21,12,0);
 
-		llscreen->print_string("V: \001\017TV Set mode",426,18,12,0);
+		llscreen->print_string("D: \001\017Double Scan",213,21,12,0);
 
-		llscreen->print_string("ESC: \001\017return to emulator",-1,22,12,0);
+		llscreen->print_string("V: \001\017TV Set mode",426,21,12,0);
+
+		llscreen->print_string("K: \001\017Kempston Mouse",30,22.5,12,0);
+
+		llscreen->print_string("ESC: \001\017return to emulator",-1,24,12,0);
 
 		print_copy();
 
@@ -264,56 +275,57 @@ void settings_menu() {
 			fin=0;
 		break;
 		case SDLK_1:
-			ordenador->issue=2;
-			ordenador->mode128k=0;
+			ordenador->issue_3 = false;
+			ordenador->current_mode = MODE_48K;
 			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_2:
-			ordenador->issue=3;
-			ordenador->mode128k=0;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_48K;
 			spk_ay->ay_emul=0;
 			ResetComputer();
 		break;
 		case SDLK_3:
-			ordenador->issue=3;
-			ordenador->mode128k=1;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_128K;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_4:
-			ordenador->issue=3;
-			ordenador->mode128k=2;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_P2;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_5:
-			ordenador->issue=3;
-			ordenador->mode128k=3;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_P3;
 			spk_ay->ay_emul=1;
 			microdrive->mdr_active=0;
 			ResetComputer();
 		break;
 		case SDLK_6:
-			ordenador->issue=3;
-			ordenador->mode128k=4;
+			ordenador->issue_3 = true;
+			ordenador->current_mode = MODE_128K_SPA;
 			spk_ay->ay_emul=1;
 			ResetComputer();
 		break;
 		case SDLK_7:
-			keyboard->joystick=0;
+			keyboard->joystick=JOYSTICK_CURSOR;
 		break;
 		case SDLK_8:
-			keyboard->joystick=1;
+			keyboard->joystick=JOYSTICK_KEMPSTON;
+			mouse->enabled = false; // Kempston joystick and Kempston mouse are incompatible
 		break;
 		case SDLK_9:
-			keyboard->joystick=2;
+			keyboard->joystick=JOYSTICK_SINCLAIR1;
 		break;
 		case SDLK_0:
-			keyboard->joystick=3;
+			keyboard->joystick=JOYSTICK_SINCLAIR2;
 		break;
 		case SDLK_i:
-			if(ordenador->mode128k!=3) {
+			if(ordenador->current_mode != MODE_P3) {
 				microdrive->mdr_active=1-microdrive->mdr_active;
 				ResetComputer();
 			}
@@ -335,6 +347,16 @@ void settings_menu() {
 				ordenador->turbo = true;
 			}
 			llsound->set_speed(ordenador->turbo);
+		break;
+		case SDLK_k:
+			if(mouse->enabled) {
+				mouse->enabled = false;
+			} else {
+				mouse->enabled = true;
+				if (keyboard->joystick == JOYSTICK_KEMPSTON) {
+					keyboard->joystick = JOYSTICK_CURSOR; // Kempston joystick and Kempston mouse are incompatible
+				}
+			}
 		}
 	} while(fin);
 
@@ -369,7 +391,7 @@ void do_poke() {
 			return;
 		}
 
-		if ((address<16384) && ((ordenador->mode128k != 3) || (1 != (ordenador->mport2 & 0x01)))) {
+		if ((address<16384) && ((ordenador->current_mode != MODE_P3) || (1 != (ordenador->mport2 & 0x01)))) {
 			llscreen->print_string("That address is ROM memory.",-1,1,15,0);
 			continue;
 		}
@@ -491,7 +513,7 @@ void snapshots_menu() {
 
 	llscreen->print_string("1: \001\017load a Z80/SNA snapshot",14,4,12,0);
 
-	if(ordenador->mode128k!=3) { // not in +3 mode
+	if(ordenador->current_mode != MODE_P3) { // not in +3 mode
 		llscreen->print_string("2: \001\017make a Z80 snapshot",14,6,12,0);
 	} else {
 		llscreen->print_string("Can't make snapshots in +3 mode",14,6,15,0);
@@ -517,8 +539,9 @@ void snapshots_menu() {
 		break;
 		case SDLK_2:
 			fin=0;
-			if(ordenador->mode128k!=3) // not in +3 mode
+			if(ordenador->current_mode != MODE_P3) { // not in +3 mode
 				save_z80file();
+			}
 		break;
 		case SDLK_3:
 			fin=0;

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 #include "llsound.hh"
 
@@ -205,18 +205,18 @@ int LLSound::init_pulse() {
 
 #ifdef D_SOUND_ALSA
 int LLSound::init_alsa() {
-	
+
 	int err;
 	snd_pcm_hw_params_t *hw_params;
-		
+
 	unsigned int resample,samplerate;
 	snd_pcm_uframes_t bufferSize;
-	
+
 	err = snd_pcm_open( &_soundDevice, "plughw:0,0", SND_PCM_STREAM_PLAYBACK, 0 );
 	if (err<0) {
 		return -1;
 	}
-	
+
 	if ((err = snd_pcm_hw_params_malloc (&hw_params)) < 0) {
 		snd_pcm_close (_soundDevice);
 		return -2;
@@ -227,12 +227,12 @@ int LLSound::init_alsa() {
 		return -2;
 	}
 
-		
+
 	if ((err = snd_pcm_hw_params_set_access (_soundDevice, hw_params,SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
 		snd_pcm_close (_soundDevice);
 		return -3;
 	}
-	
+
 	if (snd_pcm_hw_params_set_format (_soundDevice, hw_params,SND_PCM_FORMAT_U8) >= 0) {
 		this->sign=0;
 	    this->format=0;
@@ -255,7 +255,7 @@ int LLSound::init_alsa() {
 		snd_pcm_close (_soundDevice);
 		return -3;
 	}
-	
+
 	// Disable resampling.
 	resample = 0;
 	err = snd_pcm_hw_params_set_rate_resample(_soundDevice, hw_params, resample);
@@ -263,7 +263,7 @@ int LLSound::init_alsa() {
 		snd_pcm_close (_soundDevice);
 		return -3;
 	}
-	
+
 	if ((err = snd_pcm_hw_params_set_channels (_soundDevice, hw_params, 1)) >= 0) {
 		this->channels=1;
 	} else if ((err = snd_pcm_hw_params_set_channels (_soundDevice, hw_params, 2)) >= 0) {
@@ -272,7 +272,7 @@ int LLSound::init_alsa() {
 		snd_pcm_close (_soundDevice);
 		return -3;
 	}
-	
+
 	samplerate=48000;
 	if ((err = snd_pcm_hw_params_set_rate_near (_soundDevice, hw_params, &samplerate, 0)) < 0) {
 		snd_pcm_close (_soundDevice);
@@ -286,7 +286,7 @@ int LLSound::init_alsa() {
 	}
 
 	this->freq=samplerate;
-	
+
 	err = snd_pcm_hw_params (_soundDevice, hw_params);
 	if (err<0) {
 		return -3;
@@ -294,7 +294,7 @@ int LLSound::init_alsa() {
 	//snd_pcm_hw_params_get_buffer_size( hw_params, &bufferSize );
 
 	this->buffer_len=bufferSize;
-	
+
 	started_sound=0;
 	return 0;
 
@@ -308,7 +308,7 @@ int LLSound::init_alsa() {
 
 #ifdef D_SOUND_OSS
 int LLSound::init_oss() {
-	
+
 	int parameter;
 	int parameter2;
 	int bytes;
@@ -328,12 +328,12 @@ int LLSound::init_oss() {
 	this->buffer_len=2048/(this->channels*bytes);
 
 	parameter=0x0002000C ; // two buffers with 4096 bytes each one
-	
+
 	if(ioctl(audio_fd,SNDCTL_DSP_SETFRAGMENT, &parameter)==-1)
 		return (-6);
 
 	// set format
-	
+
 	if(ioctl(audio_fd,SNDCTL_DSP_GETFMTS, &parameter2)==-1)
 		return (-2);
 	parameter = 2; // we want mono audio
@@ -341,9 +341,9 @@ int LLSound::init_oss() {
 		return (-4);
 
 	this->channels = parameter;
-	
+
 	// Priority: U8, S8, U16LE, S16LE, U16BE, U16LE
-	
+
 	if(parameter2 & AFMT_S16_BE) {
 		parameter = AFMT_S16_BE;
 	}
@@ -362,14 +362,14 @@ int LLSound::init_oss() {
 	if(parameter2 & AFMT_U8) {
 		parameter = AFMT_U8;
 	}
-	
+
 	bytes=0; //8 bits
 
 	retval=ioctl(audio_fd,SNDCTL_DSP_SETFMT,&parameter);
 	if(retval != 0) {
 		return (-3);
 	}
-	
+
 	switch(parameter) {
 		case AFMT_U8:
 	    	this->sign=0;
@@ -384,7 +384,7 @@ int LLSound::init_oss() {
 		case AFMT_U16_LE:
 		    this->sign=0;
 	    	this->format=1;
-			bytes=2;			
+			bytes=2;
     	break;
 		case AFMT_S16_LE:
 	    	this->sign=-128;
@@ -402,7 +402,7 @@ int LLSound::init_oss() {
 	    	bytes=2;
     	break;
 	}
-	
+
 	parameter=48000; // we want, by default, 48000 samples per second
 	if(ioctl(audio_fd,SNDCTL_DSP_SPEED, &parameter)==-1)
 		return (-5);
@@ -413,21 +413,39 @@ int LLSound::init_oss() {
 
 	parameter=bi.bytes/4;
 	this->buffer_len = parameter/(this->channels * bytes);
-	return(0);	
+	return(0);
 
 }
 #endif
 
 
 void LLSound::remove_dc(unsigned char *sound_buffer,int size){
-	static float oldsample=0.0;
-	static float origsample;
-	static int i;
+	static unsigned char origsamples[FILTER_SAMPLES];
+	int i;
+	int j;
+	int v;
+	int m;
+	unsigned char sample;
 
+	m = 0;
 	for (i=0;i<size;i++) {
-		origsample=((float)(sound_buffer[i]))-128;
-		oldsample=(origsample+oldsample*999.0)*0.001+1e-6;
-		sound_buffer[i]=(int)(origsample-oldsample)*0.98+128;
+		m += sound_buffer[i];
+	}
+	m /= size;
+	for (i=0;i<size;i++) {
+		sample = sound_buffer[i];
+		v = (int) sample;
+		/*v -= m;
+		v += 128;*/
+		for(j=0;j<FILTER_SAMPLES;j++) {
+			v += (int) origsamples[j];
+			if (j != 0) {
+				origsamples[j-1] = origsamples[j];
+			}
+		}
+		v /= (FILTER_SAMPLES + 1);
+		origsamples[FILTER_SAMPLES - 1] = sample;
+		sound_buffer[i] = (unsigned char) v;
 	}
 }
 
