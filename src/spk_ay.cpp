@@ -410,12 +410,6 @@ void SPK_AY::play_sound (int tstados) {
 				if (value > 255)
 					value = 255;
 				sample_v = (unsigned char)(value - (unsigned int)llsound->sign);
-				if (llsound->current_buffer < llsound->sound) {
-					printf("Puntero por debajo: %d menor que %d\n",llsound->current_buffer,llsound->sound);
-				}
-				if (llsound->current_buffer >= (llsound->sound + llsound->buffer_len * llsound->increment + 8)) {
-					printf("Puntero por encima: %d mayor que %d\n",llsound->current_buffer,llsound->sound);
-				}
 				*(llsound->current_buffer) = sample_v;
 				llsound->current_buffer++;
 			}
