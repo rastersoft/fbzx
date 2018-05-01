@@ -1,8 +1,14 @@
+fbzx (3.9.1-Debian1) sid; urgency=low
+
+  * Removed unused printfs
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Tue, 01 May 2018 23:55:00 +0200
+
 fbzx (3.9.0-Debian1) sid; urgency=low
 
   * Added letter and number key handling for file selector (thanks to Adrian Castravete)
 
- -- Sergio Costas Rodriguez <raster@rastersoft.com>  Tue, 01 May 2018 23:55:00 +0200
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Tue, 01 May 2018 23:50:00 +0200
 
 fbzx (3.8.0-Debian1) sid; urgency=low
 

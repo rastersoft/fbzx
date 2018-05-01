@@ -1,5 +1,7 @@
 # VERSIONS #
 
+* Version 3.9.1 (2018-05-01)
+       * Removed unused printfs
 * Version 3.9.0 (2018-05-01)
        * Added letter and number key handling for file selector (thanks to Adrian Castravete)
 * Version 3.8.0 (2017-03-06)

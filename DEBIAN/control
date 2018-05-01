@@ -5,7 +5,7 @@ Priority: optional
 Build-Depends: build-essential, make, libpulse-dev, libasound2-dev, libsdl1.2-dev
 
 Package: fbzx
-Version: 3.9.0
+Version: 3.9.1
 Architecture: any
 Depends: libpulse0,libasound2,libsdl1.2debian,spectrum-roms (>=20081224-1)
 Homepage: http://www.rastersoft.com/fbzx.html
