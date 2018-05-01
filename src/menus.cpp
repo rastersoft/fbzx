@@ -1596,8 +1596,9 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 
 	class fichero *filelist,*fl2;
 	unsigned char fin,read;
+	unsigned int key,first;
 	char *salida;
-	int bucle,numitems,selected,from,longitud;
+	int bucle,numitems,selected,from,longitud,saved_selected;
 
 	salida = (char*)malloc(4096);
 	salida[0]=0;
@@ -1629,7 +1630,50 @@ char *select_file(string title, char *path,enum LOAD_FILE_TYPES kind) {
 		llscreen->print_string(title,-1,2,15,0);
 		print_files(filelist,from,selected);
 
-		switch(wait_key()) {
+		key = wait_key();
+		// Jump to the first item with the starting letters or numbers (this browsing directories with lots of files).
+		if (key >= SDLK_a && key <= SDLK_z || key >= SDLK_0 && key <= SDLK_9) {
+			saved_selected = selected;
+			selected = (selected + 1) % numitems;
+			key -= SDLK_a;
+			key += 0x61;
+			fl2 = filelist;
+			// Firstly try from selected onward.
+			for (bucle = 0; bucle < selected; bucle += 1) {
+				fl2 = fl2->next;
+			}
+			while (fl2 != NULL) {
+				first = fl2->nombre[0];
+				if (first == key || (key > 0x60 && first == key - 0x20)) {
+					break;
+				}
+				fl2 = fl2->next;
+				selected += 1;
+			}
+			if (fl2 == NULL) {
+				// Secondly try the files until selected.
+				selected = 0;
+				fl2 = filelist;
+				while (fl2 != NULL) {
+					first = fl2->nombre[0];
+					if (first == key || (key > 0x60 && first == key - 0x20)) {
+						break;
+					}
+					fl2 = fl2->next;
+					selected += 1;
+				}
+			}
+			if (fl2 == NULL) {
+				// We didn't find any file matching the key; then just restore the selected position.
+				selected = saved_selected;
+			} else {
+				if (selected >= from + 23 || selected < from)
+					from = selected;
+			}
+			key = -1;
+		}
+
+		switch(key) {
 		case SDLK_ESCAPE: // to exit the help
 			fin=0;
 			delete_filelist(filelist);
