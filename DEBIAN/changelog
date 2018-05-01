@@ -1,3 +1,9 @@
+fbzx (3.9.0-Debian1) sid; urgency=low
+
+  * Added letter and number key handling for file selector (thanks to Adrian Castravete)
+
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Tue, 01 May 2018 23:55:00 +0200
+
 fbzx (3.8.0-Debian1) sid; urgency=low
 
   * Updated the Z80 emulator and the screen emulation, which now is so precise that can run flawlessly the SHOCK demo both in 48K and +3 mode
@@ -49,7 +55,7 @@ fbzx (3.1.0-Debian1) sid; urgency=low
   * Added Kempston Mouse emulation
   * Added block 30 support for TZX files
 
- -- Sergio Costas Rodriguez <raster@rastersoft.com>  Fry, 16 Dec 2016 23:55:00 +0200
+ -- Sergio Costas Rodriguez <raster@rastersoft.com>  Fri, 16 Dec 2016 23:55:00 +0200
 
 fbzx (3.0.0-Debian1) sid; urgency=low
 

@@ -45,7 +45,7 @@
 void print_copy() {
 
 	llscreen->print_string("(C) 2012 Fabio Olimpieri",-1,-1,13,0);
-	llscreen->print_string("(C) 2003-2017 Raster Software Vigo",-1,-2,13,0);
+	llscreen->print_string("(C) 2003-2018 Raster Software Vigo",-1,-2,13,0);
 }
 
 // shows the help menu
@@ -56,7 +56,7 @@ void help_menu() {
 
 	llscreen->clear_screen();
 
-	llscreen->print_string("FBZX (3.8.0)",-1,1,15,0);
+	llscreen->print_string("FBZX (3.9.0)",-1,1,15,0);
 	llscreen->print_string("Available keys",-1,2,14,0);
 	llscreen->print_string("Shift:Caps Shift        Ctrl:Symbol Shift",-1,4,11,0);
 
