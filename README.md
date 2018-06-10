@@ -1,8 +1,8 @@
-FBZX
+# FBZX
+
 A ZX Spectrum emulator for FrameBuffer
 
-
-DISCLAIMER
+## DISCLAIMER
 
 FBZX is distributed under the GPL license, version three or later, which means
 that is distributed "as is", without warraty of any kind. To know more details,
@@ -16,8 +16,7 @@ Amstrad have kindly given their permission for the redistribution of their
 copyrighted material (the original Spectrum ROMs) but retain that copyright.
 To know more details about how to distribute them, read the file AMSTRAD.
 
-
-WHAT IS FBZX?
+## WHAT IS FBZX?
 
 FBZX is a Sinclair ZX Spectrum emulator, designed to work in FrameBuffer under
 Linux, but can work under Xwindows too, both in full screen mode and in a
@@ -28,9 +27,9 @@ FBZX is based in Z80FREE, which you can find into the folder z80free.
 
 To work with FBZX you need:
 
-	-A FrameBuffer-capable graphic card (or compatible with X-windows)
-	-A Linux system with FrameBuffer configured (can use X too)
-	-Sound Card with ALSA or OSS drivers (optional)
+    * A FrameBuffer-capable graphic card (or compatible with X-windows)
+    * A Linux system with FrameBuffer configured (can use X too)
+    * Sound Card with ALSA or OSS drivers (optional)
 
 In order to get the maximum performance, your FrameBuffer driver must allow to
 change to 640x480 or 480x640 resolution in 8 bits. Only the old VESAFB driver can
@@ -42,8 +41,7 @@ automagically change the graphic mode when starts.
 
 Of course, currently that is no problem thanks to the high speed of computers.
 
-
-WHAT CAPABILITIES HAVE FBZX?
+## WHAT CAPABILITIES HAVE FBZX?
 
 FBZX can emulate the original 48K spectrum (issue 2 and issue 3), the original
 128K, the Amstrad +2, the Amstrad +2A and the Spanish 128K.
@@ -71,24 +69,23 @@ with the cursor keys (fire is emulated with the right ALT key, ALT-GR
 key, WINDOWS MENU key or WINDOWS SYSTEM right key), or with a real
 JoyStick.
 
-
-HOW DO I USE FBZX?
+## HOW DO I USE FBZX?
 
 To run FBZX just type
 
-	fbzx
+    fbzx
 
 from a console.
 
 You can load a snapshot directly with:
 
-	fbzx game.z80
-	fbzx game.sna
+    fbzx game.z80
+    fbzx game.sna
 
 or assign a TAP or TZX file with:
 
-	fbzx game.tap
-	fbzx game.tzx
+    fbzx game.tap
+    fbzx game.tzx
 
 (in this case you still must use LOAD ""). This allows you to asociate that
 file extensions to FBZX.
@@ -101,22 +98,22 @@ and height (very small).
 
 You can run it without sound too, just typing:
 
-	fbzx -nosound
+    fbzx -nosound
 
 You can use this if you don't have a sound card, or it hasn't OSS support.
 
 You can combine theses options as you like. An example:
 
-	fbzx -nosound -fs
-	
-	fbzx -rotate -nosound
+    fbzx -nosound -fs
+
+    fbzx -rotate -nosound
 
 By default, FBZX will try to use ALSA sound; if it can't, it will try with OSS
 sound; finally, if both fails it will use no sound and alert the user.
 
 You can change the order with
 
-	fbzx -oss
+    fbzx -oss
 
 That way it will try firts with OSS, then with ALSA.
 
@@ -168,8 +165,7 @@ F12 is volume up.
 If your system doesn't have function keys, you can use TAB plus keys 0 to 9
 to emulate them (F11 is TAB and O, and F12 is TAB and P).
 
-
-HOW DO I CHOOSE A FILE WITH THE TAP/TZX OR Z80/SNA SELECTOR?
+## HOW DO I CHOOSE A FILE WITH THE TAP/TZX OR Z80/SNA SELECTOR?
 
 You can choose a file just by moving the white bar with the cursor keys. You
 can use also the RePag and AvPag to jump over 12 positions.
@@ -186,8 +182,7 @@ to save from programs that use them (it can save programs without header, too,
 since the emulator intercepts the call to SA-BYTES). Each new block is added at
 the end of the file, but only if the SAVE operation is enabled for this file.
 
-
-HOW DOES WORK THE FAST SPEED LOAD FOR TAP/TZX FILES?
+## HOW DOES WORK THE FAST SPEED LOAD FOR TAP/TZX FILES?
 
 Just type LOAD "" in the emulator (or choose the TAPE LOADER option in the 128K
 menu) and the tape will automagically load. This only works with programs that
@@ -211,8 +206,7 @@ change the TURBO WHILE PLAYING mode to ENABLED, so the computer (and the tape)
 will run faster when the tape is playing (F6 key), but will return to normal
 speed when the tape is paused (F5 key or end-of-tape).
 
-
-HOW DOES WORK THE FAST SPEED SAVE FOR TAP/TZX FILES?
+## HOW DOES WORK THE FAST SPEED SAVE FOR TAP/TZX FILES?
 
 If write is enabled, using the SAVE command will add blocks to the currently
 selected tape file, no matter if FAST-LOAD is enabled or not. By default,
@@ -221,8 +215,7 @@ new TAP/TZX file is created from scratch. This functionality works with any
 program that uses the SA-BYTES ROM routine, no matter if enters at 04C2 (like
 the classic spectrum 48K rom) or at 04C6 (like the Spectrum +3).
 
-
-HOW DOES WORK THE INTERFACE I AND MICRODRIVE EMULATION?
+## HOW DOES WORK THE INTERFACE I AND MICRODRIVE EMULATION?
 
 FBZX can emulate an Interface I with one microdrive attached, but only when
 working as Spectrum 48K, 128K or +2, never as +2A/+3 since it's incompatible.
@@ -233,3 +226,10 @@ Remember to format your cartridge (MDR file) after creating one.
 
 When you save something to the cartridge, the MDR file is updated as soon as
 the Spectrum stops the "motor" of the drive.
+
+## CONTACTING THE AUTHOR
+
+Sergio Costas Rodriguez  
+rastersoft@gmail.com  
+http://www.rastersoft.com  
+https://gitlab.com/rastersoft/fbzx
