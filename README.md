@@ -1,5 +1,9 @@
 # FBZX
 
+**IMPORTANT: FBZX has been migrated to Gitlab**
+
+https://gitlab.com/rastersoft/fbzx
+
 A ZX Spectrum emulator for FrameBuffer
 
 ## DISCLAIMER
